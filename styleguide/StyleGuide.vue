@@ -11,6 +11,8 @@ import {
   type BdScheme,
   bdSchemes,
   BdSelect,
+  BdToaster,
+  toast,
   useTheme,
 } from "@/index";
 
@@ -183,6 +185,26 @@ function tokenVar(prefix: string, suffix: string): string {
       </BdCard>
     </section>
 
+    <section>
+      <h2 class="bd-heading">Toasts</h2>
+      <BdCard>
+        <div class="row">
+          <BdButton @click="toast('Message par défaut')">Default</BdButton>
+          <BdButton @click="toast('Sauvegardé', { variant: 'success' })">Success</BdButton>
+          <BdButton @click="toast('Attention', { variant: 'warning' })">Warning</BdButton>
+          <BdButton @click="toast('Ça a raté', { variant: 'danger' })">Danger</BdButton>
+          <BdButton @click="toast('Pour info', { variant: 'info' })">Info</BdButton>
+          <BdButton
+            variant="border"
+            @click="toast('Reste jusqu\'au clic', { duration: 0, variant: 'info' })"
+          >
+            Persistant
+          </BdButton>
+        </div>
+        <p class="muted">Clic sur un toast pour le fermer. Auto-dismiss après 4 s par défaut.</p>
+      </BdCard>
+    </section>
+
     <BdDialog v-model="dialogOpen" title="Dialog native">
       <p>Basée sur <code>&lt;dialog&gt;</code> : Échap, focus trap et backdrop gratuits.</p>
       <template #footer>
@@ -190,6 +212,8 @@ function tokenVar(prefix: string, suffix: string): string {
         <BdButton variant="primary" @click="dialogOpen = false">OK</BdButton>
       </template>
     </BdDialog>
+
+    <BdToaster />
   </div>
 </template>
 

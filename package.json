@@ -26,7 +26,8 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "bun test && vue-tsc --noEmit && vite build",
+    "test": "bun test",
     "build:styleguide": "vite build --mode styleguide",
     "preview": "vite preview --outDir styleguide-dist",
     "prepare": "vite build"

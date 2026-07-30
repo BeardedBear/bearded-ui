@@ -7,4 +7,13 @@ export { default as BdDialog, type BdDialogProps } from "./components/BdDialog.v
 export { default as BdInput, type BdInputProps } from "./components/BdInput.vue";
 export { default as BdLoader, type BdLoaderProps } from "./components/BdLoader.vue";
 export { default as BdSelect, type BdSelectOption, type BdSelectProps } from "./components/BdSelect.vue";
+export { default as BdToaster, type BdToasterProps } from "./components/BdToaster.vue";
 export { bdSchemes, type BdScheme, type BdTheme, useTheme } from "./composables/useTheme";
+export {
+  type BdToast,
+  type BdToastOptions,
+  type BdToastVariant,
+  dismissToast,
+  toast,
+  useToast,
+} from "./composables/useToast";

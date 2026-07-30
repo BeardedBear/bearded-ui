@@ -83,16 +83,41 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdBadge`  | `variant` (default/primary/success/warning/danger/info)                                                                                            |
 | `BdLoader` | `size` (default/small/x-small/xx-small)                                                                                                            |
 | `BdDialog` | `v-model` (ouverture), `title`, slots `header`/`footer`                                                                                            |
+| `BdToaster`| `position` (bottom-right/bottom-left/top-right/top-left) — à monter une seule fois                                                                  |
 
 `BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
 reste une dépendance de l'app, pas de la lib.
+
+### Toasts
+
+`BdToaster` une fois dans `App.vue`, puis `toast()` de n'importe où (helper, store, callback) —
+la file est au niveau module, pas besoin d'être dans un `setup()` ni d'installer Pinia.
+
+```vue
+<template>
+  <BdToaster position="bottom-right" />
+</template>
+```
+
+```ts
+import { dismissToast, toast } from "bearded-ui";
+
+toast("Sauvegardé", { variant: "success" });
+toast("Échec de l'envoi", { variant: "danger" });
+
+const id = toast("Import en cours…", { duration: 0 }); // 0 = jusqu'au dismiss
+dismissToast(id);
+```
+
+Variants : `default`, `success`, `warning`, `danger`, `info`. Auto-dismiss à 4 s, clic pour fermer.
 
 ## Dev
 
 ```bash
 bun install
 bun dev                   # style guide sur http://localhost:5173
-bun run build             # typecheck + dist/
+bun test                  # bun:test, zéro dépendance
+bun run build             # test + typecheck + dist/
 bun run build:styleguide  # page statique dans styleguide-dist/
 ```
 
