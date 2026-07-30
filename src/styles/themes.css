@@ -1,0 +1,92 @@
+/*
+ * Colors. Two independent axes, both set as attributes on <html>:
+ *   data-theme="dark|light"          → backgrounds + text
+ *   data-scheme="default|blue|crimson|apple|orange" → accent
+ * useTheme() flips them; plain CSS does the rest (no JS style.setProperty loop
+ * like beardify's ConfigStore).
+ */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bd-bg-darker: #15181d;
+  --bd-bg-dark: #181b21;
+  --bd-bg: #1b1e26;
+  --bd-bg-light: #272b36;
+  --bd-bg-lighter: #323643;
+  --bd-font-color-darker: #56616a;
+  --bd-font-color-dark: #929ea8;
+  --bd-font-color: #b0bac2;
+  --bd-font-color-light: #e3e8ec;
+  --bd-border-color: rgb(255 255 255 / 12%);
+  --bd-overlay-color: rgb(0 0 0 / 60%);
+  --bd-on-primary: #fff;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bd-bg-darker: #fff;
+  --bd-bg-dark: #f3f3f3;
+  --bd-bg: #eaeaea;
+  --bd-bg-light: #e1e1e1;
+  --bd-bg-lighter: #d5d5d5;
+  --bd-font-color-darker: #8a8f93;
+  --bd-font-color-dark: #2a2e31;
+  --bd-font-color: #1b1e20;
+  --bd-font-color-light: #0f1113;
+  --bd-border-color: rgb(0 0 0 / 12%);
+  --bd-overlay-color: rgb(0 0 0 / 35%);
+  --bd-on-primary: #fff;
+}
+
+/* Accent schemes */
+:root,
+[data-scheme="default"] {
+  --bd-primary-darker: #402d6e;
+  --bd-primary-dark: #543a97;
+  --bd-primary: #9064ff;
+  --bd-primary-light: #7a50e4;
+  --bd-primary-lighter: #a582ff;
+}
+
+[data-scheme="blue"] {
+  --bd-primary-darker: #0285b0;
+  --bd-primary-dark: #0992bf;
+  --bd-primary: #15acde;
+  --bd-primary-light: #1cbaee;
+  --bd-primary-lighter: #32ccff;
+}
+
+[data-scheme="crimson"] {
+  --bd-primary-darker: #9d152c;
+  --bd-primary-dark: #b51833;
+  --bd-primary: #de1c3e;
+  --bd-primary-light: #ff4868;
+  --bd-primary-lighter: #ff647f;
+}
+
+[data-scheme="apple"] {
+  --bd-primary-darker: #228319;
+  --bd-primary-dark: #228d17;
+  --bd-primary: #28aa1b;
+  --bd-primary-light: #2dc31e;
+  --bd-primary-lighter: #3fd830;
+}
+
+[data-scheme="orange"] {
+  --bd-primary-darker: #a8500b;
+  --bd-primary-dark: #c25e0d;
+  --bd-primary: #e87d1e;
+  --bd-primary-light: #f79433;
+  --bd-primary-lighter: #ffab55;
+}
+
+/* Semantic states, shared by every theme. */
+:root {
+  --bd-success: #28aa1b;
+  --bd-warning: #e8a11e;
+  --bd-danger: #de1c3e;
+  --bd-info: #15acde;
+}

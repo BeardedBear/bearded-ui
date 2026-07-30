@@ -1,0 +1,46 @@
+/* Utility classes for the declaration bundles repeated across the apps. */
+
+.bd-font-bold {
+  font-variation-settings: var(--bd-font-variation-settings-bold);
+  font-weight: var(--bd-weight-bold-fallback);
+}
+
+.bd-font-italic {
+  font-style: var(--bd-style-italic-fallback);
+  font-variation-settings: var(--bd-font-variation-settings-italic);
+}
+
+.bd-font-bold-italic {
+  font-style: var(--bd-style-italic-fallback);
+  font-variation-settings: var(--bd-font-variation-settings-bold-italic);
+  font-weight: var(--bd-weight-bold-fallback);
+}
+
+.bd-heading {
+  color: var(--bd-primary);
+  font-variation-settings: var(--bd-font-variation-settings-bold);
+  font-weight: var(--bd-weight-bold-fallback);
+  padding: var(--bd-space-3) 0;
+  text-transform: uppercase;
+}
+
+.bd-squircle {
+  /* stylelint-disable-next-line property-no-unknown */
+  corner-shape: squircle;
+}
+
+.bd-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Visually hidden but readable by screen readers. */
+.bd-sr-only {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}

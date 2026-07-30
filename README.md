@@ -1,1 +1,99 @@
 # bearded-ui
+
+Design tokens + composants Vue 3 partagés par [beardify](https://github.com/BeardedBear/beardify),
+[bearded-sketch](https://github.com/BeardedBear/bearded-sketch),
+[bearded-chat](https://github.com/BeardedBear/bearded-chat) et
+[bearded-mail](https://github.com/BeardedBear/bearded-mail).
+
+## Install
+
+```bash
+bun add github:BeardedBear/bearded-ui   # ou npm i github:BeardedBear/bearded-ui
+```
+
+Le script `prepare` construit `dist/` à l'install : pas besoin de publier sur npm.
+
+## Usage
+
+```ts
+// main.ts
+import "bearded-ui/style.css";
+```
+
+```vue
+<script setup lang="ts">
+import { BdButton, useTheme } from "bearded-ui";
+
+const { theme, toggleTheme } = useTheme();
+</script>
+
+<template>
+  <BdButton variant="primary" @click="toggleTheme">{{ theme }}</BdButton>
+</template>
+```
+
+La police (Bricolage Grotesque) n'est pas embarquée — ajoute-la dans ton `index.html` :
+
+```html
+<link
+  href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap"
+  rel="stylesheet"
+/>
+```
+
+## Thème
+
+Deux axes indépendants, posés en attributs sur `<html>` :
+
+| Attribut      | Valeurs                                         |
+| ------------- | ----------------------------------------------- |
+| `data-theme`  | `dark` (défaut), `light`                        |
+| `data-scheme` | `default`, `blue`, `crimson`, `apple`, `orange` |
+
+`useTheme()` les pilote et persiste le choix dans `localStorage` (`bearded-ui-theme`).
+Tout est en CSS pur : n'importe quel token peut être redéfini dans l'app.
+
+## Tokens
+
+| Famille    | Variables                                                                           |
+| ---------- | ----------------------------------------------------------------------------------- |
+| Accent     | `--bd-primary{,-darker,-dark,-light,-lighter}`, `--bd-on-primary`                    |
+| Fonds      | `--bd-bg{,-darker,-dark,-light,-lighter}`, `--bd-border-color`, `--bd-overlay-color` |
+| Texte      | `--bd-font-color{,-darker,-dark,-light}`                                             |
+| États      | `--bd-success`, `--bd-warning`, `--bd-danger`, `--bd-info`                           |
+| Typo       | `--bd-font-family`, `--bd-font-size-{xs,sm,base,lg,xl}`, `--bd-font-weight{,-bold}`  |
+| Espacement | `--bd-space-1` → `--bd-space-6`                                                      |
+| Rayons     | `--bd-radius-{sm,md,lg,full}`                                                        |
+| Ombres     | `--bd-shadow-{sm,md,lg}`                                                             |
+| Motion     | `--bd-transition{,-fast}`                                                            |
+
+Utilitaires : `.bd-font-bold`, `.bd-font-italic`, `.bd-font-bold-italic`, `.bd-heading`,
+`.bd-squircle`, `.bd-truncate`, `.bd-sr-only`.
+
+Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, sans bataille de spécificité.
+
+## Composants
+
+| Composant  | Props principales                                                                                                                                  |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BdButton` | `variant` (default/primary/border/nude/danger), `size` (x-small/small/default/big), `align`, `iconOnly`, `full`, `loading`, `disabled`, `href`/`to` |
+| `BdInput`  | `v-model`, `label`, `hint`, `error`, `type`, `placeholder`, `disabled`                                                                              |
+| `BdSelect` | `v-model`, `options: {label, value}[]`, `label`, `placeholder`, `disabled`                                                                          |
+| `BdCard`   | `padding` (default/small/none), slot `header`                                                                                                      |
+| `BdBadge`  | `variant` (default/primary/success/warning/danger/info)                                                                                            |
+| `BdLoader` | `size` (default/small/x-small/xx-small)                                                                                                            |
+| `BdDialog` | `v-model` (ouverture), `title`, slots `header`/`footer`                                                                                            |
+
+`BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
+reste une dépendance de l'app, pas de la lib.
+
+## Dev
+
+```bash
+bun install
+bun dev                   # style guide sur http://localhost:5173
+bun run build             # typecheck + dist/
+bun run build:styleguide  # page statique dans styleguide-dist/
+```
+
+Le style guide (`styleguide/StyleGuide.vue`) est la doc vivante : tout nouveau composant s'y ajoute.

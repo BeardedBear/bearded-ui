@@ -1,0 +1,65 @@
+/*
+ * Design tokens. Colors live in themes.css — this file holds everything that
+ * doesn't change with the theme.
+ */
+
+:root {
+  /* Typography */
+  --bd-font-family:
+    "Bricolage Grotesque", -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell,
+    "Open Sans", "Helvetica Neue", sans-serif;
+  --bd-font-family-mono: "JetBrains Mono", ui-monospace, sfmono-regular, menlo, consolas, monospace;
+  --bd-font-stretch: 90%;
+  --bd-font-weight: 500;
+  --bd-font-weight-bold: 600;
+
+  /* Variable-font axes (Bricolage Grotesque). Fallbacks below when unsupported. */
+  --bd-font-variation-slnt: 0;
+  --bd-font-variation-slnt-italic: -10;
+  --bd-font-variation-settings: "slnt" var(--bd-font-variation-slnt), "wght" var(--bd-font-weight);
+  --bd-font-variation-settings-bold: "slnt" var(--bd-font-variation-slnt), "wght" var(--bd-font-weight-bold);
+  --bd-font-variation-settings-italic:
+    "slnt" var(--bd-font-variation-slnt-italic), "wght" var(--bd-font-weight);
+  --bd-font-variation-settings-bold-italic:
+    "slnt" var(--bd-font-variation-slnt-italic), "wght" var(--bd-font-weight-bold);
+  --bd-weight-bold-fallback: revert;
+  --bd-style-italic-fallback: revert;
+
+  /* Font sizes */
+  --bd-font-size-xs: 0.75rem;
+  --bd-font-size-sm: 0.875rem;
+  --bd-font-size-base: 1rem;
+  --bd-font-size-lg: 1.25rem;
+  --bd-font-size-xl: 2rem;
+  --bd-line-height: 1.4;
+
+  /* Spacing */
+  --bd-space-1: 0.25rem;
+  --bd-space-2: 0.5rem;
+  --bd-space-3: 0.75rem;
+  --bd-space-4: 1rem;
+  --bd-space-5: 1.5rem;
+  --bd-space-6: 2rem;
+
+  /* Radii */
+  --bd-radius-sm: 0.3rem;
+  --bd-radius-md: 0.6rem;
+  --bd-radius-lg: 1rem;
+  --bd-radius-full: 999rem;
+
+  /* Elevation */
+  --bd-shadow-sm: 0 1px 3px rgb(0 0 0 / 25%);
+  --bd-shadow-md: 0 4px 12px rgb(0 0 0 / 30%);
+  --bd-shadow-lg: 0 12px 32px rgb(0 0 0 / 40%);
+
+  /* Motion */
+  --bd-transition-fast: 0.15s ease;
+  --bd-transition: 0.2s ease;
+}
+
+@supports not font-tech(variations) {
+  :root {
+    --bd-weight-bold-fallback: 700;
+    --bd-style-italic-fallback: italic;
+  }
+}

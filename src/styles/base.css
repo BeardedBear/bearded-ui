@@ -1,0 +1,107 @@
+/*
+ * Base layer: the handful of global rules every Bearded app repeats. Kept in
+ * @layer so app-level CSS always wins without specificity games.
+ */
+
+@layer bearded-base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -webkit-text-size-adjust: 100%;
+    font-size: clamp(14px, calc(0.9rem + 0.6vw), 14px);
+    line-height: var(--bd-line-height);
+  }
+
+  @media (width <= 767px) {
+    html {
+      font-size: clamp(14px, calc(1rem + 0.8vw), 16px);
+    }
+  }
+
+  body {
+    background-color: var(--bd-bg);
+    color: var(--bd-font-color);
+    font-family: var(--bd-font-family);
+    font-size: var(--bd-font-size-base);
+    font-stretch: var(--bd-font-stretch);
+    font-variation-settings: var(--bd-font-variation-settings);
+    margin: 0;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    font-family: var(--bd-font-family);
+    font-stretch: var(--bd-font-stretch);
+    font-variation-settings: var(--bd-font-variation-settings);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-variation-settings: var(--bd-font-variation-settings-bold);
+    font-weight: var(--bd-weight-bold-fallback);
+    line-height: 1.2;
+    margin: 0 0 var(--bd-space-3);
+  }
+
+  h1 {
+    font-size: var(--bd-font-size-xl);
+  }
+
+  h2 {
+    font-size: var(--bd-font-size-lg);
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: var(--bd-font-size-base);
+  }
+
+  p {
+    margin: 0 0 var(--bd-space-3);
+  }
+
+  a {
+    color: var(--bd-primary);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--bd-primary-light);
+    }
+  }
+
+  code,
+  pre {
+    font-family: var(--bd-font-family-mono);
+    font-size: var(--bd-font-size-sm);
+  }
+
+  img,
+  svg,
+  video {
+    max-width: 100%;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--bd-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--bd-primary);
+    color: var(--bd-on-primary);
+  }
+}
