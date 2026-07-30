@@ -33,13 +33,24 @@
   --bd-font-size-xl: 2rem;
   --bd-line-height: 1.4;
 
-  /* Spacing */
-  --bd-space-1: 0.25rem;
-  --bd-space-2: 0.5rem;
-  --bd-space-3: 0.75rem;
-  --bd-space-4: 1rem;
-  --bd-space-5: 1.5rem;
-  --bd-space-6: 2rem;
+  /*
+   * Spacing — one scale for padding, margin and gap. One step per intent, so a
+   * component never needs a hardcoded length. px values are at the default
+   * 14px root font-size (see base.css; it climbs to 16px on mobile).
+   * 1 — tight gaps: label ↔ field, icon ↔ badge text
+   * 2 — gap between buttons, vertical padding of fields and toasts
+   * 3 — horizontal padding of fields, compact card, margin under a header
+   * 4 — horizontal padding of toasts, margin under a dialog header
+   * 5 — padding of cards and dialogs, screen margin of the toaster
+   * 6 — separation between page sections
+   * Anything larger is app layout, not a library token.
+   */
+  --bd-space-1: 0.25rem; /*  4px */
+  --bd-space-2: 0.5rem; /*   7px */
+  --bd-space-3: 0.75rem; /* 11px */
+  --bd-space-4: 1rem; /*    14px */
+  --bd-space-5: 1.5rem; /*  21px */
+  --bd-space-6: 2rem; /*    28px */
 
   /* Radii */
   --bd-radius-sm: 0.3rem;

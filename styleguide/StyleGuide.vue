@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import {
   BdBadge,
@@ -27,8 +27,41 @@ const fontTokens = ["darker", "dark", "", "light"];
 const primaryTokens = ["darker", "dark", "", "light", "lighter"];
 const stateTokens = ["success", "warning", "danger", "info"];
 const sizes = ["xs", "sm", "base", "lg", "xl"] as const;
-const spaces = [1, 2, 3, 4, 5, 6];
-const radii = ["sm", "md", "lg", "full"];
+// Usages relevés dans les composants de la lib — la doc décrit l'existant, pas un vœu pieux.
+const spaces = [
+  { step: 1, usage: "Gaps serrés : label ↔ champ, icône ↔ texte d'un badge" },
+  { step: 2, usage: "Gap entre boutons, padding vertical des champs et du toast" },
+  { step: 3, usage: "Padding horizontal des champs, card compacte, marge sous un header" },
+  { step: 4, usage: "Padding horizontal du toast, marge sous le header de dialog" },
+  { step: 5, usage: "Padding des cards et dialogs, marge des toasts à l'écran" },
+  { step: 6, usage: "Séparation entre sections de page" },
+];
+
+const radii = [
+  { name: "sm", usage: "Champs, select, petits contrôles" },
+  { name: "md", usage: "Cards, toasts, conteneurs" },
+  { name: "lg", usage: "Boutons, dialogs" },
+  { name: "full", usage: "Badges, pastilles, pilules" },
+];
+
+// Lues au runtime plutôt que recopiées : la doc ne peut pas diverger des tokens.
+const computedValues = ref<Record<string, string>>({});
+
+onMounted(() => {
+  const styles = getComputedStyle(document.documentElement);
+  const rootFontSize = parseFloat(styles.fontSize);
+  const read = (token: string): string => styles.getPropertyValue(token).trim();
+
+  computedValues.value = {
+    ...Object.fromEntries(
+      spaces.map(({ step }) => {
+        const rem = read(`--bd-space-${step}`);
+        return [`--bd-space-${step}`, `${rem} · ${Math.round(parseFloat(rem) * rootFontSize)}px`];
+      }),
+    ),
+    ...Object.fromEntries(radii.map(({ name }) => [`--bd-radius-${name}`, read(`--bd-radius-${name}`)])),
+  };
+});
 
 const fruits = [
   { label: "Pomme", value: "apple" },
@@ -104,21 +137,55 @@ function tokenVar(prefix: string, suffix: string): string {
     </section>
 
     <section>
-      <h2 class="bd-heading">Espacements & rayons</h2>
-      <div class="stack">
-        <div class="swatches">
-          <div v-for="s in spaces" :key="s" class="swatch">
-            <span class="swatch-bar" :style="{ width: `var(--bd-space-${s})` }" />
-            <code>--bd-space-{{ s }}</code>
-          </div>
+      <h2 class="bd-heading">Espacements</h2>
+      <BdCard>
+        <p class="muted">
+          Échelle unique pour <code>padding</code>, <code>margin</code> et <code>gap</code>. Un cran par
+          intention : pas de valeur en dur dans les composants.
+        </p>
+        <div class="specimens">
+          <figure
+            v-for="{ step, usage } in spaces"
+            :key="step"
+            class="specimen"
+            :style="{ '--demo': `var(--bd-space-${step})` }"
+          >
+            <div class="demos">
+              <div class="demo-padding"><span class="demo-box">padding</span></div>
+              <div class="demo-gap">
+                <span class="demo-box demo-box-square" />
+                <span class="demo-box demo-box-square" />
+                <span class="demo-box demo-box-square" />
+              </div>
+            </div>
+            <figcaption>
+              <code>--bd-space-{{ step }}</code>
+              <span class="muted">{{ computedValues[`--bd-space-${step}`] }}</span>
+              <span class="muted">{{ usage }}</span>
+            </figcaption>
+          </figure>
         </div>
-        <div class="swatches">
-          <div v-for="r in radii" :key="r" class="swatch">
-            <span class="swatch-chip" :style="{ borderRadius: `var(--bd-radius-${r})` }" />
-            <code>--bd-radius-{{ r }}</code>
-          </div>
+        <p class="muted">
+          Au-delà de <code>--bd-space-6</code>, l'espacement relève du layout de l'app : à définir côté
+          projet plutôt qu'ici.
+        </p>
+      </BdCard>
+    </section>
+
+    <section>
+      <h2 class="bd-heading">Rayons</h2>
+      <BdCard>
+        <div class="specimens">
+          <figure v-for="{ name, usage } in radii" :key="name" class="specimen">
+            <div class="demo-radius" :style="{ borderRadius: `var(--bd-radius-${name})` }" />
+            <figcaption>
+              <code>--bd-radius-{{ name }}</code>
+              <span class="muted">{{ computedValues[`--bd-radius-${name}`] }}</span>
+              <span class="muted">{{ usage }}</span>
+            </figcaption>
+          </figure>
         </div>
-      </div>
+      </BdCard>
     </section>
 
     <section>
@@ -277,10 +344,67 @@ function tokenVar(prefix: string, suffix: string): string {
   width: 1.5rem;
 }
 
-.swatch-bar {
-  background-color: var(--bd-primary);
+.specimens {
+  display: grid;
+  gap: var(--bd-space-4);
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  margin: var(--bd-space-4) 0 0;
+}
+
+.specimen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bd-space-2);
+  margin: 0;
+}
+
+.demos {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--bd-space-4);
+}
+
+/* The tinted band around the inner box *is* the token: what padding buys you. */
+.demo-padding {
+  background-color: color-mix(in srgb, var(--bd-primary) 30%, transparent);
+  border: 1px dashed var(--bd-primary);
+  border-radius: var(--bd-radius-sm);
+  display: inline-block;
+  padding: var(--demo);
+}
+
+.demo-gap {
+  display: flex;
+  gap: var(--demo);
+}
+
+.demo-box {
+  background-color: var(--bd-bg-lighter);
+  border-radius: var(--bd-radius-sm);
+  color: var(--bd-font-color-dark);
   display: block;
-  height: 1.5rem;
+  font-size: var(--bd-font-size-xs);
+  padding: var(--bd-space-1) var(--bd-space-2);
+  white-space: nowrap;
+}
+
+.demo-box-square {
+  height: 2rem;
+  padding: 0;
+  width: 0.9rem;
+}
+
+.demo-radius {
+  background-color: var(--bd-primary);
+  height: 4.5rem;
+  width: 100%;
+}
+
+figcaption {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--bd-font-size-xs);
+  gap: var(--bd-space-1);
 }
 
 .row {

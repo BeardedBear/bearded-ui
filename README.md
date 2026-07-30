@@ -62,10 +62,26 @@ Tout est en CSS pur : n'importe quel token peut être redéfini dans l'app.
 | Texte      | `--bd-font-color{,-darker,-dark,-light}`                                             |
 | États      | `--bd-success`, `--bd-warning`, `--bd-danger`, `--bd-info`                           |
 | Typo       | `--bd-font-family`, `--bd-font-size-{xs,sm,base,lg,xl}`, `--bd-font-weight{,-bold}`  |
-| Espacement | `--bd-space-1` → `--bd-space-6`                                                      |
+| Espacement | `--bd-space-1` → `--bd-space-6` (voir ci-dessous)                                    |
 | Rayons     | `--bd-radius-{sm,md,lg,full}`                                                        |
 | Ombres     | `--bd-shadow-{sm,md,lg}`                                                             |
 | Motion     | `--bd-transition{,-fast}`                                                            |
+
+### Espacements
+
+Échelle unique pour `padding`, `margin` et `gap` — un cran par intention, pas de valeur en dur
+dans les composants. (px calculés à la racine par défaut, `font-size: 14px`.)
+
+| Token           | rem       | px   | Usage                                                              |
+| --------------- | --------- | ---- | ------------------------------------------------------------------ |
+| `--bd-space-1`  | 0.25rem   | 4    | Gaps serrés : label ↔ champ, icône ↔ texte d'un badge              |
+| `--bd-space-2`  | 0.5rem    | 7    | Gap entre boutons, padding vertical des champs et du toast          |
+| `--bd-space-3`  | 0.75rem   | 11   | Padding horizontal des champs, card compacte, marge sous un header  |
+| `--bd-space-4`  | 1rem      | 14   | Padding horizontal du toast, marge sous le header de dialog         |
+| `--bd-space-5`  | 1.5rem    | 21   | Padding des cards et dialogs, marge des toasts à l'écran            |
+| `--bd-space-6`  | 2rem      | 28   | Séparation entre sections de page                                   |
+
+Au-delà de `--bd-space-6`, l'espacement relève du layout de l'app : à définir côté projet.
 
 Utilitaires : `.bd-font-bold`, `.bd-font-italic`, `.bd-font-bold-italic`, `.bd-heading`,
 `.bd-squircle`, `.bd-truncate`, `.bd-sr-only`.
