@@ -1,10 +1,10 @@
 import { ref, watchEffect } from "vue";
 
-/** Background and text palette, applied as `data-theme` on `<html>`. */
-export type BdTheme = "dark" | "light";
-
 /** Accent palette, applied as `data-scheme` on `<html>`. Independent from the theme. */
 export type BdScheme = "apple" | "blue" | "crimson" | "default" | "orange";
+
+/** Background and text palette, applied as `data-theme` on `<html>`. */
+export type BdTheme = "dark" | "light";
 
 /** Every accent scheme, in display order — for building a picker. */
 export const bdSchemes: BdScheme[] = ["default", "blue", "crimson", "apple", "orange"];
@@ -27,18 +27,6 @@ const scheme = ref<BdScheme>(stored().scheme ?? "default");
  * un simple BdButton ne doit ni toucher au DOM ni planter en SSR.
  */
 let started = false;
-function start(): void {
-  if (started || typeof document === "undefined") return;
-  started = true;
-
-  watchEffect(() => {
-    const root = document.documentElement;
-    root.dataset.theme = theme.value;
-    root.dataset.scheme = scheme.value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ scheme: scheme.value, theme: theme.value }));
-  });
-}
-
 /**
  * Reads and writes the two theme axes. Both are refs: assign to them and the
  * `data-theme` / `data-scheme` attributes on `<html>` follow, along with the
@@ -68,4 +56,16 @@ export function useTheme(): {
       theme.value = theme.value === "dark" ? "light" : "dark";
     },
   };
+}
+
+function start(): void {
+  if (started || typeof document === "undefined") return;
+  started = true;
+
+  watchEffect(() => {
+    const root = document.documentElement;
+    root.dataset.theme = theme.value;
+    root.dataset.scheme = scheme.value;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ scheme: scheme.value, theme: theme.value }));
+  });
 }

@@ -18,8 +18,7 @@ export { default as BdSelect, type BdSelectProps } from "./components/BdSelect.v
 export { default as BdToaster, type BdToasterProps } from "./components/BdToaster.vue";
 export { default as BdTooltip, type BdTooltipProps } from "./components/BdTooltip.vue";
 export type { BdAlign, BdSide } from "./composables/useAnchor";
-export { bdSchemes, type BdScheme, type BdTheme, useTheme } from "./composables/useTheme";
-export type { BdOption, BdSize } from "./types";
+export { type BdScheme, bdSchemes, type BdTheme, useTheme } from "./composables/useTheme";
 export {
   type BdToast,
   type BdToastOptions,
@@ -28,3 +27,4 @@ export {
   toast,
   useToast,
 } from "./composables/useToast";
+export type { BdOption, BdSize } from "./types";

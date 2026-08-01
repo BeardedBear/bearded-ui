@@ -1,8 +1,5 @@
 import { ref, type Ref } from "vue";
 
-/** Status colour of a toast, shared with BdBadge. */
-export type BdToastVariant = "danger" | "default" | "info" | "success" | "warning";
-
 /** A queued toast, as rendered by BdToaster. */
 export interface BdToast {
   /** Unique id, returned by `toast()` and accepted by `dismissToast()`. */
@@ -18,6 +15,9 @@ export interface BdToastOptions {
   /** @default "default" */
   variant?: BdToastVariant;
 }
+
+/** Status colour of a toast, shared with BdBadge. */
+export type BdToastVariant = "danger" | "default" | "info" | "success" | "warning";
 
 // Module-level queue: `toast()` works from anywhere (stores, helpers, plain
 // functions), not just inside setup(). No Pinia dependency in the library.

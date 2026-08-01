@@ -23,11 +23,14 @@ export type BdTooltipFollow = "both" | "x" | "y";
 export interface BdTooltipProps {
   /** Tooltip text. Use the `content` slot for markup. An empty tooltip never opens. */
   content?: string;
-  /** Never opens the tooltip. */
-  disabled?: boolean;
   /** Delay before opening, in ms. Closing is always immediate. @default 150 */
   delay?: number;
-  /** Track the cursor instead of staying anchored to the trigger. The axis left out stays pinned to the trigger. Off by default. */
+  /** Never opens the tooltip. */
+  disabled?: boolean;
+  /**
+   * Track the cursor instead of staying anchored to the trigger. The axis left
+   * out stays pinned to the trigger. Off by default.
+   */
   follow?: BdTooltipFollow;
   /** Gap between trigger and tooltip, in px. @default 8 */
   offset?: number;
@@ -53,26 +56,6 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 const ARROW_INSET = 12;
 
 const pointer = { x: 0, y: 0 };
-
-/**
- * Rect to aim at: the trigger's, with the axes listed in `follow` swapped for
- * the cursor position — zero width/height there, so centred alignment lands
- * exactly on the pointer.
- */
-function targetRect(trigger: HTMLElement): DOMRect {
-  const t = trigger.getBoundingClientRect();
-  if (!props.follow) return t;
-
-  const followX = props.follow !== "y";
-  const followY = props.follow !== "x";
-
-  return new DOMRect(
-    followX ? pointer.x : t.left,
-    followY ? pointer.y : t.top,
-    followX ? 0 : t.width,
-    followY ? 0 : t.height,
-  );
-}
 
 function place(): void {
   const panel = panelEl.value;
@@ -101,13 +84,49 @@ function place(): void {
   panel.style.setProperty("--arrow-offset", `${Math.min(Math.max(center, ARROW_INSET), size - ARROW_INSET)}px`);
 }
 
+/**
+ * Rect to aim at: the trigger's, with the axes listed in `follow` swapped for
+ * the cursor position — zero width/height there, so centred alignment lands
+ * exactly on the pointer.
+ */
+function targetRect(trigger: HTMLElement): DOMRect {
+  const t = trigger.getBoundingClientRect();
+  if (!props.follow) return t;
+
+  const followX = props.follow !== "y";
+  const followY = props.follow !== "x";
+
+  return new DOMRect(
+    followX ? pointer.x : t.left,
+    followY ? pointer.y : t.top,
+    followX ? 0 : t.width,
+    followY ? 0 : t.height,
+  );
+}
+
 const tracker = useViewportTracker(place);
 const replace = rafThrottle(place);
+
+function hide(): void {
+  clearTimeout(timer);
+  const panel = panelEl.value;
+  visible.value = false;
+  if (panel?.matches(":popover-open")) panel.hidePopover();
+  tracker.stop();
+}
 
 function onPointerMove(event: MouseEvent): void {
   pointer.x = event.clientX;
   pointer.y = event.clientY;
   if (props.follow && visible.value) replace();
+}
+
+// `Event` et pas `MouseEvent` : appelé aussi par focusin, qui n'a pas de coordonnées.
+function scheduleShow(event?: Event): void {
+  // Sans ça, un tooltip suiveur ouvert sans mousemove préalable viserait 0,0.
+  if (event instanceof MouseEvent) onPointerMove(event);
+  clearTimeout(timer);
+  timer = setTimeout(show, props.delay);
 }
 
 async function show(): Promise<void> {
@@ -120,22 +139,6 @@ async function show(): Promise<void> {
   await nextTick();
   place();
   tracker.start();
-}
-
-function hide(): void {
-  clearTimeout(timer);
-  const panel = panelEl.value;
-  visible.value = false;
-  if (panel?.matches(":popover-open")) panel.hidePopover();
-  tracker.stop();
-}
-
-// `Event` et pas `MouseEvent` : appelé aussi par focusin, qui n'a pas de coordonnées.
-function scheduleShow(event?: Event): void {
-  // Sans ça, un tooltip suiveur ouvert sans mousemove préalable viserait 0,0.
-  if (event instanceof MouseEvent) onPointerMove(event);
-  clearTimeout(timer);
-  timer = setTimeout(show, props.delay);
 }
 
 onBeforeUnmount(() => {

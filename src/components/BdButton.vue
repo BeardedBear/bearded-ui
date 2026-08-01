@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, inject } from "vue";
 
+import type { BdSize } from "@/types";
+
 import BdLoader from "@/components/BdLoader.vue";
 import { bdSize } from "@/injection";
-import type { BdSize } from "@/types";
 
 /**
  * Button, link or router-link depending on the props: pass `href` for an
@@ -33,7 +34,10 @@ export interface BdButtonProps {
   iconOnly?: boolean;
   /** Shows a spinner and blocks interaction, without dimming the button. */
   loading?: boolean;
-  /** Height of the control. Falls back to the size provided by an enclosing BdButtonGroup or BdDropdown, then to `"default"`. */
+  /**
+   * Height of the control. Falls back to the size provided by an enclosing
+   * BdButtonGroup or BdDropdown, then to `"default"`.
+   */
   size?: BdSize;
   /** Only meaningful with `href`. `_blank` adds `rel="noopener"`. @default "_self" */
   target?: "_blank" | "_parent" | "_self" | "_top";

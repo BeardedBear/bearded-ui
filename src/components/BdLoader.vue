@@ -6,7 +6,11 @@
  * <BdLoader size="small" />
  */
 export interface BdLoaderProps {
-  /** Diameter of the spinner. Its own scale, finer than BdSize — a spinner sits inside other controls. @default "default" */
+  /**
+   * Diameter of the spinner. Its own scale, finer than BdSize — a spinner sits
+   * inside other controls.
+   * @default "default"
+   */
   size?: "default" | "small" | "x-small" | "xx-small";
 }
 

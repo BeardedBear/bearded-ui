@@ -2,10 +2,11 @@
 import { PhCaretDown } from "@phosphor-icons/vue";
 import { nextTick, onBeforeUnmount, provide, ref, toRef, useId, watch } from "vue";
 
-import BdButton from "@/components/BdButton.vue";
-import { type BdAlign, anchor, type BdSide, useViewportTracker } from "@/composables/useAnchor";
-import { bdDropdownClose, bdSize } from "@/injection";
 import type { BdSize } from "@/types";
+
+import BdButton from "@/components/BdButton.vue";
+import { anchor, type BdAlign, type BdSide, useViewportTracker } from "@/composables/useAnchor";
+import { bdDropdownClose, bdSize } from "@/injection";
 
 /** Side the panel opens on, plus how it aligns with the trigger on the cross axis. */
 export type BdDropdownPlacement = "bottom-end" | "bottom-start" | "top-end" | "top-start";
@@ -28,6 +29,8 @@ export type BdDropdownPlacement = "bottom-end" | "bottom-start" | "top-end" | "t
 export interface BdDropdownProps {
   /** Blocks opening and disables the default trigger. */
   disabled?: boolean;
+  /** Text of the default trigger button. Ignored when the `trigger` slot is used. @default "Menu" */
+  label?: string;
   /** Panel is at least as wide as the trigger — for select-like menus. */
   matchWidth?: boolean;
   /** Gap between trigger and panel, in px. @default 6 */
@@ -36,10 +39,12 @@ export interface BdDropdownProps {
   placement?: BdDropdownPlacement;
   /** Below 768px, turns the panel into a sheet pinned to the bottom of the screen. @default true */
   sheetOnMobile?: boolean;
-  /** Height of the default trigger, on the same scale as BdButton. Inherited by buttons in the `trigger` slot. @default "default" */
+  /**
+   * Height of the default trigger, on the same scale as BdButton. Inherited by
+   * buttons in the `trigger` slot.
+   * @default "default"
+   */
   size?: BdSize;
-  /** Text of the default trigger button. Ignored when the `trigger` slot is used. @default "Menu" */
-  label?: string;
 }
 
 const props = withDefaults(defineProps<BdDropdownProps>(), {
@@ -86,10 +91,6 @@ function place(): void {
 
 const tracker = useViewportTracker(place);
 
-function toggle(): void {
-  if (!props.disabled) open.value = !open.value;
-}
-
 function close(): void {
   open.value = false;
 }
@@ -105,6 +106,10 @@ function onKeydown(event: KeyboardEvent): void {
   const current = items.indexOf(document.activeElement as HTMLElement);
   const next = event.key === "ArrowDown" ? current + 1 : current - 1;
   items[(next + items.length) % items.length]?.focus();
+}
+
+function toggle(): void {
+  if (!props.disabled) open.value = !open.value;
 }
 
 watch(open, async (value) => {

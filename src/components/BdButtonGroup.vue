@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { provide, toRef } from "vue";
 
+import type { BdOption, BdSize } from "@/types";
+
 import BdButton from "@/components/BdButton.vue";
 import { bdSize } from "@/injection";
-import type { BdOption, BdSize } from "@/types";
 
 /**
  * Buttons glued together, rounded only at both ends of the group.
@@ -23,7 +24,10 @@ export interface BdButtonGroupProps {
   disabled?: boolean;
   /** Spans the full width, buttons sharing it equally. */
   full?: boolean;
-  /** Turns the group into a segmented control bound to `v-model`. Leave empty to pass buttons through the default slot instead. */
+  /**
+   * Turns the group into a segmented control bound to `v-model`. Leave empty to
+   * pass buttons through the default slot instead.
+   */
   options?: BdOption[];
   /** Height of every button in the group, slot content included. @default "default" */
   size?: BdSize;

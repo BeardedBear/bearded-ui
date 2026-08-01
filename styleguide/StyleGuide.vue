@@ -422,7 +422,8 @@ function tokenVar(prefix: string, suffix: string): string {
             <BdButton variant="border">Right</BdButton>
           </BdTooltip>
           <BdTooltip
-            content="Un texte nettement plus long, pour montrer que le tooltip passe à la ligne au lieu de déborder du viewport."
+            content="Un texte nettement plus long, pour montrer que le tooltip passe à la ligne
+              au lieu de déborder du viewport."
           >
             <BdButton variant="border">Texte long</BdButton>
           </BdTooltip>

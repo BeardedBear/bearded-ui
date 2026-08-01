@@ -1,20 +1,5 @@
-/** Side of the trigger a panel is placed on. */
-export type BdSide = "bottom" | "left" | "right" | "top";
-
 /** How a panel lines up with its trigger on the cross axis. */
 export type BdAlign = "center" | "end" | "start";
-
-/** An element, or a free-standing rect — a point tracking the cursor, say. */
-export type BdAnchorTarget = DOMRectReadOnly | HTMLElement;
-
-export interface BdAnchorResult {
-  /** Viewport x written to the panel, in px. */
-  left: number;
-  /** Side actually used, which may differ from the requested one after a flip. */
-  placement: BdSide;
-  /** Viewport y written to the panel, in px. */
-  top: number;
-}
 
 export interface BdAnchorOptions {
   /** Cross-axis alignment against the trigger. @default "start" */
@@ -28,6 +13,21 @@ export interface BdAnchorOptions {
   /** Preferred side, flipped when space runs out. @default "bottom" */
   side?: BdSide;
 }
+
+export interface BdAnchorResult {
+  /** Viewport x written to the panel, in px. */
+  left: number;
+  /** Side actually used, which may differ from the requested one after a flip. */
+  placement: BdSide;
+  /** Viewport y written to the panel, in px. */
+  top: number;
+}
+
+/** An element, or a free-standing rect — a point tracking the cursor, say. */
+export type BdAnchorTarget = DOMRectReadOnly | HTMLElement;
+
+/** Side of the trigger a panel is placed on. */
+export type BdSide = "bottom" | "left" | "right" | "top";
 
 const VIEWPORT_MARGIN = 8;
 const MIN_SIZE = 120;
@@ -90,8 +90,8 @@ export function anchor(
   const size = Math.min(vertical ? p.height : p.width, available);
 
   // Axe principal : collé au bord du trigger, décalé de `offset`.
-  const main =
-    placement === "top" || placement === "left"
+  const main
+    = placement === "top" || placement === "left"
       ? (vertical ? t.top : t.left) - offset - size
       : (vertical ? t.bottom : t.right) + offset;
 
@@ -100,8 +100,8 @@ export function anchor(
   const crossEnd = vertical ? t.right : t.bottom;
   const crossSize = vertical ? p.width : p.height;
   const crossLimit = vertical ? window.innerWidth : window.innerHeight;
-  const aligned =
-    align === "end"
+  const aligned
+    = align === "end"
       ? crossEnd - crossSize
       : align === "center"
         ? crossStart + (crossEnd - crossStart - crossSize) / 2

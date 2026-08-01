@@ -314,9 +314,15 @@ Variants : `default`, `success`, `warning`, `danger`, `info`. Auto-dismiss à 4 
 bun install
 bun dev                   # style guide sur http://localhost:5173
 bun test                  # bun:test, zéro dépendance
-bun run build             # test + typecheck + dist/
+bun run lint              # eslint + stylistic + perfectionist
+bun run lint:fix
+bun run build             # test + lint + typecheck + dist/
 bun run build:styleguide  # page statique dans styleguide-dist/
 ```
+
+Même config qu'ailleurs : `@stylistic` (double quotes, point-virgules, 2 espaces, 120 colonnes) et
+`perfectionist` en tri alphabétique — props, imports, exports et clés d'objets restent ordonnés
+tout seuls. `.gitattributes` force les fins de ligne en LF, le dépôt étant consommé tel quel.
 
 ## Release
 
