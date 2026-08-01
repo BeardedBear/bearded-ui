@@ -8,10 +8,28 @@ Design tokens + composants Vue 3 partagés par [beardify](https://github.com/Bea
 ## Install
 
 ```bash
-bun add github:BeardedBear/bearded-ui   # ou npm i github:BeardedBear/bearded-ui
+bun add github:BeardedBear/bearded-ui#v0.1.0   # ou npm i github:BeardedBear/bearded-ui#v0.1.0
 ```
 
 Le script `prepare` construit `dist/` à l'install : pas besoin de publier sur npm.
+
+Une dépendance git n'a pas de range semver — le spécificateur *est* la référence git :
+
+| Spécificateur                        | Ce que ça installe                          |
+| ------------------------------------ | ------------------------------------------- |
+| `#v0.1.0`                            | ce tag, figé                                |
+| `#semver:^0.1.0`                     | le dernier tag compatible (syntaxe npm)     |
+| _(rien)_                             | le dernier commit de `main`                 |
+
+Sans suffixe, le lockfile fige quand même le commit résolu — c'est un `update` qui ramène le
+`main` du moment, cassures comprises. À réserver aux projets où la lib doit suivre au fil de l'eau.
+
+Si `bun` n'exécute pas le `prepare` de la lib (il n'exécute pas les scripts de cycle de vie des
+dépendances par défaut), ajouter dans le `package.json` du projet consommateur :
+
+```json
+"trustedDependencies": ["bearded-ui"]
+```
 
 ## Usage
 
@@ -300,5 +318,21 @@ bun test                  # bun:test, zéro dépendance
 bun run build             # test + typecheck + dist/
 bun run build:styleguide  # page statique dans styleguide-dist/
 ```
+
+## Release
+
+```bash
+bun run release patch     # 0.1.0 → 0.1.1
+bun run release minor     # 0.1.0 → 0.2.0
+bun run release major     # 0.1.0 → 1.0.0
+bun run release 0.4.2     # version explicite
+```
+
+Le script refuse de partir sur un working tree sale ou un tag déjà pris, lance `bun run build`
+(tests + typecheck + build) avant d'écrire quoi que ce soit, puis bump `package.json`, commit,
+tag `vX.Y.Z` et pousse les deux.
+
+La validation avant tag n'est pas du zèle : les projets consommateurs installent depuis git et
+construisent la lib via `prepare`, donc un tag qui ne build pas casse *leur* install.
 
 Le style guide (`styleguide/StyleGuide.vue`) est la doc vivante : tout nouveau composant s'y ajoute.

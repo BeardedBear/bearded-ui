@@ -30,6 +30,7 @@
     "test": "bun test",
     "build:styleguide": "vite build --mode styleguide",
     "preview": "vite preview --outDir styleguide-dist",
+    "release": "bun run scripts/release.ts",
     "prepare": "vite build"
   },
   "peerDependencies": {
