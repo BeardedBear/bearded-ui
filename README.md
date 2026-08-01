@@ -95,6 +95,7 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdButton` | `variant` (default/primary/border/nude/danger), `size` (x-small/small/default/big), `align`, `iconOnly`, `full`, `loading`, `disabled`, `href`/`to` |
 | `BdInput`  | `v-model`, `label`, `hint`, `error`, `type`, `placeholder`, `disabled`                                                                              |
 | `BdSelect` | `v-model`, `options: {label, value}[]`, `label`, `placeholder`, `disabled`                                                                          |
+| `BdCheckbox` | `v-model` (boolean), `label` (ou slot), `fullWidth`, `disabled` — rendu switch                                                                    |
 | `BdCard`   | `padding` (default/small/none), slot `header`                                                                                                      |
 | `BdBadge`  | `variant` (default/primary/success/warning/danger/info)                                                                                            |
 | `BdLoader` | `size` (default/small/x-small/xx-small)                                                                                                            |

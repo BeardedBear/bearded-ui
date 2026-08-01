@@ -5,6 +5,7 @@ import {
   BdBadge,
   BdButton,
   BdCard,
+  BdCheckbox,
   BdDialog,
   BdInput,
   BdLoader,
@@ -21,6 +22,8 @@ const { scheme, theme, toggleTheme } = useTheme();
 const text = ref("");
 const fruit = ref("");
 const dialogOpen = ref(false);
+const notifications = ref(true);
+const autostart = ref(false);
 
 const bgTokens = ["darker", "dark", "", "light", "lighter"];
 const fontTokens = ["darker", "dark", "", "light"];
@@ -226,6 +229,15 @@ function tokenVar(prefix: string, suffix: string): string {
           <BdInput disabled label="Désactivé" model-value="nope" />
           <BdSelect v-model="fruit" label="Fruit" :options="fruits" placeholder="Choisir…" />
         </div>
+        <div class="row">
+          <BdCheckbox v-model="notifications" label="Notifications" />
+          <BdCheckbox v-model="autostart" label="Démarrage auto" />
+          <BdCheckbox disabled label="Désactivé" :model-value="true" />
+        </div>
+        <div class="settings">
+          <BdCheckbox v-model="notifications" full-width label="Pleine largeur, label à gauche" />
+          <BdCheckbox v-model="autostart" full-width label="Une ligne par réglage" />
+        </div>
       </BdCard>
     </section>
 
@@ -416,6 +428,14 @@ figcaption {
   & + & {
     margin-top: var(--bd-space-4);
   }
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bd-space-3);
+  margin-top: var(--bd-space-4);
+  max-width: 24rem;
 }
 
 .row-form {
