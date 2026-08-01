@@ -1,0 +1,345 @@
+/*
+ * Animations. Deux usages :
+ *   1. classe utilitaire  → <div class="bd-anim-pop">           (joue au montage)
+ *   2. transition Vue     → <Transition name="bd-pop">          (entrée/sortie)
+ * Tout est en CSS : rien à importer côté JS, ça marche sur n'importe quel élément.
+ */
+
+:root {
+  --bd-duration-fast: 150ms;
+  --bd-duration: 300ms;
+  --bd-duration-slow: 600ms;
+
+  /* Dépassent volontairement 0→1 : c'est ce qui donne le rebond. */
+  --bd-ease-bounce: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  --bd-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bd-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bd-bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-30%);
+  }
+
+  60% {
+    transform: translateY(-15%);
+  }
+}
+
+@keyframes bd-shake {
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-6px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes bd-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  15% {
+    transform: translateX(-15%) rotate(-5deg);
+  }
+
+  30% {
+    transform: translateX(10%) rotate(3deg);
+  }
+
+  45% {
+    transform: translateX(-8%) rotate(-3deg);
+  }
+
+  60% {
+    transform: translateX(5%) rotate(2deg);
+  }
+
+  75% {
+    transform: translateX(-3%) rotate(-1deg);
+  }
+}
+
+@keyframes bd-tada {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  10%,
+  20% {
+    transform: scale(0.9) rotate(-3deg);
+  }
+
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: scale(1.1) rotate(3deg);
+  }
+
+  40%,
+  60%,
+  80% {
+    transform: scale(1.1) rotate(-3deg);
+  }
+}
+
+/* Squish élastique — même vocabulaire que le knob de BdCheckbox. */
+@keyframes bd-jelly {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+
+  30% {
+    transform: scale(1.25, 0.75);
+  }
+
+  40% {
+    transform: scale(0.75, 1.25);
+  }
+
+  50% {
+    transform: scale(1.15, 0.85);
+  }
+
+  65% {
+    transform: scale(0.95, 1.05);
+  }
+
+  75% {
+    transform: scale(1.05, 0.95);
+  }
+}
+
+@keyframes bd-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-15%);
+  }
+}
+
+@keyframes bd-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.bd-anim-pop,
+.bd-anim-bounce,
+.bd-anim-shake,
+.bd-anim-wobble,
+.bd-anim-tada,
+.bd-anim-jelly,
+.bd-anim-float,
+.bd-anim-pulse {
+  animation-duration: var(--bd-duration-slow);
+  animation-fill-mode: both;
+  animation-timing-function: ease;
+}
+
+.bd-anim-pop {
+  animation-duration: var(--bd-duration);
+  animation-name: bd-pop;
+  animation-timing-function: var(--bd-ease-spring);
+}
+
+.bd-anim-bounce {
+  animation-name: bd-bounce;
+}
+
+.bd-anim-shake {
+  animation-duration: var(--bd-duration);
+  animation-name: bd-shake;
+}
+
+.bd-anim-wobble {
+  animation-name: bd-wobble;
+}
+
+.bd-anim-tada {
+  animation-name: bd-tada;
+}
+
+.bd-anim-jelly {
+  animation-name: bd-jelly;
+}
+
+.bd-anim-float {
+  animation-duration: 2s;
+  animation-name: bd-float;
+  animation-timing-function: ease-in-out;
+}
+
+.bd-anim-pulse {
+  animation-duration: 1.2s;
+  animation-name: bd-pulse;
+  animation-timing-function: ease-in-out;
+}
+
+/* Modificateurs, cumulables avec n'importe quelle animation ci-dessus. */
+.bd-anim-loop {
+  animation-iteration-count: infinite;
+}
+
+.bd-anim-fast {
+  animation-duration: var(--bd-duration-fast);
+}
+
+.bd-anim-slow {
+  animation-duration: 1.2s;
+}
+
+/*
+ * Ne joue qu'au survol. Réservé aux animations qui partent de l'état normal
+ * (bounce, wobble, tada, jelly, pulse, float) : `pop` démarre à opacity 0 et
+ * resterait invisible tant qu'on ne survole pas.
+ */
+.bd-anim-hover {
+  animation-play-state: paused;
+
+  &:hover {
+    animation-play-state: running;
+  }
+}
+
+/* Transitions Vue : <Transition name="bd-fade|bd-pop|bd-slide-up"> */
+.bd-fade-enter-active,
+.bd-fade-leave-active {
+  transition: opacity var(--bd-duration) ease;
+}
+
+.bd-fade-enter-from,
+.bd-fade-leave-to {
+  opacity: 0;
+}
+
+.bd-pop-enter-active {
+  transition:
+    opacity var(--bd-duration) ease,
+    transform var(--bd-duration) var(--bd-ease-spring);
+}
+
+.bd-pop-leave-active {
+  transition:
+    opacity var(--bd-duration-fast) ease,
+    transform var(--bd-duration-fast) ease;
+}
+
+.bd-pop-enter-from,
+.bd-pop-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.bd-slide-up-enter-active,
+.bd-slide-up-leave-active {
+  transition:
+    opacity var(--bd-duration) ease,
+    transform var(--bd-duration) var(--bd-ease-spring);
+}
+
+.bd-slide-up-enter-from,
+.bd-slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+/*
+ * Preset bd-pop porté sur <dialog> natif : mêmes deltas et mêmes courbes que la
+ * transition ci-dessus, mais pilotées par [open] — un <dialog> ne passe pas par
+ * <Transition>. allow-discrete sur display et overlay est ce qui rend la sortie
+ * visible : close() bascule sinon l'élément en display:none instantanément.
+ */
+.bd-anim-dialog {
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity var(--bd-duration-fast) ease,
+    transform var(--bd-duration-fast) ease,
+    display var(--bd-duration-fast) allow-discrete,
+    overlay var(--bd-duration-fast) allow-discrete;
+
+  &::backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--bd-duration-fast) ease,
+      display var(--bd-duration-fast) allow-discrete,
+      overlay var(--bd-duration-fast) allow-discrete;
+  }
+
+  &[open] {
+    opacity: 1;
+    transform: scale(1);
+    transition:
+      opacity var(--bd-duration) ease,
+      transform var(--bd-duration) var(--bd-ease-spring),
+      display var(--bd-duration) allow-discrete,
+      overlay var(--bd-duration) allow-discrete;
+
+    &::backdrop {
+      opacity: 1;
+      transition:
+        opacity var(--bd-duration) ease,
+        display var(--bd-duration) allow-discrete,
+        overlay var(--bd-duration) allow-discrete;
+    }
+  }
+}
+
+/* Sans état de départ, le navigateur n'a rien à interpoler à l'ouverture. */
+@starting-style {
+  .bd-anim-dialog[open] {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  .bd-anim-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}

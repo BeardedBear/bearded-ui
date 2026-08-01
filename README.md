@@ -86,6 +86,44 @@ Au-delà de `--bd-space-6`, l'espacement relève du layout de l'app : à défini
 Utilitaires : `.bd-font-bold`, `.bd-font-italic`, `.bd-font-bold-italic`, `.bd-heading`,
 `.bd-squircle`, `.bd-truncate`, `.bd-sr-only`.
 
+## Animations
+
+Set CSS pur, applicable à n'importe quel élément — composant de la lib ou markup de l'app.
+
+```vue
+<BdBadge class="bd-anim-pop">Nouveau</BdBadge>
+<BdButton class="bd-anim-jelly" @click="save">Enregistrer</BdButton>
+<span class="bd-anim-pulse bd-anim-loop">●</span>
+```
+
+| Classe            | Effet                       | Quand                                          |
+| ----------------- | --------------------------- | ---------------------------------------------- |
+| `.bd-anim-pop`    | apparition avec ressort     | Élément qui se monte, contenu qui arrive        |
+| `.bd-anim-jelly`  | squish élastique            | Confirmation d'un clic, like, ajout             |
+| `.bd-anim-tada`   | scale + rotation            | Célébration : succès, badge débloqué            |
+| `.bd-anim-bounce` | rebond vertical             | Attirer l'œil sur un élément déjà visible       |
+| `.bd-anim-shake`  | secousse horizontale        | Erreur : champ invalide, action refusée         |
+| `.bd-anim-wobble` | balancement                 | Refus joueur                                    |
+| `.bd-anim-float`  | flottement doux             | Boucle : illustration, état vide                |
+| `.bd-anim-pulse`  | battement                   | Boucle d'attention : notification en attente    |
+
+Modificateurs cumulables : `.bd-anim-loop`, `.bd-anim-fast`, `.bd-anim-slow`, et `.bd-anim-hover`
+(ne joue qu'au survol — pour les animations qui partent de l'état normal, pas `pop`).
+
+Transitions Vue prêtes, mêmes courbes :
+
+```vue
+<Transition name="bd-pop"><BdCard v-if="open">…</BdCard></Transition>
+```
+
+`bd-fade`, `bd-pop`, `bd-slide-up`. Tokens : `--bd-duration{,-fast,-slow}`, `--bd-ease-bounce`,
+`--bd-ease-spring`.
+
+Pour un `<dialog>` natif (qui ne passe pas par `<Transition>`), `.bd-anim-dialog` rejoue le
+preset `bd-pop` sur `[open]`, backdrop compris — c'est ce qu'utilise `BdDialog`.
+
+Rejouer une animation sur un élément déjà monté : incrémenter un `:key` (le nœud est recréé).
+
 Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, sans bataille de spécificité.
 
 ## Composants

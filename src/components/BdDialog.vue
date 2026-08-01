@@ -19,7 +19,7 @@ watch(open, (value) => {
 </script>
 
 <template>
-  <dialog ref="el" class="bd-dialog bd-squircle" @close="open = false">
+  <dialog ref="el" class="bd-dialog bd-squircle bd-anim-dialog" @close="open = false">
     <header v-if="title || $slots.header" class="bd-dialog-header">
       <slot name="header">
         <h2 class="bd-dialog-title">{{ title }}</h2>
@@ -31,6 +31,7 @@ watch(open, (value) => {
 </template>
 
 <style scoped>
+/* L'ouverture/fermeture vient du preset .bd-anim-dialog (animations.css). */
 .bd-dialog {
   background-color: var(--bd-bg-dark);
   border: 1px solid var(--bd-border-color);

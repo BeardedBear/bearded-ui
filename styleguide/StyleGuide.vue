@@ -34,6 +34,22 @@ const views = [
   { label: "Tableau", value: "table" },
 ];
 
+const animations = [
+  { name: "pop", usage: "Apparition d'un élément, contenu qui se monte" },
+  { name: "jelly", usage: "Confirmation d'un clic, like, ajout au panier" },
+  { name: "tada", usage: "Célébration : succès, badge débloqué" },
+  { name: "bounce", usage: "Attirer l'œil sur un élément déjà visible" },
+  { name: "shake", usage: "Erreur : champ invalide, action refusée" },
+  { name: "wobble", usage: "Refus joueur, élément qu'on secoue" },
+  { name: "float", usage: "Boucle douce : illustration, état vide" },
+  { name: "pulse", usage: "Boucle d'attention : notification en attente" },
+];
+
+// Recréer le nœud est le moyen le plus court de rejouer une animation CSS.
+const animKey = ref(0);
+const loopAnims = ref(false);
+const popVisible = ref(true);
+
 const bgTokens = ["darker", "dark", "", "light", "lighter"];
 const fontTokens = ["darker", "dark", "", "light"];
 const primaryTokens = ["darker", "dark", "", "light", "lighter"];
@@ -305,6 +321,56 @@ function tokenVar(prefix: string, suffix: string): string {
     </section>
 
     <section>
+      <h2 class="bd-heading">Animations</h2>
+      <BdCard>
+        <p class="muted">
+          Classes utilitaires applicables à n'importe quel élément — composant de la lib ou pas.
+          Clique une tuile pour rejouer.
+        </p>
+        <div class="row">
+          <BdCheckbox v-model="loopAnims" label="Jouer en boucle" />
+          <BdButton size="small" variant="border" @click="animKey++">Tout rejouer</BdButton>
+        </div>
+        <div class="specimens">
+          <figure v-for="{ name, usage } in animations" :key="name" class="specimen">
+            <button class="anim-stage" type="button" @click="animKey++">
+              <span
+                :key="animKey"
+                class="anim-box bd-squircle"
+                :class="[`bd-anim-${name}`, { 'bd-anim-loop': loopAnims }]"
+              />
+            </button>
+            <figcaption>
+              <code>.bd-anim-{{ name }}</code>
+              <span class="muted">{{ usage }}</span>
+            </figcaption>
+          </figure>
+        </div>
+        <p class="muted">
+          Modificateurs cumulables : <code>.bd-anim-loop</code>, <code>.bd-anim-fast</code>,
+          <code>.bd-anim-slow</code>, <code>.bd-anim-hover</code> (ne joue qu'au survol).
+        </p>
+        <h3>Transitions Vue</h3>
+        <p class="muted">
+          Mêmes courbes, pour les entrées/sorties : <code>bd-fade</code>, <code>bd-pop</code>,
+          <code>bd-slide-up</code>.
+        </p>
+        <div class="row">
+          <BdButton variant="border" @click="popVisible = !popVisible">Basculer</BdButton>
+          <Transition name="bd-pop">
+            <BdBadge v-if="popVisible" variant="primary">bd-pop</BdBadge>
+          </Transition>
+          <Transition name="bd-slide-up">
+            <BdBadge v-if="popVisible" variant="success">bd-slide-up</BdBadge>
+          </Transition>
+          <Transition name="bd-fade">
+            <BdBadge v-if="popVisible" variant="info">bd-fade</BdBadge>
+          </Transition>
+        </div>
+      </BdCard>
+    </section>
+
+    <section>
       <h2 class="bd-heading">Toasts</h2>
       <BdCard>
         <div class="row">
@@ -444,6 +510,28 @@ function tokenVar(prefix: string, suffix: string): string {
   height: 2rem;
   padding: 0;
   width: 0.9rem;
+}
+
+.anim-stage {
+  align-items: center;
+  background-color: var(--bd-bg);
+  border: 1px solid var(--bd-border-color);
+  border-radius: var(--bd-radius-md);
+  cursor: pointer;
+  display: flex;
+  height: 5rem;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  width: 100%;
+}
+
+.anim-box {
+  background-color: var(--bd-primary);
+  border-radius: var(--bd-radius-md);
+  display: block;
+  height: 2.2rem;
+  width: 2.2rem;
 }
 
 .demo-radius {
