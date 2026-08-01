@@ -93,6 +93,7 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | Composant  | Props principales                                                                                                                                  |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `BdButton` | `variant` (default/primary/border/nude/danger), `size` (x-small/small/default/big), `align`, `iconOnly`, `full`, `loading`, `disabled`, `href`/`to` |
+| `BdButtonGroup` | `v-model` + `options` (segmented control) ou slot libre, `size`, `full`, `disabled`                                                            |
 | `BdInput`  | `v-model`, `label`, `hint`, `error`, `type`, `placeholder`, `disabled`                                                                              |
 | `BdSelect` | `v-model`, `options: {label, value}[]`, `label`, `placeholder`, `disabled`                                                                          |
 | `BdCheckbox` | `v-model` (boolean), `label` (ou slot), `fullWidth`, `disabled` — rendu switch                                                                    |
@@ -104,6 +105,23 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 
 `BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
 reste une dépendance de l'app, pas de la lib.
+
+### Groupes de boutons
+
+```vue
+<!-- Segmented control : le bouton actif passe en variant primary -->
+<BdButtonGroup v-model="view" :options="[{ label: 'Liste', value: 'list' }, { label: 'Grille', value: 'grid' }]" />
+
+<!-- Actions libres : le slot remplace les options, le groupe ne fait que les coller -->
+<BdButtonGroup>
+  <BdButton>‹</BdButton>
+  <BdButton>Aujourd'hui</BdButton>
+  <BdButton>›</BdButton>
+</BdButtonGroup>
+```
+
+Les coins arrondis ne sont conservés qu'aux extrémités du groupe. `full` répartit les boutons
+sur toute la largeur (le pattern des lignes de réglages).
 
 ### Toasts
 

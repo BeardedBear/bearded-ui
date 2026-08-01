@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { useId } from "vue";
 
-export interface BdSelectOption {
-  label: string;
-  value: string;
-}
+import type { BdOption } from "@/types";
 
 export interface BdSelectProps {
   disabled?: boolean;
   label?: string;
-  options: BdSelectOption[];
+  options: BdOption[];
   placeholder?: string;
 }
 

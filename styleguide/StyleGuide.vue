@@ -4,6 +4,7 @@ import { onMounted, ref } from "vue";
 import {
   BdBadge,
   BdButton,
+  BdButtonGroup,
   BdCard,
   BdCheckbox,
   BdDialog,
@@ -12,18 +13,26 @@ import {
   type BdScheme,
   bdSchemes,
   BdSelect,
+  type BdTheme,
   BdToaster,
   toast,
   useTheme,
 } from "@/index";
 
-const { scheme, theme, toggleTheme } = useTheme();
+const { scheme, theme } = useTheme();
 
 const text = ref("");
 const fruit = ref("");
 const dialogOpen = ref(false);
 const notifications = ref(true);
 const autostart = ref(false);
+const view = ref("list");
+
+const views = [
+  { label: "Liste", value: "list" },
+  { label: "Grille", value: "grid" },
+  { label: "Tableau", value: "table" },
+];
 
 const bgTokens = ["darker", "dark", "", "light", "lighter"];
 const fontTokens = ["darker", "dark", "", "light"];
@@ -90,7 +99,14 @@ function tokenVar(prefix: string, suffix: string): string {
           :options="bdSchemes.map((s) => ({ label: s, value: s }))"
           @update:model-value="scheme = $event as BdScheme"
         />
-        <BdButton variant="border" @click="toggleTheme">{{ theme === "dark" ? "☾ Dark" : "☀ Light" }}</BdButton>
+        <BdButtonGroup
+          :model-value="theme"
+          :options="[
+            { label: '☀ Light', value: 'light' },
+            { label: '☾ Dark', value: 'dark' },
+          ]"
+          @update:model-value="theme = $event as BdTheme"
+        />
       </div>
     </header>
 
@@ -216,6 +232,30 @@ function tokenVar(prefix: string, suffix: string): string {
             <span>Full + justify</span>
             <span>›</span>
           </BdButton>
+        </div>
+      </BdCard>
+    </section>
+
+    <section>
+      <h2 class="bd-heading">Groupes de boutons</h2>
+      <BdCard>
+        <div class="row">
+          <BdButtonGroup v-model="view" :options="views" />
+          <BdButtonGroup v-model="view" :options="views" size="small" />
+        </div>
+        <p class="muted">
+          Avec <code>options</code>, c'est un segmented control (<code>v-model</code>). Sans, le slot
+          accueille des boutons libres.
+        </p>
+        <div class="row">
+          <BdButtonGroup>
+            <BdButton>‹</BdButton>
+            <BdButton>Aujourd'hui</BdButton>
+            <BdButton>›</BdButton>
+          </BdButtonGroup>
+        </div>
+        <div class="settings">
+          <BdButtonGroup v-model="view" full :options="views" />
         </div>
       </BdCard>
     </section>
