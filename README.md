@@ -8,28 +8,27 @@ Design tokens + composants Vue 3 partagés par [beardify](https://github.com/Bea
 ## Install
 
 ```bash
-bun add github:BeardedBear/bearded-ui#v0.1.0   # ou npm i github:BeardedBear/bearded-ui#v0.1.0
+bun add github:BeardedBear/bearded-ui#release
 ```
 
-Le script `prepare` construit `dist/` à l'install : pas besoin de publier sur npm.
+Puis `bun update bearded-ui` pour passer à la dernière version.
 
-Une dépendance git n'a pas de range semver — le spécificateur *est* la référence git :
+La branche `release` porte le `dist/` déjà construit : rien à builder à l'install, et aucune
+version en dur dans ton `package.json`. Une dépendance git n'a pas de range semver — le
+spécificateur *est* la référence git :
 
-| Spécificateur                        | Ce que ça installe                          |
-| ------------------------------------ | ------------------------------------------- |
-| `#v0.1.0`                            | ce tag, figé                                |
-| `#semver:^0.1.0`                     | le dernier tag compatible (syntaxe npm)     |
-| _(rien)_                             | le dernier commit de `main`                 |
+| Spécificateur | Ce que ça installe                                    |
+| ------------- | ----------------------------------------------------- |
+| `#release`    | la dernière version publiée, `dist/` inclus           |
+| `#v0.2.0`     | cette version, figée, `dist/` inclus                  |
+| _(rien)_      | le dernier commit de `main` — **sans `dist/`**, inutilisable |
 
-Sans suffixe, le lockfile fige quand même le commit résolu — c'est un `update` qui ramène le
-`main` du moment, cassures comprises. À réserver aux projets où la lib doit suivre au fil de l'eau.
+> `#semver:^0.1.0` ne marche pas avec bun : il traite le fragment comme une ref git littérale.
+> Et `@latest` est un dist-tag du registry npm, qui n'existe pas pour une dépendance git.
 
-Si `bun` n'exécute pas le `prepare` de la lib (il n'exécute pas les scripts de cycle de vie des
-dépendances par défaut), ajouter dans le `package.json` du projet consommateur :
-
-```json
-"trustedDependencies": ["bearded-ui"]
-```
+Pourquoi `dist/` est committé sur une branche plutôt que construit à l'install : bun exécute bien
+le script `prepare`, mais **sans installer les `devDependencies`** du paquet — `vite` manque et le
+build échoue. `main` reste donc propre, et la branche `release` porte les artefacts.
 
 ## Usage
 
@@ -329,10 +328,14 @@ bun run release 0.4.2     # version explicite
 ```
 
 Le script refuse de partir sur un working tree sale ou un tag déjà pris, lance `bun run build`
-(tests + typecheck + build) avant d'écrire quoi que ce soit, puis bump `package.json`, commit,
-tag `vX.Y.Z` et pousse les deux.
+(tests + typecheck + build), bump `package.json`, commit et pousse sur la branche courante — puis
+recale la branche `release` sur ce commit avec `dist/` forcé dedans, y pose le tag `vX.Y.Z`, et
+pousse branche et tag.
 
-La validation avant tag n'est pas du zèle : les projets consommateurs installent depuis git et
-construisent la lib via `prepare`, donc un tag qui ne build pas casse *leur* install.
+La validation avant publication n'est pas du zèle : c'est ce `dist/` que les 4 projets consomment
+tel quel, donc un build cassé casse *leur* install.
+
+Effet de bord à connaître : le retour sur la branche de départ supprime `dist/` du disque (suivi
+sur `release`, ignoré sur `main`). Un `bun run build` le régénère.
 
 Le style guide (`styleguide/StyleGuide.vue`) est la doc vivante : tout nouveau composant s'y ajoute.

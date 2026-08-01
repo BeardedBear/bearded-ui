@@ -1,14 +1,20 @@
 /**
  * Automate the release process:
  *   1. Check the working tree is clean and the tag is free
- *   2. Run tests, typecheck and build — never tag something that doesn't build
- *   3. Bump version in package.json
- *   4. Commit the version bump
- *   5. Tag the commit
- *   6. Push commit + tag
+ *   2. Run tests, typecheck and build — never publish something that doesn't build
+ *   3. Bump version in package.json, commit and push on the current branch
+ *   4. Force the `release` branch onto that commit, with `dist/` committed
+ *   5. Tag that commit and push branch + tag
  *
- * Consumers install from the tag:
- *   bun add github:BeardedBear/bearded-ui#v0.2.0
+ * Why a release branch carrying `dist/`: consumers install straight from git,
+ * and bun runs the `prepare` script *without* installing the package's
+ * devDependencies — so `vite` is missing and the build never happens on their
+ * side. Shipping `dist/` on a dedicated branch keeps `main` free of build
+ * artifacts while making the install work with no build step at all.
+ *
+ * Consumers pick their update policy through the git ref:
+ *   bun add github:BeardedBear/bearded-ui#release   # always the latest release
+ *   bun add github:BeardedBear/bearded-ui#v0.2.0    # pinned
  *
  * Usage:
  *   bun run release 0.2.0        # explicit version
@@ -44,6 +50,9 @@ function writeJson(path: string, data: Record<string, unknown>): void {
   writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
 }
 
+/** Branch consumers track to always get the latest release, `dist/` included. */
+const RELEASE_BRANCH = "release";
+
 const arg = process.argv[2];
 
 if (!arg) {
@@ -77,11 +86,7 @@ if (existingTag) {
   process.exit(1);
 }
 
-/*
- * Consumers install straight from git and build the library through `prepare`:
- * a tag that doesn't build breaks their install, not ours. Hence the full check
- * before anything is written.
- */
+// `dist/` is about to be published: a broken build must fail here, not in a consumer's install.
 console.log(`\n  ${currentVersion} → ${newVersion}\n`);
 console.log("  Validating…\n");
 runVerbose("bun run build");
@@ -91,9 +96,26 @@ writeJson(pkgPath, pkg);
 
 run(`git add ${pkgPath}`);
 run(`git commit -m "chore(release): bump version to ${newVersion}"`);
-run(`git tag v${newVersion}`);
 run("git push origin HEAD");
-run(`git push origin v${newVersion}`);
 
-console.log(`\n  v${newVersion} tagged and pushed.`);
-console.log(`  bun add github:BeardedBear/bearded-ui#v${newVersion}\n`);
+/*
+ * The release commit sits on its own branch: same tree as the source branch,
+ * plus `dist/` forced in past .gitignore. The tag points here, so a pinned
+ * install gets the built files too.
+ */
+const sourceBranch = run("git rev-parse --abbrev-ref HEAD");
+try {
+  run(`git checkout -B ${RELEASE_BRANCH}`);
+  run("git add --force dist");
+  run(`git commit -m "release v${newVersion}"`);
+  run(`git tag v${newVersion}`);
+  run(`git push --force origin ${RELEASE_BRANCH}`);
+  run(`git push origin v${newVersion}`);
+} finally {
+  // Always come back, even if a push failed halfway through.
+  run(`git checkout ${sourceBranch}`);
+}
+
+console.log(`\n  v${newVersion} released on branch "${RELEASE_BRANCH}".`);
+console.log(`  bun add github:BeardedBear/bearded-ui#${RELEASE_BRANCH}   (latest)`);
+console.log(`  bun add github:BeardedBear/bearded-ui#v${newVersion}   (pinned)\n`);
