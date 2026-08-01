@@ -147,7 +147,7 @@ provide(bdSize, toRef(props, "size"));
       <slot name="trigger" :open="open" :toggle="toggle">
         <BdButton :disabled="disabled">
           {{ label }}
-          <PhCaretDown class="bd-dropdown-caret" size="1.1em" />
+          <PhCaretDown class="bd-dropdown-caret" size="1.1em" weight="bold" />
         </BdButton>
       </slot>
     </span>

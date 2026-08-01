@@ -30,7 +30,7 @@ const id = useId();
           {{ option.label }}
         </option>
       </select>
-      <PhCaretDown aria-hidden="true" class="bd-select-arrow" size="1.1em" />
+      <PhCaretDown aria-hidden="true" class="bd-select-arrow" size="1.1em" weight="bold" />
     </div>
   </div>
 </template>

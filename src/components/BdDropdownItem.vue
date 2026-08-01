@@ -32,7 +32,7 @@ function onClick(): void {
     @click="onClick"
   >
     <span v-if="icon || $slots.icon" class="bd-dropdown-item-icon">
-      <slot name="icon"><component :is="icon" size="1.2em" /></slot>
+      <slot name="icon"><component :is="icon" size="1.2em" weight="bold" /></slot>
     </span>
     <slot />
   </button>

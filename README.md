@@ -95,6 +95,17 @@ mais rien n'empêche l'app de l'ajouter pour ses propres imports.
 Pas de wrapper `BdIcon` — les `Ph*` sont déjà des composants Vue avec `size`, `weight` et `color`.
 Les tailles se donnent en `em` pour suivre la typo du contexte (`size="1.2em"`).
 
+Le poids de la lib est `bold`, pour tenir face à Bricolage Grotesque. Les icônes lisent leurs
+défauts par `inject`, donc un `provide` dans `main.ts` aligne toute l'app d'un coup :
+
+```ts
+// main.ts
+app.provide("weight", "bold");
+```
+
+Sans ce provide, seules les icônes rendues par les composants de la lib sont en bold — les autres
+retombent sur `regular`. Un `weight` posé sur une icône reste toujours prioritaire.
+
 ```vue
 <BdDropdownItem :icon="PhTrash" danger>Supprimer</BdDropdownItem>
 <BdButton icon-only><PhGear size="1.2em" /></BdButton>
