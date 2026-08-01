@@ -48,7 +48,7 @@ const model = defineModel<boolean>({ default: false });
 .bd-checkbox-switch {
   --track-height: 1.4rem;
   --track-width: 2.5rem;
-  --knob-gap: 0.2rem;
+  --knob-gap: var(--bd-space-1);
   --knob-size: calc(var(--track-height) - var(--knob-gap) * 2);
 
   display: block;

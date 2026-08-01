@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<BdBadgeProps>(), { variant: "default" });
   font-size: var(--bd-font-size-xs);
   gap: var(--bd-space-1);
   line-height: 1;
-  padding: 0.3rem 0.6rem;
+  padding: var(--bd-space-1) var(--bd-space-2);
   text-transform: uppercase;
 }
 

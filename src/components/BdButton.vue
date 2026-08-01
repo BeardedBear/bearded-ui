@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, inject } from "vue";
+
+import { bdSize } from "@/injection";
+import type { BdSize } from "@/types";
 
 export interface BdButtonProps {
   align?: "center" | "justify" | "left";
@@ -10,7 +13,8 @@ export interface BdButtonProps {
   href?: string;
   iconOnly?: boolean;
   loading?: boolean;
-  size?: "big" | "default" | "small" | "x-small";
+  /** Sans valeur, hérite de la taille du conteneur (BdButtonGroup, BdDropdown). */
+  size?: BdSize;
   target?: "_blank" | "_parent" | "_self" | "_top";
   /** vue-router location. Resolves <router-link> globally, so vue-router stays optional. */
   to?: unknown;
@@ -22,12 +26,15 @@ const props = withDefaults(defineProps<BdButtonProps>(), {
   align: "center",
   as: undefined,
   href: undefined,
-  size: "default",
+  size: undefined,
   target: "_self",
   to: undefined,
   type: "button",
   variant: "default",
 });
+
+const inheritedSize = inject(bdSize, undefined);
+const size = computed<BdSize>(() => props.size ?? inheritedSize?.value ?? "default");
 
 const tag = computed(() => {
   if (props.as) return props.as;
@@ -51,7 +58,7 @@ const attrs = computed<Record<string, unknown>>(() => {
 // "default" emits no modifier class, so variant and size can't collide on it.
 const classes = computed(() => [
   props.variant === "default" ? "" : `bd-button-${props.variant}`,
-  props.size === "default" ? "" : `bd-button-${props.size}`,
+  size.value === "default" ? "" : `bd-button-${size.value}`,
   props.align === "center" ? "" : `bd-button-align-${props.align}`,
   { "bd-button-full": props.full, "bd-button-icon-only": props.iconOnly, "is-loading": props.loading },
 ]);
@@ -73,10 +80,16 @@ const classes = computed(() => [
   color: var(--bd-font-color-dark);
   cursor: pointer;
   display: inline-flex;
+
+  /* Explicite : la hauteur ne doit pas dépendre de la font-size du contexte. */
+  font-size: var(--bd-font-size-base);
   gap: var(--bd-space-2);
+
+  /* Hauteur fixe : le contenu (icône, loader, texte) ne peut plus la faire varier. */
+  height: var(--bd-control-height);
   justify-content: center;
   line-height: 1;
-  padding: 0.6rem 1rem;
+  padding: 0 var(--bd-space-4);
   text-align: center;
   text-decoration: none;
   transition:
@@ -132,7 +145,7 @@ const classes = computed(() => [
   background-color: transparent;
   color: var(--bd-font-color);
   opacity: 0.5;
-  padding: var(--bd-space-2) var(--bd-space-3);
+  padding: 0 var(--bd-space-3);
 
   &:hover:not(:disabled, .is-loading) {
     background-color: transparent;
@@ -141,31 +154,26 @@ const classes = computed(() => [
 }
 
 .bd-button-big {
-  font-size: var(--bd-font-size-base);
-  padding: 0.75rem 1.2rem;
+  height: var(--bd-control-height-big);
+  padding: 0 var(--bd-space-5);
 }
 
 .bd-button-small {
   font-size: var(--bd-font-size-sm);
-  padding: 0.5rem 0.6rem;
+  height: var(--bd-control-height-small);
+  padding: 0 var(--bd-space-3);
 }
 
 .bd-button-x-small {
   font-size: var(--bd-font-size-sm);
-  padding: 0.1rem 0.5rem;
+  height: var(--bd-control-height-x-small);
+  padding: 0 var(--bd-space-2);
 }
 
+/* Carré : la largeur suit la hauteur du contrôle, quelle que soit l'icône. */
 .bd-button-icon-only {
   aspect-ratio: 1;
-  padding: 0.6rem;
-
-  &.bd-button-small {
-    padding: 0.5rem;
-  }
-
-  &.bd-button-x-small {
-    padding: 0.25rem;
-  }
+  padding: 0;
 }
 
 .bd-button-full {

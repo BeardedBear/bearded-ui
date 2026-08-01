@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { provide, toRef } from "vue";
+
 import BdButton from "@/components/BdButton.vue";
-import type { BdOption } from "@/types";
+import { bdSize } from "@/injection";
+import type { BdOption, BdSize } from "@/types";
 
 export interface BdButtonGroupProps {
   disabled?: boolean;
@@ -8,12 +11,15 @@ export interface BdButtonGroupProps {
   full?: boolean;
   /** Fournir pour un segmented control ; sinon passer des boutons dans le slot. */
   options?: BdOption[];
-  size?: "big" | "default" | "small" | "x-small";
+  size?: BdSize;
 }
 
-withDefaults(defineProps<BdButtonGroupProps>(), { options: () => [], size: "default" });
+const props = withDefaults(defineProps<BdButtonGroupProps>(), { options: () => [], size: "default" });
 
 const model = defineModel<string>();
+
+// Les boutons du slot héritent de la taille du groupe, comme ceux générés ici.
+provide(bdSize, toRef(props, "size"));
 </script>
 
 <template>
@@ -37,7 +43,7 @@ const model = defineModel<string>();
 <style scoped>
 .bd-button-group {
   display: inline-flex;
-  gap: 2px;
+  gap: var(--bd-space-1);
 }
 
 /* Wins over the child's own radius: one more class in the scoped selector. */

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PhCaretDown } from "@phosphor-icons/vue";
 import { useId } from "vue";
 
 import type { BdOption } from "@/types";
@@ -29,7 +30,7 @@ const id = useId();
           {{ option.label }}
         </option>
       </select>
-      <span aria-hidden="true" class="bd-select-arrow" />
+      <PhCaretDown aria-hidden="true" class="bd-select-arrow" size="1.1em" />
     </div>
   </div>
 </template>
@@ -78,15 +79,11 @@ const id = useId();
 }
 
 .bd-select-arrow {
-  border-bottom: 2px solid currentcolor;
-  border-left: 2px solid currentcolor;
   color: var(--bd-font-color-dark);
-  height: 0.45rem;
   pointer-events: none;
   position: absolute;
   right: var(--bd-space-3);
   top: 50%;
-  transform: translateY(-70%) rotate(-45deg);
-  width: 0.45rem;
+  transform: translateY(-50%);
 }
 </style>

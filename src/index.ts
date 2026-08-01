@@ -6,12 +6,18 @@ export { default as BdButtonGroup, type BdButtonGroupProps } from "./components/
 export { default as BdCard, type BdCardProps } from "./components/BdCard.vue";
 export { default as BdCheckbox, type BdCheckboxProps } from "./components/BdCheckbox.vue";
 export { default as BdDialog, type BdDialogProps } from "./components/BdDialog.vue";
+export {
+  default as BdDropdown,
+  type BdDropdownPlacement,
+  type BdDropdownProps,
+} from "./components/BdDropdown.vue";
+export { default as BdDropdownItem, type BdDropdownItemProps } from "./components/BdDropdownItem.vue";
 export { default as BdInput, type BdInputProps } from "./components/BdInput.vue";
 export { default as BdLoader, type BdLoaderProps } from "./components/BdLoader.vue";
 export { default as BdSelect, type BdSelectProps } from "./components/BdSelect.vue";
 export { default as BdToaster, type BdToasterProps } from "./components/BdToaster.vue";
 export { bdSchemes, type BdScheme, type BdTheme, useTheme } from "./composables/useTheme";
-export type { BdOption } from "./types";
+export type { BdOption, BdSize } from "./types";
 export {
   type BdToast,
   type BdToastOptions,

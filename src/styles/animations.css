@@ -343,3 +343,62 @@
     opacity: 0;
   }
 }
+
+/*
+ * Même preset pour un [popover] : il sort du bord ancré au trigger, d'où le
+ * transform-origin piloté par data-placement (posé par BdDropdown).
+ */
+.bd-anim-popover {
+  opacity: 0;
+  transform: scale(0.95) translateY(-0.35rem);
+  transform-origin: top center;
+  transition:
+    opacity var(--bd-duration-fast) ease,
+    transform var(--bd-duration-fast) ease,
+    display var(--bd-duration-fast) allow-discrete,
+    overlay var(--bd-duration-fast) allow-discrete;
+
+  &[data-placement="top"] {
+    transform: scale(0.95) translateY(0.35rem);
+    transform-origin: bottom center;
+  }
+
+  &:popover-open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition:
+      opacity var(--bd-duration) ease,
+      transform var(--bd-duration) var(--bd-ease-spring),
+      display var(--bd-duration) allow-discrete,
+      overlay var(--bd-duration) allow-discrete;
+  }
+}
+
+@starting-style {
+  .bd-anim-popover:popover-open {
+    opacity: 0;
+    transform: scale(0.95) translateY(-0.35rem);
+  }
+
+  .bd-anim-popover[data-placement="top"]:popover-open {
+    transform: scale(0.95) translateY(0.35rem);
+  }
+}
+
+/* En bottom sheet (mobile), l'entrée vient du bas plutôt que du trigger. */
+@media (width <= 767px) {
+  .bd-anim-popover.bd-anim-popover-sheet {
+    transform: translateY(100%);
+    transform-origin: bottom center;
+
+    &:popover-open {
+      transform: translateY(0);
+    }
+  }
+
+  @starting-style {
+    .bd-anim-popover.bd-anim-popover-sheet:popover-open {
+      transform: translateY(100%);
+    }
+  }
+}

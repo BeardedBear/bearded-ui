@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import {
+  PhArchive,
+  PhCalendarBlank,
+  PhCopy,
+  PhDotsThree,
+  PhPencilSimple,
+  PhRuler,
+  PhSortAscending,
+  PhTrash,
+} from "@phosphor-icons/vue";
 import { onMounted, ref } from "vue";
 
 import {
@@ -8,11 +18,11 @@ import {
   BdCard,
   BdCheckbox,
   BdDialog,
+  BdDropdown,
+  BdDropdownItem,
   BdInput,
   BdLoader,
-  type BdScheme,
   bdSchemes,
-  BdSelect,
   type BdTheme,
   BdToaster,
   toast,
@@ -27,6 +37,7 @@ const dialogOpen = ref(false);
 const notifications = ref(true);
 const autostart = ref(false);
 const view = ref("list");
+const sort = ref("name");
 
 const views = [
   { label: "Liste", value: "list" },
@@ -110,11 +121,11 @@ function tokenVar(prefix: string, suffix: string): string {
         <p class="muted">Design tokens et composants Vue 3 partagés des projets Bearded*</p>
       </div>
       <div class="topbar-actions">
-        <BdSelect
-          :model-value="scheme"
-          :options="bdSchemes.map((s) => ({ label: s, value: s }))"
-          @update:model-value="scheme = $event as BdScheme"
-        />
+        <BdDropdown :label="scheme" placement="bottom-end">
+          <BdDropdownItem v-for="s in bdSchemes" :key="s" :active="scheme === s" @click="scheme = s">
+            {{ s }}
+          </BdDropdownItem>
+        </BdDropdown>
         <BdButtonGroup
           :model-value="theme"
           :options="[
@@ -261,8 +272,22 @@ function tokenVar(prefix: string, suffix: string): string {
         </div>
         <p class="muted">
           Avec <code>options</code>, c'est un segmented control (<code>v-model</code>). Sans, le slot
-          accueille des boutons libres.
+          accueille des boutons libres — qui héritent de la taille du groupe.
         </p>
+        <h3>Même échelle pour les trois</h3>
+        <p class="muted">
+          <code>BdButton</code>, <code>BdButtonGroup</code> et <code>BdDropdown</code> partagent le type
+          <code>BdSize</code> : à taille égale, hauteur identique.
+        </p>
+        <div v-for="s in (['x-small', 'small', 'default', 'big'] as const)" :key="s" class="row">
+          <code class="size-label muted">{{ s }}</code>
+          <BdButton :size="s">Bouton</BdButton>
+          <BdButtonGroup v-model="view" :options="views" :size="s" />
+          <BdDropdown label="Menu" :size="s">
+            <BdDropdownItem :icon="PhPencilSimple">Renommer</BdDropdownItem>
+            <BdDropdownItem danger :icon="PhTrash">Supprimer</BdDropdownItem>
+          </BdDropdown>
+        </div>
         <div class="row">
           <BdButtonGroup>
             <BdButton>‹</BdButton>
@@ -283,7 +308,19 @@ function tokenVar(prefix: string, suffix: string): string {
           <BdInput v-model="text" hint="Visible sous le champ" label="Label" placeholder="Tape ici…" />
           <BdInput error="Champ requis" label="En erreur" model-value="" />
           <BdInput disabled label="Désactivé" model-value="nope" />
-          <BdSelect v-model="fruit" label="Fruit" :options="fruits" placeholder="Choisir…" />
+          <div class="field">
+            <span class="field-label bd-font-bold">Fruit</span>
+            <BdDropdown :label="fruits.find((f) => f.value === fruit)?.label ?? 'Choisir…'" match-width>
+              <BdDropdownItem
+                v-for="f in fruits"
+                :key="f.value"
+                :active="fruit === f.value"
+                @click="fruit = f.value"
+              >
+                {{ f.label }}
+              </BdDropdownItem>
+            </BdDropdown>
+          </div>
         </div>
         <div class="row">
           <BdCheckbox v-model="notifications" label="Notifications" />
@@ -317,6 +354,60 @@ function tokenVar(prefix: string, suffix: string): string {
         <div class="row">
           <BdButton variant="primary" @click="dialogOpen = true">Ouvrir la dialog</BdButton>
         </div>
+      </BdCard>
+    </section>
+
+    <section>
+      <h2 class="bd-heading">Dropdown</h2>
+      <BdCard>
+        <p class="muted">
+          Ancré au trigger, il bascule au-dessus s'il manque la place en dessous et se recale dans le
+          viewport. Sous 768px, il devient une feuille collée en bas.
+        </p>
+        <div class="row">
+          <BdDropdown label="Menu">
+            <BdDropdownItem :icon="PhPencilSimple">Renommer</BdDropdownItem>
+            <BdDropdownItem :icon="PhCopy">Dupliquer</BdDropdownItem>
+            <BdDropdownItem disabled :icon="PhArchive">Archiver</BdDropdownItem>
+            <BdDropdownItem danger :icon="PhTrash">Supprimer</BdDropdownItem>
+          </BdDropdown>
+
+          <BdDropdown placement="bottom-end">
+            <template #trigger>
+              <BdButton icon-only variant="border"><PhDotsThree size="1.2em" /></BdButton>
+            </template>
+            <BdDropdownItem :active="sort === 'name'" :icon="PhSortAscending" @click="sort = 'name'">
+              Par nom
+            </BdDropdownItem>
+            <BdDropdownItem :active="sort === 'date'" :icon="PhCalendarBlank" @click="sort = 'date'">
+              Par date
+            </BdDropdownItem>
+            <BdDropdownItem :active="sort === 'size'" :icon="PhRuler" @click="sort = 'size'">
+              Par taille
+            </BdDropdownItem>
+          </BdDropdown>
+
+          <BdDropdown label="Reste ouvert">
+            <BdDropdownItem
+              v-for="v in views"
+              :key="v.value"
+              :active="view === v.value"
+              keep-open
+              @click="view = v.value"
+            >
+              {{ v.label }}
+            </BdDropdownItem>
+          </BdDropdown>
+
+          <BdDropdown label="Contenu libre" placement="top-start">
+            <div class="dropdown-free">
+              <BdInput label="Rechercher" placeholder="Filtrer…" />
+              <BdCheckbox v-model="notifications" full-width label="Notifications" />
+              <BdCheckbox v-model="autostart" full-width label="Démarrage auto" />
+            </div>
+          </BdDropdown>
+        </div>
+        <p class="muted">Tri courant : <code>{{ sort }}</code></p>
       </BdCard>
     </section>
 
@@ -556,6 +647,29 @@ figcaption {
   & + & {
     margin-top: var(--bd-space-4);
   }
+}
+
+.size-label {
+  min-width: 4.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bd-space-1);
+}
+
+.field-label {
+  color: var(--bd-font-color-dark);
+  font-size: var(--bd-font-size-sm);
+}
+
+.dropdown-free {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bd-space-2);
+  max-width: 16rem;
+  padding: var(--bd-space-1);
 }
 
 .settings {

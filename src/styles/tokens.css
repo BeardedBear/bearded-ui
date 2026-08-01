@@ -52,6 +52,16 @@
   --bd-space-5: 1.5rem; /*  21px */
   --bd-space-6: 2rem; /*    28px */
 
+  /*
+   * Hauteur des contrôles (boutons, groupes, trigger de dropdown). Fixée plutôt
+   * que déduite du padding : sinon une icône plus haute que la ligne de texte
+   * suffit à décaler un contrôle par rapport à son voisin.
+   */
+  --bd-control-height-x-small: 1.5rem;
+  --bd-control-height-small: 2rem;
+  --bd-control-height: 2.5rem;
+  --bd-control-height-big: 3rem;
+
   /* Radii */
   --bd-radius-sm: 0.3rem;
   --bd-radius-md: 0.6rem;

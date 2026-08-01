@@ -18,7 +18,10 @@ export default defineConfig(({ mode }) => {
             fileName: "bearded-ui",
             formats: ["es"],
           },
-          rollupOptions: { external: ["vue"], output: { assetFileNames: "bearded-ui.[ext]" } },
+          rollupOptions: {
+            external: ["vue", "@phosphor-icons/vue"],
+            output: { assetFileNames: "bearded-ui.[ext]" },
+          },
         },
     plugins: [vue(), ...(isStyleguide ? [] : [dts({ rollupTypes: true })])],
     resolve: {

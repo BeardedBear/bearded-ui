@@ -86,6 +86,20 @@ Au-delà de `--bd-space-6`, l'espacement relève du layout de l'app : à défini
 Utilitaires : `.bd-font-bold`, `.bd-font-italic`, `.bd-font-bold-italic`, `.bd-heading`,
 `.bd-squircle`, `.bd-truncate`, `.bd-sr-only`.
 
+## Icônes
+
+[`@phosphor-icons/vue`](https://phosphoricons.com), la même famille que bearded-sketch. C'est une
+dépendance de la lib (externalisée du bundle, tree-shakée côté app) : pas d'installation en plus,
+mais rien n'empêche l'app de l'ajouter pour ses propres imports.
+
+Pas de wrapper `BdIcon` — les `Ph*` sont déjà des composants Vue avec `size`, `weight` et `color`.
+Les tailles se donnent en `em` pour suivre la typo du contexte (`size="1.2em"`).
+
+```vue
+<BdDropdownItem :icon="PhTrash" danger>Supprimer</BdDropdownItem>
+<BdButton icon-only><PhGear size="1.2em" /></BdButton>
+```
+
 ## Animations
 
 Set CSS pur, applicable à n'importe quel élément — composant de la lib ou markup de l'app.
@@ -139,10 +153,27 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdBadge`  | `variant` (default/primary/success/warning/danger/info)                                                                                            |
 | `BdLoader` | `size` (default/small/x-small/xx-small)                                                                                                            |
 | `BdDialog` | `v-model` (ouverture), `title`, slots `header`/`footer`                                                                                            |
+| `BdDropdown` | `size`, `placement`, `matchWidth`, `offset`, `sheetOnMobile`, `label`, slot `trigger`, `v-model` (ouverture)                                     |
+| `BdDropdownItem` | `icon`, `active`, `danger`, `disabled`, `keepOpen`                                                                                          |
 | `BdToaster`| `position` (bottom-right/bottom-left/top-right/top-left) — à monter une seule fois                                                                  |
 
 `BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
 reste une dépendance de l'app, pas de la lib.
+
+### Taille des contrôles
+
+`BdButton`, `BdButtonGroup` et `BdDropdown` partagent le type `BdSize`
+(`x-small | small | default | big`) : à taille égale, même hauteur exactement.
+
+Un conteneur diffuse sa taille à ses boutons — y compris ceux d'un slot libre — et une prop `size`
+posée sur un bouton reste prioritaire :
+
+```vue
+<BdButtonGroup size="small">
+  <BdButton>Hérite de small</BdButton>
+  <BdButton size="big">Sauf celui-ci</BdButton>
+</BdButtonGroup>
+```
 
 ### Groupes de boutons
 
@@ -160,6 +191,36 @@ reste une dépendance de l'app, pas de la lib.
 
 Les coins arrondis ne sont conservés qu'aux extrémités du groupe. `full` répartit les boutons
 sur toute la largeur (le pattern des lignes de réglages).
+
+### Dropdown
+
+```vue
+<script setup lang="ts">
+import { PhPencilSimple, PhTrash } from "@phosphor-icons/vue";
+</script>
+
+<template>
+  <BdDropdown label="Menu" placement="bottom-end">
+    <BdDropdownItem :icon="PhPencilSimple" @click="rename">Renommer</BdDropdownItem>
+    <BdDropdownItem :active="sort === 'date'" keep-open @click="sort = 'date'">Par date</BdDropdownItem>
+    <BdDropdownItem danger :icon="PhTrash" @click="remove">Supprimer</BdDropdownItem>
+  </BdDropdown>
+
+  <!-- Trigger et contenu libres -->
+  <BdDropdown placement="top-start">
+    <template #trigger="{ open }">
+      <BdButton icon-only variant="border"><PhDotsThree size="1.2em" /></BdButton>
+    </template>
+    <BdInput label="Rechercher" />
+  </BdDropdown>
+</template>
+```
+
+Bâti sur la Popover API : top layer (jamais rogné par un `overflow` ou un `z-index`), fermeture
+au clic extérieur et à Échap sans listener maison. Le placement bascule au-dessus s'il manque la
+place en dessous, se recale dans le viewport, borne sa hauteur à l'espace restant et suit le
+scroll. Sous 768px, `sheetOnMobile` (actif par défaut) le transforme en feuille collée en bas.
+Flèches ↑↓ pour naviguer entre les items.
 
 ### Toasts
 
