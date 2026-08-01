@@ -17,8 +17,8 @@ const model = defineModel<boolean>({ default: false });
     <span class="bd-checkbox-switch">
       <!-- Kept in the flow (opacity 0, not display:none) so it stays focusable and Space toggles it. -->
       <input v-model="model" class="bd-checkbox-input" :disabled="disabled" type="checkbox" />
-      <span class="bd-checkbox-track" />
-      <span class="bd-checkbox-knob" />
+      <span class="bd-checkbox-track bd-squircle" />
+      <span class="bd-checkbox-knob bd-squircle" />
     </span>
   </label>
 </template>
