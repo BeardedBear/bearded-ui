@@ -3,6 +3,7 @@ import { PhCaretDown } from "@phosphor-icons/vue";
 import { nextTick, onBeforeUnmount, provide, ref, toRef, useId, watch } from "vue";
 
 import BdButton from "@/components/BdButton.vue";
+import { type BdAlign, anchor, type BdSide, useViewportTracker } from "@/composables/useAnchor";
 import { bdDropdownClose, bdSize } from "@/injection";
 import type { BdSize } from "@/types";
 
@@ -38,18 +39,11 @@ const panelEl = ref<HTMLElement>();
 const panelId = useId();
 
 const MOBILE_WIDTH = 767;
-const VIEWPORT_MARGIN = 8;
-const MIN_PANEL_HEIGHT = 120;
 
 function isSheet(): boolean {
   return props.sheetOnMobile && window.innerWidth <= MOBILE_WIDTH;
 }
 
-/**
- * Positionne le panneau en coordonnées viewport (il est en top layer, donc en
- * position fixed). Bascule au-dessus s'il manque la place en dessous, se recale
- * dans le viewport horizontalement, et borne sa hauteur à l'espace restant.
- */
 function place(): void {
   const panel = panelEl.value;
   const trigger = triggerEl.value;
@@ -62,48 +56,17 @@ function place(): void {
     return;
   }
 
-  panel.style.maxHeight = "";
-  const t = trigger.getBoundingClientRect();
-  const p = panel.getBoundingClientRect();
-
-  const space = {
-    bottom: window.innerHeight - t.bottom - props.offset - VIEWPORT_MARGIN,
-    top: t.top - props.offset - VIEWPORT_MARGIN,
-  };
-  const preferred = props.placement.startsWith("top") ? "top" : "bottom";
-  const fallback = preferred === "top" ? "bottom" : "top";
-  const side = space[preferred] >= p.height || space[preferred] >= space[fallback] ? preferred : fallback;
-
-  const height = Math.min(p.height, Math.max(space[side], MIN_PANEL_HEIGHT));
-  const left = props.placement.endsWith("end") ? t.right - p.width : t.left;
-
-  panel.style.left = `${Math.min(Math.max(VIEWPORT_MARGIN, left), window.innerWidth - p.width - VIEWPORT_MARGIN)}px`;
-  panel.style.top = `${side === "top" ? t.top - props.offset - height : t.bottom + props.offset}px`;
-  panel.style.maxHeight = `${Math.max(space[side], MIN_PANEL_HEIGHT)}px`;
-  if (props.matchWidth) panel.style.minWidth = `${t.width}px`;
-  panel.dataset.placement = side;
-}
-
-/*
- * Un scroll émet des dizaines d'events par seconde et place() lit le layout
- * avant de l'écrire : sans coalescence, c'est un reflow synchrone par event.
- */
-let scheduled = false;
-function schedulePlace(): void {
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    place();
+  const [side, align] = props.placement.split("-") as [BdSide, BdAlign];
+  anchor(trigger, panel, {
+    align,
+    constrain: true,
+    matchWidth: props.matchWidth,
+    offset: props.offset,
+    side,
   });
 }
 
-// `true` en capture : suit aussi le scroll d'un conteneur interne, pas seulement celui de la page.
-function trackViewport(active: boolean): void {
-  const method = active ? "addEventListener" : "removeEventListener";
-  window[method]("scroll", schedulePlace, true);
-  window[method]("resize", schedulePlace);
-}
+const tracker = useViewportTracker(place);
 
 function toggle(): void {
   if (!props.disabled) open.value = !open.value;
@@ -134,14 +97,14 @@ watch(open, async (value) => {
     if (!panel.matches(":popover-open")) panel.showPopover();
     await nextTick();
     place();
-    trackViewport(true);
+    tracker.start();
   } else {
     if (panel.matches(":popover-open")) panel.hidePopover();
-    trackViewport(false);
+    tracker.stop();
   }
 });
 
-onBeforeUnmount(() => trackViewport(false));
+onBeforeUnmount(tracker.stop);
 
 provide(bdDropdownClose, close);
 // Un trigger custom hérite de la taille sans avoir à la répéter sur son bouton.

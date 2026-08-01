@@ -25,6 +25,7 @@ import {
   bdSchemes,
   type BdTheme,
   BdToaster,
+  BdTooltip,
   toast,
   useTheme,
 } from "@/index";
@@ -401,6 +402,67 @@ function tokenVar(prefix: string, suffix: string): string {
     </section>
 
     <section>
+      <h2 class="bd-heading">Tooltip</h2>
+      <BdCard>
+        <p class="muted">
+          Survol ou focus clavier. Il bascule de côté s'il manque la place, se recale dans le viewport,
+          et la flèche continue de pointer le trigger. La largeur suit le contenu jusqu'à 20rem.
+        </p>
+        <div class="row">
+          <BdTooltip content="Tooltip par défaut, au-dessus">
+            <BdButton variant="border">Top</BdButton>
+          </BdTooltip>
+          <BdTooltip content="En dessous" side="bottom">
+            <BdButton variant="border">Bottom</BdButton>
+          </BdTooltip>
+          <BdTooltip content="À gauche" side="left">
+            <BdButton variant="border">Left</BdButton>
+          </BdTooltip>
+          <BdTooltip content="À droite" side="right">
+            <BdButton variant="border">Right</BdButton>
+          </BdTooltip>
+          <BdTooltip
+            content="Un texte nettement plus long, pour montrer que le tooltip passe à la ligne au lieu de déborder du viewport."
+          >
+            <BdButton variant="border">Texte long</BdButton>
+          </BdTooltip>
+          <BdTooltip :delay="0">
+            <BdButton icon-only variant="border"><PhTrash size="1.2em" /></BdButton>
+            <template #content>
+              <strong>Supprimer</strong> — slot <code>content</code>, sans délai
+            </template>
+          </BdTooltip>
+        </div>
+        <h3>Suivi du curseur</h3>
+        <p class="muted">
+          <code>follow</code> — désactivé par défaut. Survole la surface, pas juste le bouton.
+        </p>
+        <div class="row">
+          <BdTooltip content="Je suis le curseur horizontalement" :delay="0" follow="x">
+            <div class="follow-zone">follow="x"</div>
+          </BdTooltip>
+          <BdTooltip content="Je suis le curseur verticalement" :delay="0" follow="y" side="right">
+            <div class="follow-zone">follow="y"</div>
+          </BdTooltip>
+          <BdTooltip content="Je colle au curseur" :delay="0" follow="both">
+            <div class="follow-zone">follow="both"</div>
+          </BdTooltip>
+        </div>
+        <p class="muted">
+          Collé aux bords pour vérifier le recalage :
+        </p>
+        <div class="row row-edges">
+          <BdTooltip content="Recalé dans le viewport, la flèche suit le trigger" side="top">
+            <BdButton size="small" variant="border">◀ bord gauche</BdButton>
+          </BdTooltip>
+          <BdTooltip content="Recalé dans le viewport, la flèche suit le trigger" side="top">
+            <BdButton size="small" variant="border">bord droit ▶</BdButton>
+          </BdTooltip>
+        </div>
+      </BdCard>
+    </section>
+
+    <section>
       <h2 class="bd-heading">Animations</h2>
       <BdCard>
         <p class="muted">
@@ -640,6 +702,23 @@ figcaption {
 
 .size-label {
   min-width: 4.5rem;
+}
+
+.follow-zone {
+  align-items: center;
+  background-color: var(--bd-bg);
+  border: 1px dashed var(--bd-border-color);
+  border-radius: var(--bd-radius-md);
+  color: var(--bd-font-color-dark);
+  display: flex;
+  font-size: var(--bd-font-size-sm);
+  height: 5rem;
+  justify-content: center;
+  width: 11rem;
+}
+
+.row-edges {
+  justify-content: space-between;
 }
 
 .dropdown-free {

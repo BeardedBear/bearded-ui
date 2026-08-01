@@ -166,6 +166,7 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdDialog` | `v-model` (ouverture), `title`, slots `header`/`footer`                                                                                            |
 | `BdDropdown` | `size`, `placement`, `matchWidth`, `offset`, `sheetOnMobile`, `label`, slot `trigger`, `v-model` (ouverture)                                     |
 | `BdDropdownItem` | `icon`, `active`, `danger`, `disabled`, `keepOpen`                                                                                          |
+| `BdTooltip` | `content` (ou slot `content`), `side`, `follow`, `delay`, `offset`, `disabled`                                                                    |
 | `BdToaster`| `position` (bottom-right/bottom-left/top-right/top-left) — à monter une seule fois                                                                  |
 
 `BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
@@ -232,6 +233,40 @@ au clic extérieur et à Échap sans listener maison. Le placement bascule au-de
 place en dessous, se recale dans le viewport, borne sa hauteur à l'espace restant et suit le
 scroll. Sous 768px, `sheetOnMobile` (actif par défaut) le transforme en feuille collée en bas.
 Flèches ↑↓ pour naviguer entre les items.
+
+### Tooltip
+
+```vue
+<BdTooltip content="Supprimer définitivement" side="top">
+  <BdButton icon-only variant="border"><PhTrash size="1.2em" /></BdButton>
+</BdTooltip>
+
+<!-- Markup libre -->
+<BdTooltip side="right" :delay="0">
+  <span>Raccourci</span>
+  <template #content><kbd>Ctrl</kbd> + <kbd>K</kbd></template>
+</BdTooltip>
+```
+
+S'ouvre au survol **et** au focus clavier, se ferme à Échap. `popover="manual"` : top layer sans
+voler le focus ni intercepter les clics. La largeur suit le contenu jusqu'à 20rem puis passe à la
+ligne, le côté bascule s'il manque la place, et la flèche reste pointée sur le trigger même quand
+le panneau a été recalé dans le viewport.
+
+Le tooltip peut suivre le curseur au lieu de rester ancré au trigger — désactivé par défaut :
+
+```vue
+<BdTooltip content="Suit horizontalement" follow="x">…</BdTooltip>
+<BdTooltip content="Suit verticalement" follow="y" side="right">…</BdTooltip>
+<BdTooltip content="Colle au curseur" follow="both">…</BdTooltip>
+```
+
+L'axe non suivi reste calé sur le trigger : `follow="x"` avec `side="top"` garde le tooltip à
+hauteur constante au-dessus de l'élément et ne fait glisser que l'horizontale.
+
+`BdTooltip` et `BdDropdown` partagent leur moteur de placement (`src/composables/useAnchor.ts`) :
+`anchor()` positionne un panneau contre un trigger sur les 4 côtés avec flip et recalage,
+`useViewportTracker()` rejoue le placement au scroll/resize en le coalesçant par `requestAnimationFrame`.
 
 ### Toasts
 
