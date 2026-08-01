@@ -84,11 +84,25 @@ function place(): void {
   panel.dataset.placement = side;
 }
 
+/*
+ * Un scroll émet des dizaines d'events par seconde et place() lit le layout
+ * avant de l'écrire : sans coalescence, c'est un reflow synchrone par event.
+ */
+let scheduled = false;
+function schedulePlace(): void {
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    place();
+  });
+}
+
 // `true` en capture : suit aussi le scroll d'un conteneur interne, pas seulement celui de la page.
 function trackViewport(active: boolean): void {
   const method = active ? "addEventListener" : "removeEventListener";
-  window[method]("scroll", place, true);
-  window[method]("resize", place);
+  window[method]("scroll", schedulePlace, true);
+  window[method]("resize", schedulePlace);
 }
 
 function toggle(): void {
@@ -156,7 +170,7 @@ provide(bdSize, toRef(props, "size"));
     <div
       :id="panelId"
       ref="panelEl"
-      class="bd-dropdown-panel bd-squircle bd-anim-popover"
+      class="bd-dropdown-panel bd-surface bd-squircle bd-anim-popover"
       :class="{ 'bd-anim-popover-sheet': sheetOnMobile }"
       popover="auto"
       role="menu"
@@ -186,12 +200,10 @@ provide(bdSize, toRef(props, "size"));
   }
 }
 
+/* Fond, bordure et couleur viennent de .bd-surface (styles/utilities.css). */
 .bd-dropdown-panel {
-  background-color: var(--bd-bg-dark);
-  border: 1px solid var(--bd-border-color);
   border-radius: var(--bd-radius-lg);
   box-shadow: var(--bd-shadow-md);
-  color: var(--bd-font-color);
   display: flex;
   flex-direction: column;
   gap: var(--bd-space-1);

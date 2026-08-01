@@ -74,7 +74,7 @@ const model = defineModel<boolean>({ default: false });
   border-radius: var(--bd-radius-full);
   inset: 0;
   position: absolute;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--bd-duration) ease;
 }
 
 .bd-checkbox-knob {
@@ -84,7 +84,11 @@ const model = defineModel<boolean>({ default: false });
   left: var(--knob-gap);
   position: absolute;
   top: var(--knob-gap);
-  transition: 0.3s ease all;
+  /* Les trois propriétés réellement animées : left et width pour le squish. */
+  transition:
+    background-color var(--bd-duration) ease,
+    left var(--bd-duration) ease,
+    width var(--bd-duration) ease;
   width: var(--knob-size);
   z-index: 1;
 }

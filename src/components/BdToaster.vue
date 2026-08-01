@@ -18,7 +18,7 @@ const { dismissToast, toasts } = useToast();
         :key="t.id"
         aria-live="polite"
         class="bd-toast bd-font-bold bd-squircle"
-        :class="t.variant === 'default' ? '' : `bd-toast-${t.variant}`"
+        :class="`bd-state-${t.variant}`"
         type="button"
         @click="dismissToast(t.id)"
       >
@@ -59,38 +59,17 @@ const { dismissToast, toasts } = useToast();
   top: var(--bd-space-5);
 }
 
+/* Couleurs : .bd-state-* (styles/utilities.css), partagées avec BdBadge. */
 .bd-toast {
-  background-color: var(--bd-bg-lighter);
   border: 0;
   border-radius: var(--bd-radius-md);
   box-shadow: var(--bd-shadow-md);
-  color: var(--bd-font-color-light);
   cursor: pointer;
   font-size: var(--bd-font-size-sm);
   max-width: 22rem;
   padding: var(--bd-space-2) var(--bd-space-4);
   pointer-events: auto;
   text-align: left;
-}
-
-.bd-toast-success {
-  background-color: var(--bd-success);
-  color: #fff;
-}
-
-.bd-toast-warning {
-  background-color: var(--bd-warning);
-  color: #000;
-}
-
-.bd-toast-danger {
-  background-color: var(--bd-danger);
-  color: #fff;
-}
-
-.bd-toast-info {
-  background-color: var(--bd-info);
-  color: #fff;
 }
 
 .bd-toast-enter-active,

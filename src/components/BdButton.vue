@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, inject } from "vue";
 
+import BdLoader from "@/components/BdLoader.vue";
 import { bdSize } from "@/injection";
 import type { BdSize } from "@/types";
 
@@ -66,6 +67,7 @@ const classes = computed(() => [
 
 <template>
   <component :is="tag" class="bd-button bd-font-bold bd-squircle" :class="classes" v-bind="attrs">
+    <BdLoader v-if="loading" :size="size === 'x-small' ? 'xx-small' : 'x-small'" />
     <slot />
   </component>
 </template>
@@ -98,10 +100,14 @@ const classes = computed(() => [
     transform 0.1s ease;
   white-space: pre;
 
-  &:disabled,
-  &.is-loading {
+  &:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+  }
+
+  /* Pas d'opacity ici : le spinner porte déjà l'état, l'atténuer le rendrait illisible. */
+  &.is-loading {
+    cursor: progress;
   }
 
   &:hover:not(:disabled, .is-loading) {
@@ -111,6 +117,12 @@ const classes = computed(() => [
 
   &:active:not(:disabled, .is-loading) {
     transform: scale(0.97);
+  }
+
+  /* Le spinner emprunte la couleur du bouton : lisible sur tous les variants. */
+  &.is-loading :deep(.bd-loader) {
+    border-color: transparent;
+    border-top-color: currentcolor;
   }
 }
 

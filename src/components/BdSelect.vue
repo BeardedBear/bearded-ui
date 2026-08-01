@@ -36,17 +36,7 @@ const id = useId();
 </template>
 
 <style scoped>
-.bd-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--bd-space-1);
-}
-
-.bd-field-label {
-  color: var(--bd-font-color-dark);
-  font-size: var(--bd-font-size-sm);
-}
-
+/* .bd-field et .bd-field-label viennent de styles/utilities.css. */
 .bd-select {
   position: relative;
 }

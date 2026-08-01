@@ -61,10 +61,14 @@ const animKey = ref(0);
 const loopAnims = ref(false);
 const popVisible = ref(true);
 
-const bgTokens = ["darker", "dark", "", "light", "lighter"];
-const fontTokens = ["darker", "dark", "", "light"];
-const primaryTokens = ["darker", "dark", "", "light", "lighter"];
-const stateTokens = ["success", "warning", "danger", "info"];
+// Un groupe = un préfixe de token et ses suffixes ("" pour le token de base).
+const colorGroups = [
+  { prefix: "primary", suffixes: ["darker", "dark", "", "light", "lighter"] },
+  { prefix: "bg", suffixes: ["darker", "dark", "", "light", "lighter"] },
+  { prefix: "font-color", suffixes: ["darker", "dark", "", "light"] },
+  { prefix: "", suffixes: ["success", "warning", "danger", "info"] },
+];
+
 const sizes = ["xs", "sm", "base", "lg", "xl"] as const;
 // Usages relevés dans les composants de la lib — la doc décrit l'existant, pas un vœu pieux.
 const spaces = [
@@ -109,7 +113,7 @@ const fruits = [
 ];
 
 function tokenVar(prefix: string, suffix: string): string {
-  return suffix ? `--bd-${prefix}-${suffix}` : `--bd-${prefix}`;
+  return `--bd-${[prefix, suffix].filter(Boolean).join("-")}`;
 }
 </script>
 
@@ -140,28 +144,13 @@ function tokenVar(prefix: string, suffix: string): string {
     <section>
       <h2 class="bd-heading">Couleurs</h2>
       <div class="stack">
-        <div class="swatches">
-          <div v-for="t in primaryTokens" :key="t" class="swatch">
-            <span class="swatch-chip" :style="{ background: `var(${tokenVar('primary', t)})` }" />
-            <code>{{ tokenVar("primary", t) }}</code>
-          </div>
-        </div>
-        <div class="swatches">
-          <div v-for="t in bgTokens" :key="t" class="swatch">
-            <span class="swatch-chip" :style="{ background: `var(${tokenVar('bg', t)})` }" />
-            <code>{{ tokenVar("bg", t) }}</code>
-          </div>
-        </div>
-        <div class="swatches">
-          <div v-for="t in fontTokens" :key="t" class="swatch">
-            <span class="swatch-chip" :style="{ background: `var(${tokenVar('font-color', t)})` }" />
-            <code>{{ tokenVar("font-color", t) }}</code>
-          </div>
-        </div>
-        <div class="swatches">
-          <div v-for="t in stateTokens" :key="t" class="swatch">
-            <span class="swatch-chip" :style="{ background: `var(--bd-${t})` }" />
-            <code>--bd-{{ t }}</code>
+        <div v-for="group in colorGroups" :key="group.prefix" class="swatches">
+          <div v-for="suffix in group.suffixes" :key="suffix" class="swatch">
+            <span
+              class="swatch-chip"
+              :style="{ background: `var(${tokenVar(group.prefix, suffix)})` }"
+            />
+            <code>{{ tokenVar(group.prefix, suffix) }}</code>
           </div>
         </div>
       </div>
@@ -308,8 +297,8 @@ function tokenVar(prefix: string, suffix: string): string {
           <BdInput v-model="text" hint="Visible sous le champ" label="Label" placeholder="Tape ici…" />
           <BdInput error="Champ requis" label="En erreur" model-value="" />
           <BdInput disabled label="Désactivé" model-value="nope" />
-          <div class="field">
-            <span class="field-label bd-font-bold">Fruit</span>
+          <div class="bd-field">
+            <span class="bd-field-label bd-font-bold">Fruit</span>
             <BdDropdown :label="fruits.find((f) => f.value === fruit)?.label ?? 'Choisir…'" match-width>
               <BdDropdownItem
                 v-for="f in fruits"
@@ -651,17 +640,6 @@ figcaption {
 
 .size-label {
   min-width: 4.5rem;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--bd-space-1);
-}
-
-.field-label {
-  color: var(--bd-font-color-dark);
-  font-size: var(--bd-font-size-sm);
 }
 
 .dropdown-free {

@@ -18,19 +18,30 @@ function stored(): { scheme?: BdScheme; theme?: BdTheme } {
 const theme = ref<BdTheme>(stored().theme ?? "dark");
 const scheme = ref<BdScheme>(stored().scheme ?? "default");
 
-// Module-level state: every caller shares the same theme, and the effect runs once.
-watchEffect(() => {
-  const root = document.documentElement;
-  root.dataset.theme = theme.value;
-  root.dataset.scheme = scheme.value;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ scheme: scheme.value, theme: theme.value }));
-});
+/*
+ * L'effet démarre au premier useTheme(), pas à l'import du module : importer
+ * un simple BdButton ne doit ni toucher au DOM ni planter en SSR.
+ */
+let started = false;
+function start(): void {
+  if (started || typeof document === "undefined") return;
+  started = true;
+
+  watchEffect(() => {
+    const root = document.documentElement;
+    root.dataset.theme = theme.value;
+    root.dataset.scheme = scheme.value;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ scheme: scheme.value, theme: theme.value }));
+  });
+}
 
 export function useTheme(): {
   scheme: typeof scheme;
   theme: typeof theme;
   toggleTheme: () => void;
 } {
+  start();
+
   return {
     scheme,
     theme,

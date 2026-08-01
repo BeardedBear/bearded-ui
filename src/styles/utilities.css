@@ -35,6 +35,62 @@
   white-space: nowrap;
 }
 
+/*
+ * Surface élevée : cards, dialogs, panneaux de dropdown. Chaque composant garde
+ * son propre radius et son ombre, seul le fond commun vit ici.
+ */
+.bd-surface {
+  background-color: var(--bd-bg-dark);
+  border: 1px solid var(--bd-border-color);
+  color: var(--bd-font-color);
+}
+
+/*
+ * Couleurs d'état. Une seule source pour les badges, les toasts et tout ce qui
+ * doit porter un statut — les couleurs de texte sont tranchées une fois ici.
+ */
+.bd-state-default {
+  background-color: var(--bd-bg-lighter);
+  color: var(--bd-font-color-light);
+}
+
+.bd-state-success {
+  background-color: var(--bd-success);
+  color: #fff;
+}
+
+.bd-state-warning {
+  background-color: var(--bd-warning);
+  color: #fff;
+}
+
+.bd-state-danger {
+  background-color: var(--bd-danger);
+  color: #fff;
+}
+
+.bd-state-info {
+  background-color: var(--bd-info);
+  color: #fff;
+}
+
+.bd-state-primary {
+  background-color: var(--bd-primary);
+  color: var(--bd-on-primary);
+}
+
+/* Champ de formulaire : label au-dessus, contrôle en dessous. */
+.bd-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bd-space-1);
+}
+
+.bd-field-label {
+  color: var(--bd-font-color-dark);
+  font-size: var(--bd-font-size-sm);
+}
+
 /* Visually hidden but readable by screen readers. */
 .bd-sr-only {
   block-size: 1px;
