@@ -19,7 +19,7 @@
   --bd-font-color-dark: #929ea8;
   --bd-font-color: #b0bac2;
   --bd-font-color-light: #e3e8ec;
-  --bd-border-color: rgb(255 255 255 / 12%);
+  --bd-border-color: var(--bd-bg-light);
   --bd-overlay-color: rgb(0 0 0 / 60%);
   --bd-on-primary: #fff;
 }
@@ -85,8 +85,8 @@
 
 /* Semantic states, shared by every theme. */
 :root {
-  --bd-success: #28aa1b;
-  --bd-warning: #e8a11e;
-  --bd-danger: #de1c3e;
+  --bd-success: #1baa5c;
+  --bd-warning: #f66f0d;
+  --bd-danger: #de1c56;
   --bd-info: #15acde;
 }

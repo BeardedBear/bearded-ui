@@ -41,7 +41,6 @@ const props = withDefaults(defineProps<BdBadgeProps>(), { variant: "default" });
 
 .bd-badge-warning {
   background-color: var(--bd-warning);
-  color: #000;
 }
 
 .bd-badge-danger {
