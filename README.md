@@ -338,4 +338,12 @@ tel quel, donc un build cassé casse *leur* install.
 Effet de bord à connaître : le retour sur la branche de départ supprime `dist/` du disque (suivi
 sur `release`, ignoré sur `main`). Un `bun run build` le régénère.
 
+> **Ne jamais merger `release` dans `main`.** Après un push, GitHub propose « Create a pull
+> request for 'release' » : c'est un piège ici. `release` est un artefact de publication
+> réécrit à chaque version, pas une branche de travail — la merger fait entrer `dist/` dans
+> `main` et supprime la branche que les 4 projets suivent.
+>
+> Réparation, si ça arrive : `git rm -r --cached dist` + commit sur `main`, puis
+> `git push --force origin release` pour recréer la branche.
+
 Le style guide (`styleguide/StyleGuide.vue`) est la doc vivante : tout nouveau composant s'y ajoute.
