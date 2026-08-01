@@ -1,24 +1,31 @@
+/** Side of the trigger a panel is placed on. */
 export type BdSide = "bottom" | "left" | "right" | "top";
+
+/** How a panel lines up with its trigger on the cross axis. */
 export type BdAlign = "center" | "end" | "start";
 
-/** Un élément, ou un rect libre — un point suivant le curseur, par exemple. */
+/** An element, or a free-standing rect — a point tracking the cursor, say. */
 export type BdAnchorTarget = DOMRectReadOnly | HTMLElement;
 
 export interface BdAnchorResult {
+  /** Viewport x written to the panel, in px. */
   left: number;
+  /** Side actually used, which may differ from the requested one after a flip. */
   placement: BdSide;
+  /** Viewport y written to the panel, in px. */
   top: number;
 }
 
 export interface BdAnchorOptions {
-  /** Alignement sur l'axe croisé du côté retenu. */
+  /** Cross-axis alignment against the trigger. @default "start" */
   align?: BdAlign;
-  /** Borne la taille du panneau à l'espace disponible (scroll interne). */
+  /** Caps the panel to the space left on the chosen side, so it scrolls instead of overflowing. */
   constrain?: boolean;
-  /** Le panneau fait au moins la largeur du trigger. */
+  /** Panel is at least as wide as the trigger. */
   matchWidth?: boolean;
-  /** Écart entre le trigger et le panneau, en px. */
+  /** Gap between trigger and panel, in px. @default 6 */
   offset?: number;
+  /** Preferred side, flipped when space runs out. @default "bottom" */
   side?: BdSide;
 }
 
@@ -33,10 +40,18 @@ const OPPOSITE: Record<BdSide, BdSide> = {
 };
 
 /**
- * Positionne un panneau en top layer (donc en position fixed) contre son
- * trigger : bascule sur le côté opposé s'il manque la place, recale dans le
- * viewport sur l'axe croisé, et pose `data-placement` avec le côté retenu.
- * Partagé par BdDropdown et BdTooltip.
+ * Places a top-layer panel (hence `position: fixed`) against its trigger:
+ * flips to the opposite side when space runs out, keeps the panel inside the
+ * viewport on the cross axis, and writes the chosen side to `data-placement`
+ * so CSS can react to it. Shared by BdDropdown and BdTooltip.
+ *
+ * The panel is measured with `offsetWidth`/`offsetHeight` rather than a rect,
+ * so an entrance animation in progress (which scales the panel) doesn't skew
+ * the result.
+ *
+ * @param trigger Element to anchor to, or a rect to follow the cursor.
+ * @param panel Panel to position, already visible.
+ * @returns Coordinates written and the side actually used.
  */
 export function anchor(
   trigger: BdAnchorTarget,
@@ -108,9 +123,10 @@ export function anchor(
 }
 
 /**
- * Une exécution par frame au maximum. Les events qui déclenchent un placement
- * (scroll, resize, mousemove) arrivent bien plus vite que le rendu, et chaque
- * placement lit le layout avant de l'écrire — donc un reflow synchrone par event.
+ * Runs `callback` at most once per frame. The events that trigger a placement
+ * (scroll, resize, mousemove) fire far faster than the browser paints, and a
+ * placement reads layout before writing it — one synchronous reflow per event
+ * without this.
  */
 export function rafThrottle(callback: () => void): () => void {
   let scheduled = false;
@@ -125,7 +141,10 @@ export function rafThrottle(callback: () => void): () => void {
   };
 }
 
-/** Rejoue un placement au scroll et au resize. */
+/**
+ * Replays a placement on scroll and resize. Start it when the panel opens,
+ * stop it when it closes and on unmount.
+ */
 export function useViewportTracker(callback: () => void): { start: () => void; stop: () => void } {
   const onEvent = rafThrottle(callback);
 

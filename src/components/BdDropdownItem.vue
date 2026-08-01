@@ -3,13 +3,23 @@ import { type Component, inject } from "vue";
 
 import { bdDropdownClose } from "@/injection";
 
+/**
+ * Entry of a BdDropdown. Closes the menu on click unless `keepOpen` is set.
+ *
+ * @example
+ * <BdDropdownItem :icon="PhCopy" @click="duplicate">Duplicate</BdDropdownItem>
+ * <BdDropdownItem :active="sort === 'date'" keep-open @click="sort = 'date'">By date</BdDropdownItem>
+ */
 export interface BdDropdownItemProps {
+  /** Marks the item as the current choice (primary background). */
   active?: boolean;
+  /** Destructive action styling. */
   danger?: boolean;
+  /** Blocks the click and dims the item. */
   disabled?: boolean;
-  /** Composant d'icône, typiquement un Ph* de @phosphor-icons/vue. */
+  /** Icon component, typically a `Ph*` from `@phosphor-icons/vue`. Use the `icon` slot for anything else. */
   icon?: Component;
-  /** Laisse le menu ouvert au clic (toggles, filtres multiples). */
+  /** Keeps the menu open after the click — for toggles and multi-select filters. */
   keepOpen?: boolean;
 }
 

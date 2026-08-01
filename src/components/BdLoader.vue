@@ -1,5 +1,12 @@
 <script setup lang="ts">
+/**
+ * Spinner. BdButton mounts one on its own when `loading` is set.
+ *
+ * @example
+ * <BdLoader size="small" />
+ */
 export interface BdLoaderProps {
+  /** Diameter of the spinner. Its own scale, finer than BdSize — a spinner sits inside other controls. @default "default" */
   size?: "default" | "small" | "x-small" | "xx-small";
 }
 

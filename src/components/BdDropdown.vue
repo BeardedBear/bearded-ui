@@ -7,20 +7,38 @@ import { type BdAlign, anchor, type BdSide, useViewportTracker } from "@/composa
 import { bdDropdownClose, bdSize } from "@/injection";
 import type { BdSize } from "@/types";
 
+/** Side the panel opens on, plus how it aligns with the trigger on the cross axis. */
 export type BdDropdownPlacement = "bottom-end" | "bottom-start" | "top-end" | "top-start";
 
+/**
+ * Dropdown menu anchored to its trigger, built on the Popover API: it lives in
+ * the top layer (never clipped by an `overflow` or a `z-index`) and closes on
+ * outside click and Escape without any custom listener.
+ *
+ * The panel flips above the trigger when space runs out below, is nudged back
+ * inside the viewport, caps its height to the room left, and follows scrolling.
+ * Below 768px it becomes a bottom sheet. Arrow keys move between items.
+ *
+ * @example
+ * <BdDropdown label="Actions">
+ *   <BdDropdownItem :icon="PhPencilSimple" @click="rename">Rename</BdDropdownItem>
+ *   <BdDropdownItem danger :icon="PhTrash" @click="remove">Delete</BdDropdownItem>
+ * </BdDropdown>
+ */
 export interface BdDropdownProps {
+  /** Blocks opening and disables the default trigger. */
   disabled?: boolean;
-  /** Le panneau fait au moins la largeur du trigger (menus de type select). */
+  /** Panel is at least as wide as the trigger — for select-like menus. */
   matchWidth?: boolean;
-  /** Écart entre le trigger et le panneau, en px. */
+  /** Gap between trigger and panel, in px. @default 6 */
   offset?: number;
-  /** Placement souhaité : il bascule tout seul s'il manque la place. */
+  /** Preferred placement. Flips to the opposite side on its own when space runs out. @default "bottom-start" */
   placement?: BdDropdownPlacement;
-  /** En dessous de 768px, le panneau devient une feuille collée en bas. */
+  /** Below 768px, turns the panel into a sheet pinned to the bottom of the screen. @default true */
   sheetOnMobile?: boolean;
-  /** Même échelle que BdButton : le trigger fait exactement la taille d'un bouton. */
+  /** Height of the default trigger, on the same scale as BdButton. Inherited by buttons in the `trigger` slot. @default "default" */
   size?: BdSize;
+  /** Text of the default trigger button. Ignored when the `trigger` slot is used. @default "Menu" */
   label?: string;
 }
 
@@ -76,7 +94,7 @@ function close(): void {
   open.value = false;
 }
 
-/** Flèches : navigation entre les items, sans piéger le focus d'un contenu libre. */
+/** Arrow keys move between items, without trapping focus inside free-form content. */
 function onKeydown(event: KeyboardEvent): void {
   if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
 

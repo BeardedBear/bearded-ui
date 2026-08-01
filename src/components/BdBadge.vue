@@ -1,5 +1,13 @@
 <script setup lang="ts">
+/**
+ * Small uppercase pill carrying a status. Shares its colours with BdToaster
+ * through the `.bd-state-*` utilities.
+ *
+ * @example
+ * <BdBadge variant="success">Online</BdBadge>
+ */
 export interface BdBadgeProps {
+  /** Status colour, shared with BdToaster. @default "default" */
   variant?: "danger" | "default" | "info" | "primary" | "success" | "warning";
 }
 

@@ -4,10 +4,22 @@ import { useId } from "vue";
 
 import type { BdOption } from "@/types";
 
+/**
+ * Single choice among `options`, on a styled native `<select>` — keyboard
+ * support and the mobile picker come free. For a fully styled panel, an icon
+ * per entry or arbitrary content, use BdDropdown instead.
+ *
+ * @example
+ * <BdSelect v-model="fruit" label="Fruit" :options="fruits" placeholder="Pick one" />
+ */
 export interface BdSelectProps {
+  /** Blocks selection and dims the control. */
   disabled?: boolean;
+  /** Label above the control, wired to it through a generated id. */
   label?: string;
+  /** Choices to render. */
   options: BdOption[];
+  /** Disabled first entry, shown while `v-model` is empty. */
   placeholder?: string;
 }
 

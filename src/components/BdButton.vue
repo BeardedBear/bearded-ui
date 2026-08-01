@@ -5,21 +5,43 @@ import BdLoader from "@/components/BdLoader.vue";
 import { bdSize } from "@/injection";
 import type { BdSize } from "@/types";
 
+/**
+ * Button, link or router-link depending on the props: pass `href` for an
+ * `<a>`, `to` for a `<router-link>`, nothing for a `<button>`.
+ *
+ * Height comes from the `--bd-control-height*` tokens, so a button, a
+ * BdButtonGroup and a BdDropdown trigger of the same size line up exactly,
+ * whatever they contain (icon, spinner, text).
+ *
+ * @example
+ * <BdButton variant="primary" @click="save">Save</BdButton>
+ * <BdButton icon-only variant="border"><PhGear size="1.2em" /></BdButton>
+ * <BdButton :to="{ name: 'home' }">Home</BdButton>
+ */
 export interface BdButtonProps {
+  /** Content alignment inside the button. @default "center" */
   align?: "center" | "justify" | "left";
   /** Rendered tag. Auto-derived from `to` / `href` when left out. */
   as?: "a" | "button" | "router-link";
+  /** Blocks interaction and dims the button. */
   disabled?: boolean;
+  /** Stretches the button to the full width of its container. */
   full?: boolean;
+  /** Renders an `<a>` pointing here. */
   href?: string;
+  /** Square button sized on the control height — for a lone icon. */
   iconOnly?: boolean;
+  /** Shows a spinner and blocks interaction, without dimming the button. */
   loading?: boolean;
-  /** Sans valeur, hérite de la taille du conteneur (BdButtonGroup, BdDropdown). */
+  /** Height of the control. Falls back to the size provided by an enclosing BdButtonGroup or BdDropdown, then to `"default"`. */
   size?: BdSize;
+  /** Only meaningful with `href`. `_blank` adds `rel="noopener"`. @default "_self" */
   target?: "_blank" | "_parent" | "_self" | "_top";
-  /** vue-router location. Resolves <router-link> globally, so vue-router stays optional. */
+  /** vue-router location. Resolves `<router-link>` globally, so vue-router stays optional. */
   to?: unknown;
+  /** Native type of the `<button>`. @default "button" */
   type?: "button" | "reset" | "submit";
+  /** Visual style. @default "default" */
   variant?: "border" | "danger" | "default" | "nude" | "primary";
 }
 

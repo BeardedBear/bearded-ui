@@ -1,7 +1,20 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
+/**
+ * Modal built on the native `<dialog>`: focus trap, Escape and inert backdrop
+ * come free. Opening and closing are animated by the `.bd-anim-dialog` preset.
+ *
+ * @example
+ * <BdDialog v-model="open" title="Delete this?">
+ *   <p>This cannot be undone.</p>
+ *   <template #footer>
+ *     <BdButton variant="danger" @click="remove">Delete</BdButton>
+ *   </template>
+ * </BdDialog>
+ */
 export interface BdDialogProps {
+  /** Heading text. Use the `header` slot for markup. */
   title?: string;
 }
 

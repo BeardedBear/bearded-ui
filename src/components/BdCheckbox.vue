@@ -1,8 +1,19 @@
 <script setup lang="ts">
+/**
+ * Boolean control rendered as a switch: the knob slides across and squishes
+ * while pressed. The native checkbox stays focusable underneath, so Tab and
+ * Space work as expected.
+ *
+ * @example
+ * <BdCheckbox v-model="notifications" label="Notifications" />
+ * <BdCheckbox v-model="autostart" full-width label="Start on login" />
+ */
 export interface BdCheckboxProps {
+  /** Blocks interaction and dims the whole row. */
   disabled?: boolean;
-  /** Label à gauche, switch poussé à droite — pour les lignes de réglages. */
+  /** Spans the full width with the label on the left and the switch pushed right — the settings-row layout. */
   fullWidth?: boolean;
+  /** Text next to the switch. Use the default slot for markup. */
   label?: string;
 }
 

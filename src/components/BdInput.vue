@@ -1,12 +1,25 @@
 <script setup lang="ts">
 import { useId } from "vue";
 
+/**
+ * Text field with its label, helper text and error state. The label is wired
+ * to the input through a generated id.
+ *
+ * @example
+ * <BdInput v-model="email" label="Email" type="email" :error="emailError" />
+ */
 export interface BdInputProps {
+  /** Blocks input and dims the field. */
   disabled?: boolean;
+  /** Error message below the field. Also turns the border red. Takes precedence over `hint`. */
   error?: string;
+  /** Helper text below the field. */
   hint?: string;
+  /** Label above the field, wired to it through a generated id. */
   label?: string;
+  /** Placeholder shown while the field is empty. */
   placeholder?: string;
+  /** Native input type. @default "text" */
   type?: "email" | "number" | "password" | "search" | "text" | "url";
 }
 

@@ -5,12 +5,27 @@ import BdButton from "@/components/BdButton.vue";
 import { bdSize } from "@/injection";
 import type { BdOption, BdSize } from "@/types";
 
+/**
+ * Buttons glued together, rounded only at both ends of the group.
+ *
+ * With `options` it is a segmented control bound to `v-model`; without, the
+ * default slot takes arbitrary buttons — which inherit the group's size.
+ *
+ * @example
+ * <BdButtonGroup v-model="view" :options="[{ label: 'List', value: 'list' }]" />
+ * <BdButtonGroup size="small">
+ *   <BdButton>Prev</BdButton>
+ *   <BdButton>Next</BdButton>
+ * </BdButtonGroup>
+ */
 export interface BdButtonGroupProps {
+  /** Disables every generated button. Buttons passed through the slot keep their own prop. */
   disabled?: boolean;
-  /** Le groupe occupe toute la largeur, boutons à parts égales. */
+  /** Spans the full width, buttons sharing it equally. */
   full?: boolean;
-  /** Fournir pour un segmented control ; sinon passer des boutons dans le slot. */
+  /** Turns the group into a segmented control bound to `v-model`. Leave empty to pass buttons through the default slot instead. */
   options?: BdOption[];
+  /** Height of every button in the group, slot content included. @default "default" */
   size?: BdSize;
 }
 

@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { useToast } from "@/composables/useToast";
 
+/**
+ * Renders the toast queue. Mount it once, near the root of the app, then call
+ * `toast()` from anywhere.
+ *
+ * @example
+ * <BdToaster position="bottom-right" />
+ */
 export interface BdToasterProps {
+  /** Screen corner the stack grows from. @default "bottom-right" */
   position?: "bottom-left" | "bottom-right" | "top-left" | "top-right";
 }
 

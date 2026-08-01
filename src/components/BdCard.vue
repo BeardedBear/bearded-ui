@@ -1,5 +1,14 @@
 <script setup lang="ts">
+/**
+ * Elevated surface for grouping content. Optional `header` slot.
+ *
+ * @example
+ * <BdCard>
+ *   <template #header>Settings</template>
+ * </BdCard>
+ */
 export interface BdCardProps {
+  /** Inner spacing. `none` is for cards holding their own layout. @default "default" */
   padding?: "default" | "none" | "small";
 }
 

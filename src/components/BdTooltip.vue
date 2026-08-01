@@ -3,19 +3,35 @@ import { nextTick, onBeforeUnmount, ref, useId } from "vue";
 
 import { anchor, type BdSide, rafThrottle, useViewportTracker } from "@/composables/useAnchor";
 
-/** Axes sur lesquels le tooltip suit le curseur plutôt que le trigger. */
+/** Axes along which the tooltip tracks the cursor instead of the trigger. */
 export type BdTooltipFollow = "both" | "x" | "y";
 
+/**
+ * Tooltip on the default slot. Opens on hover and on keyboard focus, closes on
+ * Escape. Built on the Popover API with `popover="manual"`: top layer, without
+ * stealing focus or swallowing clicks.
+ *
+ * Width follows the content up to 20rem then wraps, the side flips when space
+ * runs out, and the arrow keeps pointing at the trigger even once the panel
+ * has been nudged back inside the viewport.
+ *
+ * @example
+ * <BdTooltip content="Delete permanently">
+ *   <BdButton icon-only><PhTrash size="1.2em" /></BdButton>
+ * </BdTooltip>
+ */
 export interface BdTooltipProps {
-  /** Texte du tooltip. Pour du markup, utiliser le slot `content`. */
+  /** Tooltip text. Use the `content` slot for markup. An empty tooltip never opens. */
   content?: string;
+  /** Never opens the tooltip. */
   disabled?: boolean;
-  /** Délai avant ouverture, en ms. La fermeture est immédiate. */
+  /** Delay before opening, in ms. Closing is always immediate. @default 150 */
   delay?: number;
-  /** Suivi du curseur, désactivé par défaut : "x", "y" ou "both". */
+  /** Track the cursor instead of staying anchored to the trigger. The axis left out stays pinned to the trigger. Off by default. */
   follow?: BdTooltipFollow;
+  /** Gap between trigger and tooltip, in px. @default 8 */
   offset?: number;
-  /** Côté souhaité : il bascule tout seul s'il manque la place. */
+  /** Preferred side. Flips to the opposite one on its own when space runs out. @default "top" */
   side?: BdSide;
 }
 
@@ -33,15 +49,15 @@ const tooltipId = useId();
 const visible = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
-/** Marge minimale entre la flèche et un coin du panneau, en px. */
+/** Minimum gap between the arrow and a corner of the panel, in px. */
 const ARROW_INSET = 12;
 
 const pointer = { x: 0, y: 0 };
 
 /**
- * Le rect à viser : celui du trigger, dont on remplace par la position du
- * curseur les axes déclarés dans `follow` (largeur/hauteur nulles pour que
- * l'alignement centré tombe pile sur le pointeur).
+ * Rect to aim at: the trigger's, with the axes listed in `follow` swapped for
+ * the cursor position — zero width/height there, so centred alignment lands
+ * exactly on the pointer.
  */
 function targetRect(trigger: HTMLElement): DOMRect {
   const t = trigger.getBoundingClientRect();
