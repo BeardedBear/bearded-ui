@@ -1,0 +1,47 @@
+/*
+ * Vocabulaire applicatif. Les apps Bearded* nomment leurs couleurs par usage
+ * (--bg-app, --text-primary, --accent) là où la lib les nomme par échelle
+ * (--bd-bg, --bd-font-color-light, --bd-primary). Ces alias branchent les deux
+ * sans rien dupliquer : une app peut supprimer son propre bloc :root et hérite
+ * du thème, palette custom comprise.
+ *
+ * Purement additif, et strictement des renvois : aucune couleur n'est décidée
+ * ici, tout ce qui se calcule vit dans themes.css. Une app qui redéfinit un de
+ * ces noms après `bearded-ui/style.css` gagne (même spécificité, ordre d'import).
+ */
+
+:root {
+  /* Fonds, du plus profond au plus en avant. */
+  --bg-deep: var(--bd-bg-darker);
+  --bg-app: var(--bd-bg);
+  --bg-surface: var(--bd-bg-light);
+  --bg-elevated: var(--bd-bg-lighter);
+  --border-color: var(--bd-border-color);
+  --hover-overlay: var(--bd-hover-overlay);
+
+  /* Texte, du plus contrasté au plus discret. */
+  --text-primary: var(--bd-font-color-light);
+  --text-secondary: var(--bd-font-color);
+  --text-muted: var(--bd-font-color-darker);
+
+  /* Accent et ses fonds. */
+  --accent: var(--bd-primary);
+  --accent-strong: var(--bd-primary-dark);
+  --accent-soft: var(--bd-primary-light);
+  --accent-bg: var(--bd-primary-bg);
+  --accent-bg-hover: var(--bd-primary-bg-hover);
+  --accent-bg-active: var(--bd-primary-bg-active);
+  --on-accent: var(--bd-on-primary);
+
+  /* États. */
+  --success: var(--bd-success);
+  --warning: var(--bd-warning);
+  --danger: var(--bd-danger);
+  --info: var(--bd-info);
+  --status-success-bg: var(--bd-success-bg);
+  --status-success-text: var(--bd-success-text);
+  --status-warning-bg: var(--bd-warning-bg);
+  --status-warning-text: var(--bd-warning-text);
+  --status-danger-bg: var(--bd-danger-bg);
+  --status-danger-text: var(--bd-danger-text);
+}

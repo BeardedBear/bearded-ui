@@ -22,15 +22,14 @@ import {
   BdDropdownItem,
   BdInput,
   BdLoader,
-  bdSchemes,
-  type BdTheme,
+  BdThemePicker,
   BdToaster,
   BdTooltip,
   toast,
   useTheme,
 } from "@/index";
 
-const { scheme, theme } = useTheme();
+const { palette, theme } = useTheme();
 
 const text = ref("");
 const fruit = ref("");
@@ -126,21 +125,22 @@ function tokenVar(prefix: string, suffix: string): string {
         <p class="muted">Design tokens et composants Vue 3 partagés des projets Bearded*</p>
       </div>
       <div class="topbar-actions">
-        <BdDropdown :label="scheme" placement="bottom-end">
-          <BdDropdownItem v-for="s in bdSchemes" :key="s" :active="scheme === s" @click="scheme = s">
-            {{ s }}
-          </BdDropdownItem>
-        </BdDropdown>
-        <BdButtonGroup
-          :model-value="theme"
-          :options="[
-            { label: '☀ Light', value: 'light' },
-            { label: '☾ Dark', value: 'dark' },
-          ]"
-          @update:model-value="theme = $event as BdTheme"
-        />
+        <code class="muted">{{ palette.base }} · {{ palette.accent }} · {{ theme }}</code>
       </div>
     </header>
+
+    <section>
+      <h2 class="bd-heading">Thème</h2>
+      <BdCard>
+        <p class="muted">
+          Deux couleurs suffisent : tout le reste — fonds, texte, bordures, états de l'accent —
+          est dérivé en <code>color-mix</code>. Le clair/sombre est déduit de la luminance du fond
+          (<code>data-theme</code>), pas d'un interrupteur : pour passer en clair, on choisit un
+          fond clair.
+        </p>
+        <BdThemePicker accent-label="Accent" base-label="Fond" />
+      </BdCard>
+    </section>
 
     <section>
       <h2 class="bd-heading">Couleurs</h2>

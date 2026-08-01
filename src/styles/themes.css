@@ -1,92 +1,91 @@
 /*
- * Colors. Two independent axes, both set as attributes on <html>:
- *   data-theme="dark|light"          → backgrounds + text
- *   data-scheme="default|blue|crimson|apple|orange" → accent
- * useTheme() flips them; plain CSS does the rest (no JS style.setProperty loop
- * like beardify's ConfigStore).
+ * Couleurs. Un seul système : deux couleurs libres — un fond et un accent —
+ * dont tout le reste est dérivé en color-mix. Rien n'est figé, il n'y a pas de
+ * thème clair ni de jeu d'accents à choisir dans une liste.
+ *
+ * useTheme() ne pose que trois choses sur <html> : les deux couleurs en
+ * propriétés inline, et data-theme="dark|light" déduit de la luminance du fond
+ * — le seul calcul que CSS ne sait pas faire (comparer deux luminances).
+ * Les valeurs ci-dessous sont la palette par défaut : elles tiennent seules,
+ * sans JS, y compris en SSR ou si l'app n'appelle jamais useTheme().
  */
 
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bd-bg-darker: #15181d;
-  --bd-bg-dark: #181b21;
-  --bd-bg: #1b1e26;
-  --bd-bg-light: #272b36;
-  --bd-bg-lighter: #323643;
-  --bd-font-color-darker: #56616a;
-  --bd-font-color-dark: #929ea8;
-  --bd-font-color: #b0bac2;
-  --bd-font-color-light: #e3e8ec;
-  --bd-border-color: var(--bd-bg-light);
+  /*
+   * Les deux pôles vers lesquels chaque token dérivé est poussé : mix-1
+   * s'éloigne du texte, mix-2 va vers lui. Ils s'inversent en thème clair, ce
+   * qui suffit à faire tenir les mêmes formules des deux côtés.
+   */
+  --bd-mix-1: black;
+  --bd-mix-2: white;
   --bd-overlay-color: rgb(0 0 0 / 60%);
-  --bd-on-primary: #fff;
 }
 
 [data-theme="light"] {
   color-scheme: light;
 
-  --bd-bg-darker: #fff;
-  --bd-bg-dark: #f3f3f3;
-  --bd-bg: #eaeaea;
-  --bd-bg-light: #e1e1e1;
-  --bd-bg-lighter: #d5d5d5;
-  --bd-font-color-darker: #8a8f93;
-  --bd-font-color-dark: #2a2e31;
-  --bd-font-color: #1b1e20;
-  --bd-font-color-light: #0f1113;
-  --bd-border-color: rgb(0 0 0 / 12%);
+  --bd-mix-1: white;
+  --bd-mix-2: black;
   --bd-overlay-color: rgb(0 0 0 / 35%);
+}
+
+/*
+ * Toute la palette. Chaque échelle part de la base et s'en éloigne :
+ * -dark/-darker vers mix-1, -light/-lighter vers mix-2. Les noms gardent le
+ * sens qu'ils ont en thème sombre — en clair, `bg-darker` est donc la valeur
+ * la plus proche du blanc, comme avant.
+ */
+:root {
+  --bd-palette-base: #1b1e26;
+  --bd-palette-accent: #9064ff;
   --bd-on-primary: #fff;
+
+  --bd-bg: var(--bd-palette-base);
+  --bd-bg-dark: color-mix(in oklab, var(--bd-palette-base) 93%, var(--bd-mix-1));
+  --bd-bg-darker: color-mix(in oklab, var(--bd-palette-base) 84%, var(--bd-mix-1));
+  --bd-bg-light: color-mix(in oklab, var(--bd-palette-base) 93%, var(--bd-mix-2));
+  --bd-bg-lighter: color-mix(in oklab, var(--bd-palette-base) 84%, var(--bd-mix-2));
+  --bd-border-color: var(--bd-bg-light);
+
+  --bd-font-color-darker: color-mix(in oklab, var(--bd-palette-base) 55%, var(--bd-mix-2));
+  --bd-font-color-dark: color-mix(in oklab, var(--bd-palette-base) 40%, var(--bd-mix-2));
+  --bd-font-color: color-mix(in oklab, var(--bd-palette-base) 26%, var(--bd-mix-2));
+  --bd-font-color-light: color-mix(in oklab, var(--bd-palette-base) 8%, var(--bd-mix-2));
+
+  --bd-primary: var(--bd-palette-accent);
+  --bd-primary-dark: color-mix(in oklab, var(--bd-palette-accent) 85%, var(--bd-mix-1));
+  --bd-primary-darker: color-mix(in oklab, var(--bd-palette-accent) 70%, var(--bd-mix-1));
+  --bd-primary-light: color-mix(in oklab, var(--bd-palette-accent) 85%, var(--bd-mix-2));
+  --bd-primary-lighter: color-mix(in oklab, var(--bd-palette-accent) 70%, var(--bd-mix-2));
+
+  /* Surfaces teintées d'accent : sélection dans une liste, ligne active. */
+  --bd-primary-bg: color-mix(in oklab, var(--bd-palette-accent) 30%, var(--bd-bg-light));
+  --bd-primary-bg-hover: color-mix(in oklab, var(--bd-palette-accent) 40%, var(--bd-bg-light));
+  --bd-primary-bg-active: color-mix(in oklab, var(--bd-palette-accent) 50%, var(--bd-bg-light));
+
+  /* Voile de survol : le pôle opposé au fond, donc il s'inverse tout seul. */
+  --bd-hover-overlay: color-mix(in oklab, var(--bd-mix-2) 8%, transparent);
 }
 
-/* Accent schemes */
-:root,
-[data-scheme="default"] {
-  --bd-primary-darker: #402d6e;
-  --bd-primary-dark: #543a97;
-  --bd-primary: #9064ff;
-  --bd-primary-light: #7a50e4;
-  --bd-primary-lighter: #a582ff;
-}
-
-[data-scheme="blue"] {
-  --bd-primary-darker: #0285b0;
-  --bd-primary-dark: #0992bf;
-  --bd-primary: #15acde;
-  --bd-primary-light: #1cbaee;
-  --bd-primary-lighter: #32ccff;
-}
-
-[data-scheme="crimson"] {
-  --bd-primary-darker: #9d152c;
-  --bd-primary-dark: #b51833;
-  --bd-primary: #de1c3e;
-  --bd-primary-light: #ff4868;
-  --bd-primary-lighter: #ff647f;
-}
-
-[data-scheme="apple"] {
-  --bd-primary-darker: #228319;
-  --bd-primary-dark: #228d17;
-  --bd-primary: #28aa1b;
-  --bd-primary-light: #2dc31e;
-  --bd-primary-lighter: #3fd830;
-}
-
-[data-scheme="orange"] {
-  --bd-primary-darker: #a8500b;
-  --bd-primary-dark: #c25e0d;
-  --bd-primary: #e87d1e;
-  --bd-primary-light: #f79433;
-  --bd-primary-lighter: #ffab55;
-}
-
-/* Semantic states, shared by every theme. */
+/* Semantic states, shared by every palette. */
 :root {
   --bd-success: #1baa5c;
   --bd-warning: #f66f0d;
   --bd-danger: #de1c56;
   --bd-info: #15acde;
+
+  /*
+   * Paires fond/texte des états (bandeau, pastille, ligne d'erreur). Dérivées
+   * du fond courant plutôt que figées : elles suivent donc n'importe quelle
+   * palette sans une seule ligne de JS.
+   */
+  --bd-success-bg: color-mix(in oklab, var(--bd-success) 22%, var(--bd-bg));
+  --bd-success-text: color-mix(in oklab, var(--bd-success) 70%, var(--bd-font-color-light));
+  --bd-warning-bg: color-mix(in oklab, var(--bd-warning) 22%, var(--bd-bg));
+  --bd-warning-text: color-mix(in oklab, var(--bd-warning) 70%, var(--bd-font-color-light));
+  --bd-danger-bg: color-mix(in oklab, var(--bd-danger) 22%, var(--bd-bg));
+  --bd-danger-text: color-mix(in oklab, var(--bd-danger) 70%, var(--bd-font-color-light));
 }

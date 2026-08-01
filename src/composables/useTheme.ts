@@ -1,71 +1,90 @@
-import { ref, watchEffect } from "vue";
+import { computed, type ComputedRef, ref, type Ref, watchEffect } from "vue";
 
-/** Accent palette, applied as `data-scheme` on `<html>`. Independent from the theme. */
-export type BdScheme = "apple" | "blue" | "crimson" | "default" | "orange";
+import { isLightColor } from "../utils/color";
 
-/** Background and text palette, applied as `data-theme` on `<html>`. */
+/**
+ * The two colors the whole interface is derived from — the only thing an app
+ * ever picks. Backgrounds, text, borders and accent states all follow.
+ */
+export interface BdPalette {
+  /** Accent, everything interactive. Any CSS color the browser can parse. */
+  accent: string;
+  /** Background the light/dark ladder is built on. Its luminance picks the theme. */
+  base: string;
+}
+
+/** Whether the palette reads dark or light — deduced, never chosen. */
 export type BdTheme = "dark" | "light";
 
-/** Every accent scheme, in display order — for building a picker. */
-export const bdSchemes: BdScheme[] = ["default", "blue", "crimson", "apple", "orange"];
+/** Palette of the library itself. Same values as the CSS defaults in themes.css. */
+export const bdDefaultPalette: BdPalette = { accent: "#9064ff", base: "#1b1e26" };
 
 const STORAGE_KEY = "bearded-ui-theme";
 
-function stored(): { scheme?: BdScheme; theme?: BdTheme } {
+function stored(): BdPalette {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
+    return saved?.accent && saved?.base ? saved : bdDefaultPalette;
   } catch {
-    return {};
+    return bdDefaultPalette;
   }
 }
 
-const theme = ref<BdTheme>(stored().theme ?? "dark");
-const scheme = ref<BdScheme>(stored().scheme ?? "default");
+const palette = ref<BdPalette>(bdDefaultPalette);
 
 /*
- * L'effet démarre au premier useTheme(), pas à l'import du module : importer
- * un simple BdButton ne doit ni toucher au DOM ni planter en SSR.
+ * Déduit, jamais choisi : un fond clair impose un texte sombre, sans quoi une
+ * palette claire hériterait du contraste du thème sombre.
+ */
+const theme = computed<BdTheme>(() => (isLightColor(palette.value.base) ? "light" : "dark"));
+
+/*
+ * Rien ne démarre à l'import du module, ni la relecture du localStorage ni
+ * l'effet : importer un simple BdButton ne doit ni toucher au DOM, ni payer une
+ * lecture de stockage, ni planter en SSR. Tout attend le premier useTheme().
  */
 let started = false;
 /**
- * Reads and writes the two theme axes. Both are refs: assign to them and the
- * `data-theme` / `data-scheme` attributes on `<html>` follow, along with the
- * `bearded-ui-theme` entry in `localStorage`. State is module-level, so every
- * caller shares the same theme.
+ * Reads and writes the theme. Assign to `palette` and every `--bd-*` token
+ * follows, along with the `bearded-ui-theme` entry in `localStorage`. State is
+ * module-level, so every caller shares the same theme.
  *
  * The DOM effect starts on the first call, never at import time — importing a
  * component alone neither touches the DOM nor breaks under SSR.
  *
  * @example
- * const { scheme, theme, toggleTheme } = useTheme();
- * theme.value = "light";
- * scheme.value = "crimson";
+ * const { palette, theme } = useTheme();
+ * palette.value = { accent: "#8343de", base: "#100a1c" };
+ * palette.value = bdDefaultPalette;
  */
 export function useTheme(): {
-  scheme: typeof scheme;
-  theme: typeof theme;
-  /** Switches between dark and light. */
-  toggleTheme: () => void;
+  /** The base and accent everything is derived from. */
+  palette: Ref<BdPalette>;
+  /** Dark or light, from the luminance of `palette.base`. Read-only by design. */
+  theme: ComputedRef<BdTheme>;
 } {
   start();
 
-  return {
-    scheme,
-    theme,
-    toggleTheme: (): void => {
-      theme.value = theme.value === "dark" ? "light" : "dark";
-    },
-  };
+  return { palette, theme };
 }
 
 function start(): void {
   if (started || typeof document === "undefined") return;
   started = true;
+  palette.value = stored();
 
   watchEffect(() => {
     const root = document.documentElement;
+
     root.dataset.theme = theme.value;
-    root.dataset.scheme = scheme.value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ scheme: scheme.value, theme: theme.value }));
+    root.style.setProperty("--bd-palette-base", palette.value.base);
+    root.style.setProperty("--bd-palette-accent", palette.value.accent);
+    /*
+     * Le texte posé sur l'accent : le seul token que CSS ne peut pas déduire,
+     * color-mix ne sachant pas comparer deux luminances.
+     */
+    root.style.setProperty("--bd-on-primary", isLightColor(palette.value.accent) ? "#111" : "#fff");
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(palette.value));
   });
 }

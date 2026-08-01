@@ -41,11 +41,13 @@ import "bearded-ui/style.css";
 <script setup lang="ts">
 import { BdButton, useTheme } from "bearded-ui";
 
-const { theme, toggleTheme } = useTheme();
+const { palette, theme } = useTheme();
 </script>
 
 <template>
-  <BdButton variant="primary" @click="toggleTheme">{{ theme }}</BdButton>
+  <BdButton variant="primary" @click="palette = { accent: '#8343de', base: '#100a1c' }">
+    {{ theme }}
+  </BdButton>
 </template>
 ```
 
@@ -60,24 +62,61 @@ La police (Bricolage Grotesque) n'est pas embarquée — ajoute-la dans ton `ind
 
 ## Thème
 
-Deux axes indépendants, posés en attributs sur `<html>` :
+**Deux couleurs**, un fond et un accent : tout le reste — fonds, texte, bordures, états de
+l'accent, paires fond/texte des états — est dérivé en `color-mix`. Pas de thème clair à choisir,
+pas de jeu d'accents figé.
 
-| Attribut      | Valeurs                                         |
-| ------------- | ----------------------------------------------- |
-| `data-theme`  | `dark` (défaut), `light`                        |
-| `data-scheme` | `default`, `blue`, `crimson`, `apple`, `orange` |
+```ts
+const { palette, theme } = useTheme();
 
-`useTheme()` les pilote et persiste le choix dans `localStorage` (`bearded-ui-theme`).
-Tout est en CSS pur : n'importe quel token peut être redéfini dans l'app.
+palette.value = { accent: "#8343de", base: "#100a1c" }; // toute l'app suit
+palette.value = bdDefaultPalette;                        // #1b1e26 + #9064ff
+theme.value; // "dark" | "light" — déduit, en lecture seule
+```
+
+- Le clair/sombre est **déduit** de la luminance du fond (`isLightColor`), jamais choisi : un fond
+  clair pose `data-theme="light"` tout seul, et avec lui `color-scheme` et l'inversion des mélanges.
+- `useTheme()` n'écrit que trois propriétés inline sur `<html>` (`--bd-palette-base`,
+  `--bd-palette-accent`, `--bd-on-primary`) plus `data-theme`. Aucun observer, aucune boucle : le
+  reste est un bloc `:root` dans `themes.css`, qui tient donc sans JS (SSR, ou app qui n'appelle
+  jamais `useTheme()`).
+- Le choix est persisté dans `localStorage` (`bearded-ui-theme`).
+- 30 palettes prêtes à l'emploi dans `bdPresets` (groupes `dark`, `darker`, `light`). La première,
+  `Bearded` (`#1b1e26` + `#9064ff`), est la palette par défaut.
+
+Le picker complet (deux champs `<input type="color">` + grille de presets) tient en une balise :
+
+```vue
+<BdThemePicker accent-label="Accent" base-label="Fond" />
+```
+
+### Alias applicatifs
+
+Les apps Bearded\* nomment leurs couleurs par usage. `style.css` expose les alias correspondants,
+branchés sur les tokens de la lib — une app peut supprimer son propre bloc `:root` et hériter du
+thème :
+
+| Alias                                                 | Token                                                |
+| ----------------------------------------------------- | ---------------------------------------------------- |
+| `--bg-deep`, `--bg-app`, `--bg-surface`, `--bg-elevated` | `--bd-bg-darker`, `--bd-bg`, `--bd-bg-light`, `--bd-bg-lighter` |
+| `--text-primary`, `--text-secondary`, `--text-muted`  | `--bd-font-color-light`, `--bd-font-color`, `--bd-font-color-darker` |
+| `--accent{,-strong,-soft,-bg,-bg-hover,-bg-active}`   | `--bd-primary{,-dark,-light,-bg,-bg-hover,-bg-active}` |
+| `--success`, `--warning`, `--danger`, `--info`        | `--bd-*` homonymes                                   |
+| `--status-{success,warning,danger}-{bg,text}`         | `--bd-{success,warning,danger}-{bg,text}`            |
+| `--border-color`, `--hover-overlay`, `--on-accent`    | `--bd-border-color`, `--bd-hover-overlay`, `--bd-on-primary` |
+
+Purement additif : une app qui redéfinit un de ces noms après `bearded-ui/style.css` garde sa valeur.
+Espacements et typo ne sont **pas** aliasés — l'échelle de la lib part d'une racine à 14 px, celle
+des apps à 16 px.
 
 ## Tokens
 
 | Famille    | Variables                                                                           |
 | ---------- | ----------------------------------------------------------------------------------- |
-| Accent     | `--bd-primary{,-darker,-dark,-light,-lighter}`, `--bd-on-primary`                    |
-| Fonds      | `--bd-bg{,-darker,-dark,-light,-lighter}`, `--bd-border-color`, `--bd-overlay-color` |
+| Accent     | `--bd-primary{,-darker,-dark,-light,-lighter,-bg,-bg-hover,-bg-active}`, `--bd-on-primary` |
+| Fonds      | `--bd-bg{,-darker,-dark,-light,-lighter}`, `--bd-border-color`, `--bd-overlay-color`, `--bd-hover-overlay` |
 | Texte      | `--bd-font-color{,-darker,-dark,-light}`                                             |
-| États      | `--bd-success`, `--bd-warning`, `--bd-danger`, `--bd-info`                           |
+| États      | `--bd-{success,warning,danger,info}`, paires `-bg` / `-text` pour les trois premiers |
 | Typo       | `--bd-font-family`, `--bd-font-size-{xs,sm,base,lg,xl}`, `--bd-font-weight{,-bold}`  |
 | Espacement | `--bd-space-1` → `--bd-space-6` (voir ci-dessous)                                    |
 | Rayons     | `--bd-radius-{sm,md,lg,full}`                                                        |
@@ -185,6 +224,7 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdDropdownItem` | `icon`, `active`, `danger`, `disabled`, `keepOpen`                                                                                          |
 | `BdTooltip` | `content` (ou slot `content`), `side`, `follow`, `delay`, `offset`, `disabled`                                                                    |
 | `BdToaster`| `position` (bottom-right/bottom-left/top-right/top-left) — à monter une seule fois                                                                  |
+| `BdThemePicker` | `presets`, `baseLabel`, `accentLabel` — écrit dans `useTheme().palette`                                                                        |
 
 `BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
 reste une dépendance de l'app, pas de la lib.
