@@ -34,6 +34,8 @@ const { palette, theme } = useTheme();
 const text = ref("");
 const fruit = ref("");
 const dialogOpen = ref(false);
+const longDialogOpen = ref(false);
+const shellDialogOpen = ref(false);
 const notifications = ref(true);
 const autostart = ref(false);
 const view = ref("list");
@@ -343,6 +345,8 @@ function tokenVar(prefix: string, suffix: string): string {
         </div>
         <div class="row">
           <BdButton variant="primary" @click="dialogOpen = true">Ouvrir la dialog</BdButton>
+          <BdButton variant="border" @click="longDialogOpen = true">Contenu long</BdButton>
+          <BdButton variant="border" @click="shellDialogOpen = true">Coque plein-bord</BdButton>
         </div>
       </BdCard>
     </section>
@@ -538,6 +542,28 @@ function tokenVar(prefix: string, suffix: string): string {
       <template #footer>
         <BdButton variant="nude" @click="dialogOpen = false">Annuler</BdButton>
         <BdButton variant="primary" @click="dialogOpen = false">OK</BdButton>
+      </template>
+    </BdDialog>
+
+    <BdDialog v-model="longDialogOpen" title="Corps qui défile">
+      <p v-for="n in 40" :key="n">Paragraphe {{ n }} — le titre et le pied restent en place.</p>
+      <template #footer>
+        <BdButton variant="primary" @click="longDialogOpen = false">Fermer</BdButton>
+      </template>
+    </BdDialog>
+
+    <BdDialog v-model="shellDialogOpen" size="big" padding="none">
+      <template #header>
+        <div class="shell-bar">Barre à moi, d'un bord à l'autre</div>
+      </template>
+      <div class="shell-body">
+        <p><code>size="big"</code> + <code>padding="none"</code> : la coque ne pose plus rien,</p>
+        <p>en-tête et pied portent leur propre padding.</p>
+      </div>
+      <template #footer>
+        <div class="shell-bar">
+          <BdButton variant="primary" @click="shellDialogOpen = false">Fermer</BdButton>
+        </div>
       </template>
     </BdDialog>
 
@@ -744,5 +770,17 @@ figcaption {
   & > * {
     flex: 1 1 12rem;
   }
+}
+
+.shell-bar {
+  background-color: var(--bd-bg-dark);
+  border-block: 1px solid var(--bd-border-color);
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--bd-space-3) var(--bd-space-4);
+}
+
+.shell-body {
+  padding: var(--bd-space-4);
 }
 </style>

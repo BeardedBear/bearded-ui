@@ -219,7 +219,7 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdCard`   | `padding` (default/small/none), slot `header`                                                                                                      |
 | `BdBadge`  | `variant` (default/primary/success/warning/danger/info)                                                                                            |
 | `BdLoader` | `size` (default/small/x-small/xx-small)                                                                                                            |
-| `BdDialog` | `v-model` (ouverture), `title`, slots `header`/`footer`                                                                                            |
+| `BdDialog` | `v-model` (ouverture), `title`, `size` (small/default/big/full), `padding` (default/small/none), slots `header`/`footer`                            |
 | `BdDropdown` | `size`, `placement`, `matchWidth`, `offset`, `sheetOnMobile`, `label`, slot `trigger`, `v-model` (ouverture)                                     |
 | `BdDropdownItem` | `icon`, `active`, `danger`, `disabled`, `keepOpen`                                                                                          |
 | `BdTooltip` | `content` (ou slot `content`), `side`, `follow`, `delay`, `offset`, `disabled`                                                                    |
