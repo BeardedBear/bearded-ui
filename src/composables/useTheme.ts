@@ -17,7 +17,7 @@ export interface BdPalette {
 export type BdTheme = "dark" | "light";
 
 /** Palette of the library itself. Same values as the CSS defaults in themes.css. */
-export const bdDefaultPalette: BdPalette = { accent: "#9064ff", base: "#1b1e26" };
+export const bdDefaultPalette: BdPalette = { accent: "#9064ff", base: "#16181d" };
 
 const STORAGE_KEY = "bearded-ui-theme";
 

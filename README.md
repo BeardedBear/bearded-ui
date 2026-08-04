@@ -70,7 +70,7 @@ pas de jeu d'accents figé.
 const { palette, theme } = useTheme();
 
 palette.value = { accent: "#8343de", base: "#100a1c" }; // toute l'app suit
-palette.value = bdDefaultPalette;                        // #1b1e26 + #9064ff
+palette.value = bdDefaultPalette;                        // #16181d + #9064ff
 theme.value; // "dark" | "light" — déduit, en lecture seule
 ```
 
@@ -82,7 +82,7 @@ theme.value; // "dark" | "light" — déduit, en lecture seule
   jamais `useTheme()`).
 - Le choix est persisté dans `localStorage` (`bearded-ui-theme`).
 - 30 palettes prêtes à l'emploi dans `bdPresets` (groupes `dark`, `darker`, `light`). La première,
-  `Bearded` (`#1b1e26` + `#9064ff`), est la palette par défaut.
+  `Bearded` (`#16181d` + `#9064ff`), est la palette par défaut.
 
 Le picker complet (deux champs `<input type="color">` + grille de presets) tient en une balise :
 
