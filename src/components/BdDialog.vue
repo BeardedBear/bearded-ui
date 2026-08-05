@@ -40,6 +40,12 @@ export interface BdDialogProps {
    */
   padding?: "default" | "none" | "small";
   /**
+   * Keeps the dialog open on a backdrop click — for anything holding work in
+   * progress, where a stray click would throw it away. Escape and the close
+   * button still work.
+   */
+  persistent?: boolean;
+  /**
    * Width preset. `full` fills the viewport, for app-shell dialogs; `fit`
    * shrinks to the content and lets it decide, for media viewers.
    * @default "default"
@@ -54,6 +60,7 @@ export interface BdDialogProps {
 const props = withDefaults(defineProps<BdDialogProps>(), {
   hideClose: false,
   padding: "default",
+  persistent: false,
   size: "default",
   subtitle: undefined,
   title: undefined,
@@ -68,6 +75,40 @@ watch(open, (value) => {
   if (value) el.value.showModal();
   else el.value.close();
 });
+
+/*
+ * Le backdrop n'est pas un élément : les clics dessus visent la `<dialog>`
+ * elle-même. On les distingue par la géométrie plutôt que par `event.target`,
+ * sinon un clic sur le padding de la coque fermerait la dialog.
+ */
+function hitsBackdrop(event: MouseEvent): boolean {
+  const rect = el.value?.getBoundingClientRect();
+  if (!rect) return false;
+  return (
+    event.clientX < rect.left
+    || event.clientX > rect.right
+    || event.clientY < rect.top
+    || event.clientY > rect.bottom
+  );
+}
+
+// Un geste commencé dans la dialog et relâché dehors — une sélection de texte
+// qui déborde — ne doit pas la fermer : les deux bouts doivent être dehors.
+let pressedOutside = false;
+
+function onClick(event: MouseEvent): void {
+  // `detail === 0` : clic synthétique — Entrée sur un bouton, par exemple. Ses
+  // coordonnées valent 0, ce que la géométrie prendrait pour un clic dehors.
+  const fromPointer = event.detail > 0;
+  if (!props.persistent && fromPointer && pressedOutside && hitsBackdrop(event)) {
+    open.value = false;
+  }
+  pressedOutside = false;
+}
+
+function onPointerDown(event: MouseEvent): void {
+  pressedOutside = hitsBackdrop(event);
+}
 </script>
 
 <template>
@@ -78,7 +119,9 @@ watch(open, (value) => {
       props.size === 'default' ? '' : `bd-dialog-${props.size}`,
       props.padding === 'default' ? '' : `bd-dialog-padding-${props.padding}`,
     ]"
+    @click="onClick"
     @close="open = false"
+    @mousedown="onPointerDown"
   >
     <header v-if="title || subtitle || $slots.header || $slots.actions || !hideClose" class="bd-dialog-header">
       <slot name="header">
