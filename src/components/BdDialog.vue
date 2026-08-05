@@ -22,6 +22,12 @@ import { ref, watch } from "vue";
  *   <template #header><MyToolbar /></template>
  *   <MyLayout />
  * </BdDialog>
+ *
+ * @example
+ * <!-- Media viewer: the picture sets the size, the viewport caps it -->
+ * <BdDialog v-model="open" size="fit" padding="none">
+ *   <img :src="src" style="max-width: 100%; max-height: 100%" />
+ * </BdDialog>
  */
 export interface BdDialogProps {
   /**

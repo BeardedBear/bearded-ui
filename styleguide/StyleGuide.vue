@@ -36,6 +36,10 @@ const fruit = ref("");
 const dialogOpen = ref(false);
 const longDialogOpen = ref(false);
 const shellDialogOpen = ref(false);
+const fitDialogOpen = ref(false);
+// Deux fois la même image, en portrait et en paysage : la dialog bute sur la
+// hauteur pour l'une, sur la largeur pour l'autre, sans rien mesurer.
+const fitPortrait = ref(true);
 const notifications = ref(true);
 const autostart = ref(false);
 const view = ref("list");
@@ -347,6 +351,7 @@ function tokenVar(prefix: string, suffix: string): string {
           <BdButton variant="primary" @click="dialogOpen = true">Ouvrir la dialog</BdButton>
           <BdButton variant="border" @click="longDialogOpen = true">Contenu long</BdButton>
           <BdButton variant="border" @click="shellDialogOpen = true">Coque plein-bord</BdButton>
+          <BdButton variant="border" @click="fitDialogOpen = true">Visionneuse</BdButton>
         </div>
       </BdCard>
     </section>
@@ -567,6 +572,22 @@ function tokenVar(prefix: string, suffix: string): string {
       </template>
     </BdDialog>
 
+    <BdDialog v-model="fitDialogOpen" size="fit" padding="none">
+      <template #header>
+        <div class="shell-bar">
+          <BdButton size="small" variant="border" @click="fitPortrait = !fitPortrait">
+            Basculer {{ fitPortrait ? "en paysage" : "en portrait" }}
+          </BdButton>
+        </div>
+      </template>
+      <div
+        class="fit-media"
+        :style="{ aspectRatio: fitPortrait ? '2 / 3' : '3 / 2' }"
+      >
+        {{ fitPortrait ? "Portrait : bute sur la hauteur" : "Paysage : bute sur la largeur" }}
+      </div>
+    </BdDialog>
+
     <BdToaster />
   </div>
 </template>
@@ -782,5 +803,17 @@ figcaption {
 
 .shell-body {
   padding: var(--bd-space-4);
+}
+
+/* Tient lieu d'image : c'est lui qui donne sa taille à la dialog `fit`. */
+.fit-media {
+  align-items: center;
+  background-color: var(--bd-bg-darker);
+  color: var(--bd-font-color-dark);
+  display: flex;
+  justify-content: center;
+  max-height: 100%;
+  max-width: 100%;
+  min-height: 0;
 }
 </style>
