@@ -4,6 +4,7 @@ import {
   PhCalendarBlank,
   PhCopy,
   PhDotsThree,
+  PhGear,
   PhPencilSimple,
   PhRuler,
   PhSortAscending,
@@ -17,6 +18,7 @@ import {
   BdButtonGroup,
   BdCard,
   BdCheckbox,
+  BdConfirmDialog,
   BdDialog,
   BdDropdown,
   BdDropdownItem,
@@ -37,6 +39,7 @@ const dialogOpen = ref(false);
 const longDialogOpen = ref(false);
 const shellDialogOpen = ref(false);
 const fitDialogOpen = ref(false);
+const confirmOpen = ref(false);
 // Deux fois la même image, en portrait et en paysage : la dialog bute sur la
 // hauteur pour l'une, sur la largeur pour l'autre, sans rien mesurer.
 const fitPortrait = ref(true);
@@ -352,6 +355,7 @@ function tokenVar(prefix: string, suffix: string): string {
           <BdButton variant="border" @click="longDialogOpen = true">Contenu long</BdButton>
           <BdButton variant="border" @click="shellDialogOpen = true">Coque plein-bord</BdButton>
           <BdButton variant="border" @click="fitDialogOpen = true">Visionneuse</BdButton>
+          <BdButton variant="danger" @click="confirmOpen = true">Confirmation</BdButton>
         </div>
       </BdCard>
     </section>
@@ -557,28 +561,30 @@ function tokenVar(prefix: string, suffix: string): string {
       </template>
     </BdDialog>
 
-    <BdDialog v-model="shellDialogOpen" size="big" padding="none">
-      <template #header>
-        <div class="shell-bar">Barre à moi, d'un bord à l'autre</div>
+    <BdDialog
+      v-model="shellDialogOpen"
+      size="big"
+      padding="none"
+      title="Coque plein-bord"
+      subtitle="un sous-titre, tronqué s'il déborde"
+    >
+      <template #actions>
+        <BdButton size="small" variant="nude" icon-only><PhGear /></BdButton>
       </template>
       <div class="shell-body">
-        <p><code>size="big"</code> + <code>padding="none"</code> : la coque ne pose plus rien,</p>
-        <p>en-tête et pied portent leur propre padding.</p>
+        <p><code>padding="none"</code> : seul le corps perd son padding.</p>
+        <p>L'en-tête et le pied restent du chrome, filets compris.</p>
       </div>
       <template #footer>
-        <div class="shell-bar">
-          <BdButton variant="primary" @click="shellDialogOpen = false">Fermer</BdButton>
-        </div>
+        <BdButton variant="primary" @click="shellDialogOpen = false">Fermer</BdButton>
       </template>
     </BdDialog>
 
-    <BdDialog v-model="fitDialogOpen" size="fit" padding="none">
-      <template #header>
-        <div class="shell-bar">
-          <BdButton size="small" variant="border" @click="fitPortrait = !fitPortrait">
-            Basculer {{ fitPortrait ? "en paysage" : "en portrait" }}
-          </BdButton>
-        </div>
+    <BdDialog v-model="fitDialogOpen" size="fit" padding="none" title="Visionneuse">
+      <template #actions>
+        <BdButton size="small" variant="border" @click="fitPortrait = !fitPortrait">
+          Basculer {{ fitPortrait ? "en paysage" : "en portrait" }}
+        </BdButton>
       </template>
       <div
         class="fit-media"
@@ -587,6 +593,17 @@ function tokenVar(prefix: string, suffix: string): string {
         {{ fitPortrait ? "Portrait : bute sur la hauteur" : "Paysage : bute sur la largeur" }}
       </div>
     </BdDialog>
+
+    <BdConfirmDialog
+      v-model="confirmOpen"
+      danger
+      title="Supprimer ce libellé ?"
+      message="Les messages gardent leur contenu, seul le libellé disparaît."
+      confirm-label="Supprimer"
+      cancel-label="Annuler"
+      @cancel="toast('Annulé')"
+      @confirm="toast('Supprimé', { variant: 'danger' })"
+    />
 
     <BdToaster />
   </div>
@@ -791,14 +808,6 @@ figcaption {
   & > * {
     flex: 1 1 12rem;
   }
-}
-
-.shell-bar {
-  background-color: var(--bd-bg-dark);
-  border-block: 1px solid var(--bd-border-color);
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--bd-space-3) var(--bd-space-4);
 }
 
 .shell-body {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PhX } from "@phosphor-icons/vue";
 import { ref, watch } from "vue";
 
 /**
@@ -17,22 +18,25 @@ import { ref, watch } from "vue";
  * </BdDialog>
  *
  * @example
- * <!-- App shell: full-bleed header and footer of your own -->
- * <BdDialog v-model="open" size="big" padding="none">
- *   <template #header><MyToolbar /></template>
+ * <!-- App shell: body flush to the edges, chrome keeps its own padding -->
+ * <BdDialog v-model="open" size="big" padding="none" title="Settings" subtitle="me@example.com">
+ *   <template #actions><BdButton variant="nude" icon-only><PhGear /></BdButton></template>
  *   <MyLayout />
  * </BdDialog>
  *
  * @example
  * <!-- Media viewer: the picture sets the size, the viewport caps it -->
- * <BdDialog v-model="open" size="fit" padding="none">
+ * <BdDialog v-model="open" size="fit" padding="none" :title="filename">
  *   <img :src="src" style="max-width: 100%; max-height: 100%" />
  * </BdDialog>
  */
 export interface BdDialogProps {
+  /** Hides the close button. Escape still closes — this only removes the cross. */
+  hideClose?: boolean;
   /**
-   * Inner spacing. `none` is for dialogs holding their own layout — their
-   * header and footer then run edge to edge. @default "default"
+   * Body spacing; the header and footer always keep their own. `none` is for a
+   * body that runs edge to edge: a form, a picture, an iframe.
+   * @default "default"
    */
   padding?: "default" | "none" | "small";
   /**
@@ -41,13 +45,17 @@ export interface BdDialogProps {
    * @default "default"
    */
   size?: "big" | "default" | "fit" | "full" | "small";
-  /** Heading text. Use the `header` slot for markup. */
+  /** Secondary line under the title, truncated when too long. */
+  subtitle?: string;
+  /** Heading text. Use the `header` slot to replace the whole heading. */
   title?: string;
 }
 
 const props = withDefaults(defineProps<BdDialogProps>(), {
+  hideClose: false,
   padding: "default",
   size: "default",
+  subtitle: undefined,
   title: undefined,
 });
 
@@ -72,10 +80,30 @@ watch(open, (value) => {
     ]"
     @close="open = false"
   >
-    <header v-if="title || $slots.header" class="bd-dialog-header">
+    <header v-if="title || subtitle || $slots.header || $slots.actions || !hideClose" class="bd-dialog-header">
       <slot name="header">
-        <h2 class="bd-dialog-title">{{ title }}</h2>
+        <div class="bd-dialog-heading">
+          <h2 v-if="title" class="bd-dialog-title">{{ title }}</h2>
+          <!--
+            `title` natif plutôt qu'une infobulle maison : la dialog vit dans le
+            top layer, où un popper téléporté sur `body` passerait derrière.
+          -->
+          <p v-if="subtitle" class="bd-dialog-subtitle" :title="subtitle">{{ subtitle }}</p>
+        </div>
       </slot>
+
+      <div v-if="$slots.actions || !hideClose" class="bd-dialog-actions">
+        <slot name="actions" />
+        <button
+          v-if="!hideClose"
+          aria-label="Close"
+          class="bd-dialog-close"
+          type="button"
+          @click="open = false"
+        >
+          <PhX aria-hidden="true" size="1em" weight="bold" />
+        </button>
+      </div>
     </header>
     <div class="bd-dialog-body"><slot /></div>
     <footer v-if="$slots.footer" class="bd-dialog-footer"><slot name="footer" /></footer>
@@ -161,7 +189,6 @@ watch(open, (value) => {
   width: fit-content;
 }
 
-/* En-tête et pied portent alors leur propre padding, d'un bord à l'autre. */
 .bd-dialog-padding-none {
   padding: 0;
 }
@@ -170,13 +197,59 @@ watch(open, (value) => {
   padding: var(--bd-space-3);
 }
 
+.bd-dialog-header {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--bd-space-4);
+  justify-content: space-between;
+  margin-bottom: var(--bd-space-4);
+}
+
+/* `min-width: 0` : sans lui l'ellipse du sous-titre ne se déclenche jamais. */
+.bd-dialog-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .bd-dialog-title {
   margin: 0;
 }
 
-.bd-dialog-header {
+.bd-dialog-subtitle {
+  color: var(--bd-font-color-dark);
+  font-size: var(--bd-font-size-sm);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bd-dialog-actions {
+  align-items: center;
+  display: flex;
   flex-shrink: 0;
-  margin-bottom: var(--bd-space-4);
+  gap: var(--bd-space-1);
+}
+
+.bd-dialog-close {
+  align-items: center;
+  background-color: #0000;
+  border: 0;
+  border-radius: var(--bd-radius-sm);
+  color: var(--bd-font-color-dark);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  padding: var(--bd-space-1);
+  transition: background-color var(--bd-transition-fast), color var(--bd-transition-fast);
+
+  &:hover {
+    background-color: var(--bd-danger);
+    color: #fff;
+  }
 }
 
 /* Seul le corps défile : la dialog ne dépasse jamais du viewport. */
@@ -195,15 +268,15 @@ watch(open, (value) => {
 }
 
 /*
- * Mode coque : la dialog ne pose plus rien et l'application fournit sa propre
- * mise en page. Les marges des slots feraient un blanc parasite contre les
- * bords, le pied cède sa disposition à la barre qu'on lui donne, et le corps
- * devient une colonne pour qu'un contenu en `flex: 1` remplisse la hauteur
- * restante au lieu de flotter en haut.
+ * Corps plein-bord : la coque ne pose plus de padding, mais l'en-tête et le
+ * pied restent du chrome — ils reprennent le leur et se séparent du contenu
+ * par un filet, sinon titre et boutons colleraient aux bords.
  */
 .bd-dialog-padding-none {
   & .bd-dialog-header {
+    border-bottom: 1px solid var(--bd-border-color);
     margin-bottom: 0;
+    padding: var(--bd-space-2) var(--bd-space-3);
   }
 
   & .bd-dialog-body {
@@ -212,8 +285,9 @@ watch(open, (value) => {
   }
 
   & .bd-dialog-footer {
-    display: block;
+    border-top: 1px solid var(--bd-border-color);
     margin-top: 0;
+    padding: var(--bd-space-2) var(--bd-space-3);
   }
 }
 </style>

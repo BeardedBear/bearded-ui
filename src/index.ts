@@ -5,6 +5,10 @@ export { default as BdButton, type BdButtonProps } from "./components/BdButton.v
 export { default as BdButtonGroup, type BdButtonGroupProps } from "./components/BdButtonGroup.vue";
 export { default as BdCard, type BdCardProps } from "./components/BdCard.vue";
 export { default as BdCheckbox, type BdCheckboxProps } from "./components/BdCheckbox.vue";
+export {
+  default as BdConfirmDialog,
+  type BdConfirmDialogProps,
+} from "./components/BdConfirmDialog.vue";
 export { default as BdDialog, type BdDialogProps } from "./components/BdDialog.vue";
 export {
   default as BdDropdown,
