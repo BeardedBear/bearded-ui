@@ -22,6 +22,15 @@
   --bd-mix-1: black;
   --bd-mix-2: white;
   --bd-overlay-color: rgb(0 0 0 / 60%);
+
+  /*
+   * La clarté des deux pôles, en nombre. Les échelles de fond ne mélangent plus
+   * vers le blanc ou le noir : elles déplacent la seule clarté et gardent la
+   * chroma et la teinte de la couleur d'origine (voir plus bas). Il leur faut
+   * donc la valeur du pôle, pas sa couleur.
+   */
+  --bd-pole-1: 0;
+  --bd-pole-2: 1;
 }
 
 [data-theme="light"] {
@@ -30,6 +39,9 @@
   --bd-mix-1: white;
   --bd-mix-2: black;
   --bd-overlay-color: rgb(0 0 0 / 35%);
+
+  --bd-pole-1: 1;
+  --bd-pole-2: 0;
 }
 
 /*
@@ -37,6 +49,17 @@
  * -dark/-darker vers mix-1, -light/-lighter vers mix-2. Les noms gardent le
  * sens qu'ils ont en thème sombre — en clair, `bg-darker` est donc la valeur
  * la plus proche du blanc, comme avant.
+ *
+ * Les étages de fond ne sont pas des mélanges vers le blanc ou le noir : ils
+ * déplacent la clarté et rien d'autre. Un `color-mix` vers le blanc emporte
+ * aussi la chroma vers zéro — le blanc n'en a pas — si bien qu'un panneau ne
+ * gardait que 62 à 78 % de la coloration du fond dont il dérive, et qu'un fond
+ * bleu produisait des panneaux gris. Le défaut ne se voyait qu'en thème sombre,
+ * où les surfaces montent vers le blanc ; en clair elles descendent vers le
+ * noir, qui dilue la chroma dans la même proportion que la clarté et ne se
+ * remarque donc pas. `oklch(from …)` isole les trois composantes : la formule
+ * de clarté est exactement celle du mélange d'avant, `c` et `h` sont repris
+ * tels quels. Un étage est le même matériau sous une autre lumière.
  */
 :root {
   --bd-palette-base: #161922;
@@ -44,10 +67,10 @@
   --bd-on-primary: #fff;
 
   --bd-bg: var(--bd-palette-base);
-  --bd-bg-dark: color-mix(in oklab, var(--bd-palette-base) 93%, var(--bd-mix-1));
-  --bd-bg-darker: color-mix(in oklab, var(--bd-palette-base) 84%, var(--bd-mix-1));
-  --bd-bg-light: color-mix(in oklab, var(--bd-palette-base) 93%, var(--bd-mix-2));
-  --bd-bg-lighter: color-mix(in oklab, var(--bd-palette-base) 84%, var(--bd-mix-2));
+  --bd-bg-dark: oklch(from var(--bd-palette-base) calc(l * 0.93 + 0.07 * var(--bd-pole-1)) c h);
+  --bd-bg-darker: oklch(from var(--bd-palette-base) calc(l * 0.84 + 0.16 * var(--bd-pole-1)) c h);
+  --bd-bg-light: oklch(from var(--bd-palette-base) calc(l * 0.93 + 0.07 * var(--bd-pole-2)) c h);
+  --bd-bg-lighter: oklch(from var(--bd-palette-base) calc(l * 0.84 + 0.16 * var(--bd-pole-2)) c h);
   --bd-border-color: var(--bd-bg-light);
 
   --bd-font-color-darker: color-mix(in oklab, var(--bd-palette-base) 55%, var(--bd-mix-2));
@@ -55,11 +78,13 @@
   --bd-font-color: color-mix(in oklab, var(--bd-palette-base) 26%, var(--bd-mix-2));
   --bd-font-color-light: color-mix(in oklab, var(--bd-palette-base) 8%, var(--bd-mix-2));
 
+  /* Même règle que les fonds : un accent plus clair reste le même accent, il ne
+     doit pas pâlir vers le gris à chaque état de survol. */
   --bd-primary: var(--bd-palette-accent);
-  --bd-primary-dark: color-mix(in oklab, var(--bd-palette-accent) 85%, var(--bd-mix-1));
-  --bd-primary-darker: color-mix(in oklab, var(--bd-palette-accent) 70%, var(--bd-mix-1));
-  --bd-primary-light: color-mix(in oklab, var(--bd-palette-accent) 85%, var(--bd-mix-2));
-  --bd-primary-lighter: color-mix(in oklab, var(--bd-palette-accent) 70%, var(--bd-mix-2));
+  --bd-primary-dark: oklch(from var(--bd-palette-accent) calc(l * 0.85 + 0.15 * var(--bd-pole-1)) c h);
+  --bd-primary-darker: oklch(from var(--bd-palette-accent) calc(l * 0.7 + 0.3 * var(--bd-pole-1)) c h);
+  --bd-primary-light: oklch(from var(--bd-palette-accent) calc(l * 0.85 + 0.15 * var(--bd-pole-2)) c h);
+  --bd-primary-lighter: oklch(from var(--bd-palette-accent) calc(l * 0.7 + 0.3 * var(--bd-pole-2)) c h);
 
   /* Surfaces teintées d'accent : sélection dans une liste, ligne active. */
   --bd-primary-bg: color-mix(in oklab, var(--bd-palette-accent) 30%, var(--bd-bg-light));

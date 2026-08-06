@@ -63,8 +63,14 @@ La police (Bricolage Grotesque) n'est pas embarquée — ajoute-la dans ton `ind
 ## Thème
 
 **Deux couleurs**, un fond et un accent : tout le reste — fonds, texte, bordures, états de
-l'accent, paires fond/texte des états — est dérivé en `color-mix`. Pas de thème clair à choisir,
-pas de jeu d'accents figé.
+l'accent, paires fond/texte des états — en est dérivé. Pas de thème clair à choisir, pas de jeu
+d'accents figé.
+
+Les étages de fond et les variantes d'accent déplacent la **clarté seule**, en
+`oklch(from … calc(l …) c h)` : la chroma et la teinte de la couleur d'origine sont reprises telles
+quelles. Un `color-mix` vers le blanc les aurait emportées vers le gris — le blanc n'a pas de
+chroma — et un fond bleu aurait donné des panneaux gris. Le reste (paires d'états, surfaces
+teintées d'accent) reste en `color-mix`, qui mélange deux couleurs réelles et n'a pas ce défaut.
 
 ```ts
 const { palette, theme } = useTheme();
