@@ -72,6 +72,20 @@ quelles. Un `color-mix` vers le blanc les aurait emportées vers le gris — le 
 chroma — et un fond bleu aurait donné des panneaux gris. Le reste (paires d'états, surfaces
 teintées d'accent) reste en `color-mix`, qui mélange deux couleurs réelles et n'a pas ce défaut.
 
+Teinte constante ne suffit pourtant pas : à angle oklch égal, un bleu sombre **paraît** plus violet
+qu'un bleu clair, et un camaïeu de bleus se disloque alors que ses angles sont identiques au
+centième de degré. Les étages corrigent donc la teinte proportionnellement au chemin parcouru en
+clarté — plus sombre vers le cyan, plus clair vers le violet — sous un lobe centré sur les bleus,
+les seules teintes concernées :
+
+```css
+:root {
+  --bd-hue-bend: 40; /* degrés par unité de clarté ; 0 rend les échelles isochromes */
+}
+```
+
+À 40, une base bleue étale ses cinq fonds sur ~6°, et une base verte, ambre ou rouge sur 0°.
+
 ```ts
 const { palette, theme } = useTheme();
 

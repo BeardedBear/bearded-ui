@@ -60,17 +60,62 @@
  * remarque donc pas. `oklch(from …)` isole les trois composantes : la formule
  * de clarté est exactement celle du mélange d'avant, `c` et `h` sont repris
  * tels quels. Un étage est le même matériau sous une autre lumière.
+ *
+ * Reste que teinte constante ne veut pas dire teinte perçue constante : à angle
+ * oklch égal, un bleu sombre paraît plus violet qu'un bleu clair, et un camaïeu
+ * de bleus se disloque alors que ses angles sont rigoureusement identiques. Les
+ * étages appliquent donc une correction — `--bd-hue-bend` — proportionnelle au
+ * chemin parcouru en clarté : un ton plus sombre est tourné vers le cyan, un ton
+ * plus clair vers le violet, juste ce qu'il faut pour annuler la dérive. Elle est
+ * pondérée par un lobe centré sur les bleus (`cos` élevé au carré, nul au-delà
+ * d'un quart de tour) : les verts, les ambres et les rouges ne dérivent pas de
+ * cette façon et ne sont pas touchés.
  */
 :root {
   --bd-palette-base: #161922;
   --bd-palette-accent: #9064ff;
   --bd-on-primary: #fff;
 
+  /*
+   * Degrés de correction par unité de clarté, sur toute la largeur du lobe.
+   * À 40, l'échelle de fonds d'une base bleue s'étale sur ~6° du plus sombre au
+   * plus clair. Mettre 0 rend les échelles rigoureusement isochromes.
+   */
+  --bd-hue-bend: 40;
+
+  /*
+   * Le lobe : 1 au cœur des bleus, 0 au-delà d'un quart de tour de part et
+   * d'autre. Écrit une fois ici, il ne peut pas diverger d'un étage à l'autre —
+   * mais il a besoin du `h` de la couleur en cours, donc il s'utilise seulement
+   * à l'intérieur d'un `oklch(from …)`.
+   */
+  --bd-blue-lobe: pow(max(0, cos((h - 265) * 1deg)), 2);
+
   --bd-bg: var(--bd-palette-base);
-  --bd-bg-dark: oklch(from var(--bd-palette-base) calc(l * 0.93 + 0.07 * var(--bd-pole-1)) c h);
-  --bd-bg-darker: oklch(from var(--bd-palette-base) calc(l * 0.84 + 0.16 * var(--bd-pole-1)) c h);
-  --bd-bg-light: oklch(from var(--bd-palette-base) calc(l * 0.93 + 0.07 * var(--bd-pole-2)) c h);
-  --bd-bg-lighter: oklch(from var(--bd-palette-base) calc(l * 0.84 + 0.16 * var(--bd-pole-2)) c h);
+  --bd-bg-dark: oklch(
+    from var(--bd-palette-base)
+    calc(l * 0.93 + 0.07 * var(--bd-pole-1))
+    c
+    calc(h + var(--bd-hue-bend) * 0.07 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
+  );
+  --bd-bg-darker: oklch(
+    from var(--bd-palette-base)
+    calc(l * 0.84 + 0.16 * var(--bd-pole-1))
+    c
+    calc(h + var(--bd-hue-bend) * 0.16 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
+  );
+  --bd-bg-light: oklch(
+    from var(--bd-palette-base)
+    calc(l * 0.93 + 0.07 * var(--bd-pole-2))
+    c
+    calc(h + var(--bd-hue-bend) * 0.07 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
+  );
+  --bd-bg-lighter: oklch(
+    from var(--bd-palette-base)
+    calc(l * 0.84 + 0.16 * var(--bd-pole-2))
+    c
+    calc(h + var(--bd-hue-bend) * 0.16 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
+  );
   --bd-border-color: var(--bd-bg-light);
 
   --bd-font-color-darker: color-mix(in oklab, var(--bd-palette-base) 55%, var(--bd-mix-2));
@@ -78,13 +123,33 @@
   --bd-font-color: color-mix(in oklab, var(--bd-palette-base) 26%, var(--bd-mix-2));
   --bd-font-color-light: color-mix(in oklab, var(--bd-palette-base) 8%, var(--bd-mix-2));
 
-  /* Même règle que les fonds : un accent plus clair reste le même accent, il ne
-     doit pas pâlir vers le gris à chaque état de survol. */
+  /* Mêmes règles que les fonds : un accent plus clair reste le même accent — il
+     ne pâlit pas vers le gris et ne vire pas au violet en s'assombrissant. */
   --bd-primary: var(--bd-palette-accent);
-  --bd-primary-dark: oklch(from var(--bd-palette-accent) calc(l * 0.85 + 0.15 * var(--bd-pole-1)) c h);
-  --bd-primary-darker: oklch(from var(--bd-palette-accent) calc(l * 0.7 + 0.3 * var(--bd-pole-1)) c h);
-  --bd-primary-light: oklch(from var(--bd-palette-accent) calc(l * 0.85 + 0.15 * var(--bd-pole-2)) c h);
-  --bd-primary-lighter: oklch(from var(--bd-palette-accent) calc(l * 0.7 + 0.3 * var(--bd-pole-2)) c h);
+  --bd-primary-dark: oklch(
+    from var(--bd-palette-accent)
+    calc(l * 0.85 + 0.15 * var(--bd-pole-1))
+    c
+    calc(h + var(--bd-hue-bend) * 0.15 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
+  );
+  --bd-primary-darker: oklch(
+    from var(--bd-palette-accent)
+    calc(l * 0.7 + 0.3 * var(--bd-pole-1))
+    c
+    calc(h + var(--bd-hue-bend) * 0.3 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
+  );
+  --bd-primary-light: oklch(
+    from var(--bd-palette-accent)
+    calc(l * 0.85 + 0.15 * var(--bd-pole-2))
+    c
+    calc(h + var(--bd-hue-bend) * 0.15 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
+  );
+  --bd-primary-lighter: oklch(
+    from var(--bd-palette-accent)
+    calc(l * 0.7 + 0.3 * var(--bd-pole-2))
+    c
+    calc(h + var(--bd-hue-bend) * 0.3 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
+  );
 
   /* Surfaces teintées d'accent : sélection dans une liste, ligne active. */
   --bd-primary-bg: color-mix(in oklab, var(--bd-palette-accent) 30%, var(--bd-bg-light));
