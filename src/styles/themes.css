@@ -57,9 +57,19 @@
  * bleu produisait des panneaux gris. Le défaut ne se voyait qu'en thème sombre,
  * où les surfaces montent vers le blanc ; en clair elles descendent vers le
  * noir, qui dilue la chroma dans la même proportion que la clarté et ne se
- * remarque donc pas. `oklch(from …)` isole les trois composantes : la formule
- * de clarté est exactement celle du mélange d'avant, `c` et `h` sont repris
- * tels quels. Un étage est le même matériau sous une autre lumière.
+ * remarque donc pas. `oklch(from …)` isole les trois composantes, ce qui permet
+ * de traiter chacune pour ce qu'elle est.
+ *
+ * La chroma suit la clarté au lieu de rester constante : un étage garde le même
+ * rapport chroma/clarté que la base, donc paraît aussi coloré qu'elle à sa
+ * propre lumière. C'est la symétrie qui manquait — en descendant vers le noir,
+ * l'ancien `color-mix` conservait déjà ce rapport ; en montant vers le blanc,
+ * non. Les fonds sont très loin du bord du gamut (plafonds deux à cinq fois
+ * au-dessus de ce que la rampe demande), le contraste du texte ne bouge pas
+ * d'un centième, et la clarté reste exactement celle du mélange d'origine.
+ * Les variantes d'accent, elles, gardent leur chroma constante : elles frôlent
+ * déjà le bord du gamut, et cinq accents sur sept y perdraient jusqu'au quart
+ * de leur coloration, écrêtée par le navigateur.
  *
  * Reste que teinte constante ne veut pas dire teinte perçue constante : à angle
  * oklch égal, un bleu sombre paraît plus violet qu'un bleu clair, et un camaïeu
@@ -95,25 +105,25 @@
   --bd-bg-dark: oklch(
     from var(--bd-palette-base)
     calc(l * 0.93 + 0.07 * var(--bd-pole-1))
-    c
+    calc(c * (l * 0.93 + 0.07 * var(--bd-pole-1)) / max(l, 0.001))
     calc(h + var(--bd-hue-bend) * 0.07 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
   );
   --bd-bg-darker: oklch(
     from var(--bd-palette-base)
     calc(l * 0.84 + 0.16 * var(--bd-pole-1))
-    c
+    calc(c * (l * 0.84 + 0.16 * var(--bd-pole-1)) / max(l, 0.001))
     calc(h + var(--bd-hue-bend) * 0.16 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
   );
   --bd-bg-light: oklch(
     from var(--bd-palette-base)
     calc(l * 0.93 + 0.07 * var(--bd-pole-2))
-    c
+    calc(c * (l * 0.93 + 0.07 * var(--bd-pole-2)) / max(l, 0.001))
     calc(h + var(--bd-hue-bend) * 0.07 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
   );
   --bd-bg-lighter: oklch(
     from var(--bd-palette-base)
     calc(l * 0.84 + 0.16 * var(--bd-pole-2))
-    c
+    calc(c * (l * 0.84 + 0.16 * var(--bd-pole-2)) / max(l, 0.001))
     calc(h + var(--bd-hue-bend) * 0.16 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
   );
   --bd-border-color: var(--bd-bg-light);

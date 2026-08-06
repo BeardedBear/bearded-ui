@@ -66,11 +66,16 @@ La police (Bricolage Grotesque) n'est pas embarquée — ajoute-la dans ton `ind
 l'accent, paires fond/texte des états — en est dérivé. Pas de thème clair à choisir, pas de jeu
 d'accents figé.
 
-Les étages de fond et les variantes d'accent déplacent la **clarté seule**, en
-`oklch(from … calc(l …) c h)` : la chroma et la teinte de la couleur d'origine sont reprises telles
-quelles. Un `color-mix` vers le blanc les aurait emportées vers le gris — le blanc n'a pas de
-chroma — et un fond bleu aurait donné des panneaux gris. Le reste (paires d'états, surfaces
-teintées d'accent) reste en `color-mix`, qui mélange deux couleurs réelles et n'a pas ce défaut.
+Les étages de fond et les variantes d'accent sont dérivés en `oklch(from …)`, qui isole clarté,
+chroma et teinte au lieu de les emporter ensemble. Un `color-mix` vers le blanc tirait la chroma
+vers le gris — le blanc n'en a pas — et un fond bleu donnait des panneaux gris. Le reste (paires
+d'états, surfaces teintées d'accent) reste en `color-mix`, qui mélange deux couleurs réelles et n'a
+pas ce défaut.
+
+Sur les fonds, **la chroma suit la clarté** : un étage garde le rapport chroma/clarté de sa base,
+donc paraît aussi coloré qu'elle à sa propre lumière. Les variantes d'accent gardent au contraire
+une chroma constante — elles frôlent déjà le bord du gamut sRGB, où la monter ne ferait que la
+faire écrêter par le navigateur.
 
 Teinte constante ne suffit pourtant pas : à angle oklch égal, un bleu sombre **paraît** plus violet
 qu'un bleu clair, et un camaïeu de bleus se disloque alors que ses angles sont identiques au
