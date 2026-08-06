@@ -230,6 +230,11 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 `BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
 reste une dépendance de l'app, pas de la lib.
 
+`variant="danger"` + `icon-only` inverse le rapport : l'icône passe en rouge sur un fond
+neutre, au lieu de l'aplat rouge plein. Une corbeille se répète à chaque ligne d'une liste,
+un aplat à chaque fois crie plus fort que l'action ne le mérite. Le bouton danger avec texte,
+lui, est une décision finale (confirmation, suppression en masse) et garde son aplat.
+
 ### Taille des contrôles
 
 `BdButton`, `BdButtonGroup` et `BdDropdown` partagent le type `BdSize`

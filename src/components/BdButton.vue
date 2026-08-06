@@ -45,7 +45,10 @@ export interface BdButtonProps {
   to?: unknown;
   /** Native type of the `<button>`. @default "button" */
   type?: "button" | "reset" | "submit";
-  /** Visual style. @default "default" */
+  /**
+   * Visual style. `"danger"` is a solid red button, except with `iconOnly`
+   * where the icon carries the red on a neutral background. @default "default"
+   */
   variant?: "border" | "danger" | "default" | "nude" | "primary";
 }
 
@@ -170,6 +173,25 @@ const classes = computed(() => [
   &:hover:not(:disabled, .is-loading) {
     background-color: color-mix(in srgb, var(--bd-danger) 85%, white);
     color: #fff;
+  }
+
+  /*
+   * Icône seule : c'est l'icône qui porte le rouge, pas le fond. Une corbeille
+   * dans une barre d'actions se répète à chaque ligne — un aplat plein à chaque
+   * fois crie plus fort que l'action ne le mérite, et la forme de l'icône suffit
+   * à la nommer. Un bouton danger avec texte, lui, est une décision finale
+   * (confirmation, destruction en masse) : il garde son aplat.
+   * Le fond reste celui d'un bouton neutre, jamais `transparent` : ces boutons
+   * flottent souvent au-dessus d'un contenu qui passerait par-dessous.
+   */
+  &.bd-button-icon-only {
+    background-color: var(--bd-bg-light);
+    color: var(--bd-danger);
+
+    &:hover:not(:disabled, .is-loading) {
+      background-color: color-mix(in oklab, var(--bd-danger) 15%, var(--bd-bg-lighter));
+      color: var(--bd-danger);
+    }
   }
 }
 

@@ -251,6 +251,7 @@ function tokenVar(prefix: string, suffix: string): string {
           <BdButton>default</BdButton>
           <BdButton size="big">big</BdButton>
           <BdButton icon-only variant="primary">★</BdButton>
+          <BdButton icon-only variant="danger"><PhTrash size="1.2em" /></BdButton>
           <BdButton href="https://github.com/BeardedBear" target="_blank">Lien &lt;a&gt;</BdButton>
         </div>
         <div class="row">
