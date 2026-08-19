@@ -1,6 +1,6 @@
 {
   "name": "bearded-ui",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Composants Vue 3 et design tokens partagés des projets Bearded*",
   "type": "module",
   "license": "MIT",
