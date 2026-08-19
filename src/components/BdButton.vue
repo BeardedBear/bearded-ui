@@ -20,6 +20,12 @@ import { bdSize } from "@/injection";
  * <BdButton :to="{ name: 'home' }">Home</BdButton>
  */
 export interface BdButtonProps {
+  /**
+   * Marks the button as the currently selected one — a tool in a toolbar, a tab,
+   * a filter chip. It is a state, not a variant: it layers on top of whichever
+   * variant the button already has.
+   */
+  active?: boolean;
   /** Content alignment inside the button. @default "center" */
   align?: "center" | "justify" | "left";
   /** Rendered tag. Auto-derived from `to` / `href` when left out. */
@@ -91,12 +97,23 @@ const classes = computed(() => [
   props.variant === "default" ? "" : `bd-button-${props.variant}`,
   size.value === "default" ? "" : `bd-button-${size.value}`,
   props.align === "center" ? "" : `bd-button-align-${props.align}`,
-  { "bd-button-full": props.full, "bd-button-icon-only": props.iconOnly, "is-loading": props.loading },
+  {
+    "bd-button-full": props.full,
+    "bd-button-icon-only": props.iconOnly,
+    "is-active": props.active,
+    "is-loading": props.loading,
+  },
 ]);
 </script>
 
 <template>
-  <component :is="tag" class="bd-button bd-font-bold bd-squircle" :class="classes" v-bind="attrs">
+  <component
+    :is="tag"
+    :aria-pressed="active ? true : undefined"
+    class="bd-button bd-font-bold bd-squircle"
+    :class="classes"
+    v-bind="attrs"
+  >
     <BdLoader v-if="loading" :size="size === 'x-small' ? 'xx-small' : 'x-small'" />
     <slot />
   </component>
@@ -153,6 +170,24 @@ const classes = computed(() => [
   &.is-loading :deep(.bd-loader) {
     border-color: transparent;
     border-top-color: currentcolor;
+  }
+}
+
+/*
+ * État sélectionné, après la base et avant les variants : un outil actif dans
+ * une barre, un onglet courant. Le liseré intérieur tient le rôle que le fond
+ * ne peut pas tenir seul sur un bouton déjà coloré.
+ */
+.bd-button.is-active {
+  background-color: var(--bd-primary-bg);
+  box-shadow: inset 0 0 0 1px var(--bd-primary);
+  color: var(--bd-font-color-light);
+
+  /* `nude` s'atténue au repos ; sélectionné, il doit se voir comme les autres. */
+  opacity: 1;
+
+  &:hover:not(:disabled, .is-loading) {
+    background-color: var(--bd-primary-bg-hover);
   }
 }
 

@@ -236,10 +236,11 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 
 | Composant  | Props principales                                                                                                                                  |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BdButton` | `variant` (default/primary/border/nude/success/danger), `size` (x-small/small/default/big), `align`, `iconOnly`, `full`, `loading`, `disabled`, `href`/`to` |
+| `BdButton` | `variant` (default/primary/border/nude/success/danger), `size` (x-small/small/default/big), `active`, `align`, `iconOnly`, `full`, `loading`, `disabled`, `href`/`to` |
 | `BdButtonGroup` | `v-model` + `options` (segmented control) ou slot libre, `size`, `full`, `disabled`                                                            |
 | `BdInput`  | `v-model`, `label`, `hint`, `error` (bool ou message), `type`, `placeholder`, `disabled`, `size`, `variant` (default/code/underline), slot `prefix`  |
 | `BdSelect` | `v-model`, `options: {label, value}[]`, `label`, `placeholder`, `disabled`                                                                          |
+| `BdSlider` | `v-model`, `min`, `max`, `step`, `orientation` (horizontal/vertical), `thickness`, `disabled` — piste pleine, sans molette                          |
 | `BdCheckbox` | `v-model` (boolean), `label` (ou slot), `fullWidth`, `disabled` — rendu switch                                                                    |
 | `BdCard`   | `padding` (default/small/none), slot `header`                                                                                                      |
 | `BdBadge`  | `variant` (default/primary/success/warning/danger/info)                                                                                            |
@@ -254,6 +255,10 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 
 `BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
 reste une dépendance de l'app, pas de la lib.
+
+`active` est un état, pas un variant : il se pose par-dessus celui du bouton pour marquer l'élément
+courant — l'outil sélectionné d'une barre, l'onglet ouvert, la puce d'un filtre. C'est ce qui évite
+de réécrire un `&.active { … }` dans chaque barre d'outils.
 
 `variant="success"` ne sert pas à déclencher une action mais à marquer un état déjà atteint
 (joueur prêt, brouillon enregistré) : d'où son fond teinté, là où `danger` réclame une décision
