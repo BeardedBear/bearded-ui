@@ -74,22 +74,24 @@ provide(bdSize, toRef(props, "size"));
 
 /*
  * Wins over the child's own radius: one more class in the scoped selector.
- * Le second niveau vise le bouton d'une option à tooltip, où le trigger du
- * tooltip s'intercale entre le groupe et lui.
+ * Le second sélecteur vise le bouton d'une option à tooltip, où le trigger du
+ * tooltip s'intercale entre le groupe et lui. Il nomme le trigger plutôt que
+ * `> * > *`, qui attrapait aussi le contenu d'un bouton passé en slot — une
+ * icône se retrouvait étirée à toute la largeur du bouton.
  */
 .bd-button-group > *,
-.bd-button-group > * > * {
+.bd-button-group > .bd-tooltip-trigger > .bd-button {
   border-radius: 0;
 }
 
 .bd-button-group > *:first-child,
-.bd-button-group > *:first-child > * {
+.bd-button-group > *:first-child > .bd-button {
   border-end-start-radius: var(--bd-radius-lg);
   border-start-start-radius: var(--bd-radius-lg);
 }
 
 .bd-button-group > *:last-child,
-.bd-button-group > *:last-child > * {
+.bd-button-group > *:last-child > .bd-button {
   border-end-end-radius: var(--bd-radius-lg);
   border-start-end-radius: var(--bd-radius-lg);
 }
@@ -103,7 +105,7 @@ provide(bdSize, toRef(props, "size"));
   }
 
   /* Un trigger de tooltip est inline-flex : sans ça son bouton ne remplirait pas la part. */
-  & > * > * {
+  & > .bd-tooltip-trigger > .bd-button {
     width: 100%;
   }
 }
