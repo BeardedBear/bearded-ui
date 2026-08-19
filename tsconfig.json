@@ -11,6 +11,7 @@
     "styleguide/**/*.ts",
     "styleguide/**/*.vue",
     "scripts/**/*.ts",
-    "vite.config.ts"
+    "vite.config.ts",
+    "eslint.config.ts"
   ]
 }
