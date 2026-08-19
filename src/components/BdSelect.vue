@@ -25,7 +25,7 @@ export interface BdSelectProps {
 
 defineProps<BdSelectProps>();
 
-const model = defineModel<string>();
+const model = defineModel<number | string>();
 const id = useId();
 
 // ponytail: native <select> — free keyboard/a11y/mobile picker. Port beardify's

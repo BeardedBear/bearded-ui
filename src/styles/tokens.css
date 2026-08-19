@@ -31,6 +31,10 @@
   --bd-font-size-base: 1rem;
   --bd-font-size-lg: 1.25rem;
   --bd-font-size-xl: 2rem;
+
+  /* Palier d'affichage : titre de page, écran de fin, chiffre mis en scène.
+     Au-dessus de `xl`, qui reste la plus grande taille d'un titre courant. */
+  --bd-font-size-2xl: 2.75rem;
   --bd-line-height: 1.4;
 
   /*

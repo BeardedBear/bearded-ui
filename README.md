@@ -142,7 +142,7 @@ des apps à 16 px.
 | Fonds      | `--bd-bg{,-darker,-dark,-light,-lighter}`, `--bd-border-color`, `--bd-overlay-color`, `--bd-hover-overlay` |
 | Texte      | `--bd-font-color{,-darker,-dark,-light}`                                             |
 | États      | `--bd-{success,warning,danger,info}`, paires `-bg` / `-text` pour les trois premiers |
-| Typo       | `--bd-font-family`, `--bd-font-size-{xs,sm,base,lg,xl}`, `--bd-font-weight{,-bold}`  |
+| Typo       | `--bd-font-family`, `--bd-font-size-{xs,sm,base,lg,xl,2xl}`, `--bd-font-weight{,-bold}` |
 | Espacement | `--bd-space-1` → `--bd-space-6` (voir ci-dessous)                                    |
 | Rayons     | `--bd-radius-{sm,md,lg,full}`                                                        |
 | Ombres     | `--bd-shadow-{sm,md,lg}`                                                             |
@@ -236,9 +236,9 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 
 | Composant  | Props principales                                                                                                                                  |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BdButton` | `variant` (default/primary/border/nude/danger), `size` (x-small/small/default/big), `align`, `iconOnly`, `full`, `loading`, `disabled`, `href`/`to` |
+| `BdButton` | `variant` (default/primary/border/nude/success/danger), `size` (x-small/small/default/big), `align`, `iconOnly`, `full`, `loading`, `disabled`, `href`/`to` |
 | `BdButtonGroup` | `v-model` + `options` (segmented control) ou slot libre, `size`, `full`, `disabled`                                                            |
-| `BdInput`  | `v-model`, `label`, `hint`, `error`, `type`, `placeholder`, `disabled`                                                                              |
+| `BdInput`  | `v-model`, `label`, `hint`, `error` (bool ou message), `type`, `placeholder`, `disabled`, `size`, `variant` (default/code/underline), slot `prefix`  |
 | `BdSelect` | `v-model`, `options: {label, value}[]`, `label`, `placeholder`, `disabled`                                                                          |
 | `BdCheckbox` | `v-model` (boolean), `label` (ou slot), `fullWidth`, `disabled` — rendu switch                                                                    |
 | `BdCard`   | `padding` (default/small/none), slot `header`                                                                                                      |
@@ -255,15 +255,32 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 `BdButton` rend `<router-link>` dès qu'on passe `to` — résolu globalement, donc `vue-router`
 reste une dépendance de l'app, pas de la lib.
 
+`variant="success"` ne sert pas à déclencher une action mais à marquer un état déjà atteint
+(joueur prêt, brouillon enregistré) : d'où son fond teinté, là où `danger` réclame une décision
+et garde son aplat plein.
+
 `variant="danger"` + `icon-only` inverse le rapport : l'icône passe en rouge sur un fond
 neutre, au lieu de l'aplat rouge plein. Une corbeille se répète à chaque ligne d'une liste,
 un aplat à chaque fois crie plus fort que l'action ne le mérite. Le bouton danger avec texte,
 lui, est une décision finale (confirmation, suppression en masse) et garde son aplat.
 
+### Champs
+
+```vue
+<BdInput v-model="code" variant="code" maxlength="6" placeholder="ABC123" />
+<BdInput v-model="name" variant="underline" @keyup.escape="cancel" />
+<BdInput v-model="user"><template #prefix>@</template></BdInput>
+```
+
+Tout attribut qui n'est pas une prop (`maxlength`, `autofocus`, `autocomplete`, `@blur`…) atterrit sur
+l'`<input>`, pas sur l'enveloppe — sans quoi `focus` et `blur`, qui ne remontent pas, n'atteindraient
+jamais leur écouteur. Un `ref` posé sur `<BdInput>` expose `focus()` et `select()`.
+
 ### Taille des contrôles
 
-`BdButton`, `BdButtonGroup` et `BdDropdown` partagent le type `BdSize`
-(`x-small | small | default | big`) : à taille égale, même hauteur exactement.
+`BdButton`, `BdButtonGroup`, `BdDropdown` et `BdInput` partagent le type `BdSize`
+(`x-small | small | default | big`) : à taille égale, même hauteur exactement — un champ et le bouton
+posé à côté s'alignent sans réglage.
 
 Un conteneur diffuse sa taille à ses boutons — y compris ceux d'un slot libre — et une prop `size`
 posée sur un bouton reste prioritaire :
@@ -291,6 +308,16 @@ posée sur un bouton reste prioritaire :
 
 Les coins arrondis ne sont conservés qu'aux extrémités du groupe. `full` répartit les boutons
 sur toute la largeur (le pattern des lignes de réglages).
+
+Une `value` d'option peut être un nombre autant qu'une chaîne — un nombre de tours, une durée — et
+une option peut porter un `tooltip`, rendu en `BdTooltip` autour de son bouton :
+
+```vue
+<BdButtonGroup
+  v-model="rounds"
+  :options="[{ label: '3', value: 3 }, { label: '5', tooltip: 'La partie longue', value: 5 }]"
+/>
+```
 
 ### Dropdown
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PhX } from "@phosphor-icons/vue";
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 /**
  * Modal built on the native `<dialog>`: focus trap, Escape and inert backdrop
@@ -74,6 +74,12 @@ watch(open, (value) => {
   if (!el.value) return;
   if (value) el.value.showModal();
   else el.value.close();
+});
+
+// Une dialog montée déjà ouverte ne déclenche aucun watcher : sans ça, un
+// `v-if` qui monte le composant à `true` ne l'afficherait jamais.
+onMounted(() => {
+  if (open.value) el.value?.showModal();
 });
 
 /*

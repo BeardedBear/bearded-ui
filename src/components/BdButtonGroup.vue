@@ -4,6 +4,7 @@ import { provide, toRef } from "vue";
 import type { BdOption, BdSize } from "@/types";
 
 import BdButton from "@/components/BdButton.vue";
+import BdTooltip from "@/components/BdTooltip.vue";
 import { bdSize } from "@/injection";
 
 /**
@@ -35,7 +36,7 @@ export interface BdButtonGroupProps {
 
 const props = withDefaults(defineProps<BdButtonGroupProps>(), { options: () => [], size: "default" });
 
-const model = defineModel<string>();
+const model = defineModel<number | string>();
 
 // Les boutons du slot héritent de la taille du groupe, comme ceux générés ici.
 provide(bdSize, toRef(props, "size"));
@@ -45,16 +46,19 @@ provide(bdSize, toRef(props, "size"));
   <div class="bd-button-group" :class="{ 'bd-button-group-full': full }" role="group">
     <!-- Slot libre pour un groupe d'actions ; le fallback rend le segmented control. -->
     <slot>
-      <BdButton
-        v-for="option in options"
-        :key="option.value"
-        :disabled="disabled"
-        :size="size"
-        :variant="option.value === model ? 'primary' : 'default'"
-        @click="model = option.value"
-      >
-        {{ option.label }}
-      </BdButton>
+      <!-- Toujours enveloppé, tooltip ou non : un niveau intercalé sur certaines
+           options seulement décalerait les arrondis d'extrémité d'une option à
+           l'autre. Sans `content`, BdTooltip ne s'ouvre jamais. -->
+      <BdTooltip v-for="option in options" :key="option.value" :content="option.tooltip">
+        <BdButton
+          :disabled="disabled"
+          :size="size"
+          :variant="option.value === model ? 'primary' : 'default'"
+          @click="model = option.value"
+        >
+          {{ option.label }}
+        </BdButton>
+      </BdTooltip>
     </slot>
   </div>
 </template>
@@ -65,17 +69,24 @@ provide(bdSize, toRef(props, "size"));
   gap: var(--bd-space-1);
 }
 
-/* Wins over the child's own radius: one more class in the scoped selector. */
-.bd-button-group > * {
+/*
+ * Wins over the child's own radius: one more class in the scoped selector.
+ * Le second niveau vise le bouton d'une option à tooltip, où le trigger du
+ * tooltip s'intercale entre le groupe et lui.
+ */
+.bd-button-group > *,
+.bd-button-group > * > * {
   border-radius: 0;
 }
 
-.bd-button-group > *:first-child {
+.bd-button-group > *:first-child,
+.bd-button-group > *:first-child > * {
   border-end-start-radius: var(--bd-radius-lg);
   border-start-start-radius: var(--bd-radius-lg);
 }
 
-.bd-button-group > *:last-child {
+.bd-button-group > *:last-child,
+.bd-button-group > *:last-child > * {
   border-end-end-radius: var(--bd-radius-lg);
   border-start-end-radius: var(--bd-radius-lg);
 }
@@ -86,6 +97,11 @@ provide(bdSize, toRef(props, "size"));
 
   & > * {
     flex: 1;
+  }
+
+  /* Un trigger de tooltip est inline-flex : sans ça son bouton ne remplirait pas la part. */
+  & > * > * {
+    width: 100%;
   }
 }
 </style>

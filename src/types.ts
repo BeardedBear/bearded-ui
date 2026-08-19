@@ -2,8 +2,10 @@
 export interface BdOption {
   /** Text shown to the user. */
   label: string;
-  /** Value bound through `v-model`. */
-  value: string;
+  /** Hint shown on hover. Rendered as a BdTooltip by BdButtonGroup only — a native <select> can't hold one. */
+  tooltip?: string;
+  /** Value bound through `v-model`. Numbers are as common as strings here: a count, a duration, a rank. */
+  value: number | string;
 }
 
 /**

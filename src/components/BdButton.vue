@@ -47,9 +47,10 @@ export interface BdButtonProps {
   type?: "button" | "reset" | "submit";
   /**
    * Visual style. `"danger"` is a solid red button, except with `iconOnly`
-   * where the icon carries the red on a neutral background. @default "default"
+   * where the icon carries the red on a neutral background. `"success"` marks a
+   * state already reached (ready, saved), not an action to take. @default "default"
    */
-  variant?: "border" | "danger" | "default" | "nude" | "primary";
+  variant?: "border" | "danger" | "default" | "nude" | "primary" | "success";
 }
 
 const props = withDefaults(defineProps<BdButtonProps>(), {
@@ -192,6 +193,20 @@ const classes = computed(() => [
       background-color: color-mix(in oklab, var(--bd-danger) 15%, var(--bd-bg-lighter));
       color: var(--bd-danger);
     }
+  }
+}
+
+/*
+ * État atteint plutôt qu'action à déclencher : un joueur déjà prêt, un
+ * brouillon déjà enregistré. D'où le fond teinté des paires d'état et non
+ * l'aplat plein de `danger`, qui, lui, réclame une décision.
+ */
+.bd-button-success {
+  background-color: var(--bd-success-bg);
+  color: var(--bd-success-text);
+
+  &:hover:not(:disabled, .is-loading) {
+    background-color: color-mix(in oklab, var(--bd-success) 35%, var(--bd-bg));
   }
 }
 

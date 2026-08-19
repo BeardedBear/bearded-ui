@@ -79,11 +79,16 @@
   color: var(--bd-on-primary);
 }
 
-/* Champ de formulaire : label au-dessus, contrôle en dessous. */
+/* Champ de formulaire : label au-dessus, contrôle en dessous.
+   Il remplit son conteneur — posé dans une ligne flex à côté d'un bouton, il
+   prend la place restante ; sans largeur il se réduirait à son contenu, qui est
+   vide. Au bouton voisin de porter son `flex-shrink: 0`. */
 .bd-field {
   display: flex;
   flex-direction: column;
   gap: var(--bd-space-1);
+  min-width: 0;
+  width: 100%;
 }
 
 .bd-field-label {
