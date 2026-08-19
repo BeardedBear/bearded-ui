@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends number | string = number | string">
 import { provide, toRef } from "vue";
 
 import type { BdOption, BdSize } from "@/types";
@@ -20,7 +20,7 @@ import { bdSize } from "@/injection";
  *   <BdButton>Next</BdButton>
  * </BdButtonGroup>
  */
-export interface BdButtonGroupProps {
+export interface BdButtonGroupProps<T extends number | string = number | string> {
   /** Disables every generated button. Buttons passed through the slot keep their own prop. */
   disabled?: boolean;
   /** Spans the full width, buttons sharing it equally. */
@@ -29,14 +29,17 @@ export interface BdButtonGroupProps {
    * Turns the group into a segmented control bound to `v-model`. Leave empty to
    * pass buttons through the default slot instead.
    */
-  options?: BdOption[];
+  options?: BdOption<T>[];
   /** Height of every button in the group, slot content included. @default "default" */
   size?: BdSize;
 }
 
-const props = withDefaults(defineProps<BdButtonGroupProps>(), { options: () => [], size: "default" });
+const props = withDefaults(defineProps<BdButtonGroupProps<T>>(), {
+  options: () => [],
+  size: "default",
+});
 
-const model = defineModel<number | string>();
+const model = defineModel<T>();
 
 // Les boutons du slot héritent de la taille du groupe, comme ceux générés ici.
 provide(bdSize, toRef(props, "size"));
