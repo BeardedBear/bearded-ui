@@ -106,6 +106,14 @@ run("git push origin HEAD");
 const sourceBranch = run("git rev-parse --abbrev-ref HEAD");
 try {
   run(`git checkout -B ${RELEASE_BRANCH}`);
+  /*
+   * bun applies the package's own .gitignore when it installs a git dependency,
+   * so a `dist` line there erases the built files on the consumer's side — the
+   * one thing this branch exists to ship. The release branch therefore carries
+   * a .gitignore without it; `main` keeps its own untouched.
+   */
+  writeFileSync(".gitignore", readFileSync(".gitignore", "utf-8").replace(/^dist\r?\n/m, ""));
+  run("git add .gitignore");
   run("git add --force dist");
   run(`git commit -m "release v${newVersion}"`);
   run(`git tag v${newVersion}`);

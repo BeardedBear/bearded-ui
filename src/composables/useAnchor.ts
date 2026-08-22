@@ -60,6 +60,14 @@ export function anchor(
 ): BdAnchorResult {
   const { align = "start", constrain = false, matchWidth = false, offset = 6, side = "bottom" } = options;
 
+  /*
+   * Le tracker rejoue le placement sur le scroll *interne* du panneau (capture).
+   * Or lever la contrainte le temps de la mesure le rend brièvement non
+   * scrollable, et le navigateur remet alors scrollTop à zéro : le panneau
+   * remontait en haut à chaque cran de molette. On lui rend sa position au bout.
+   */
+  const scroll = { left: panel.scrollLeft, top: panel.scrollTop };
+
   // Réinitialisé avant mesure : sinon on mesure les contraintes du tour précédent.
   panel.style.maxHeight = "";
   panel.style.maxWidth = "";
@@ -118,6 +126,9 @@ export function anchor(
   panel.style.left = `${left}px`;
   if (constrain) panel.style[vertical ? "maxHeight" : "maxWidth"] = `${available}px`;
   panel.dataset.placement = placement;
+
+  panel.scrollLeft = scroll.left;
+  panel.scrollTop = scroll.top;
 
   return { left, placement, top };
 }
