@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from "vue";
+import { computed, inject, useAttrs, useSlots, watchEffect } from "vue";
 
 import type { BdSize } from "@/types";
 
@@ -38,6 +38,15 @@ export interface BdButtonProps {
   href?: string;
   /** Square button sized on the control height — for a lone icon. */
   iconOnly?: boolean;
+  /**
+   * Accessible name, applied as both `aria-label` and the hover `title`.
+   *
+   * Effectively required with `iconOnly`: a button whose only content is an
+   * icon has no text for a screen reader to read, so without this it announces
+   * as "button" and nothing else. In dev, leaving it out on an `iconOnly`
+   * button logs a warning.
+   */
+  label?: string;
   /** Shows a spinner and blocks interaction, without dimming the button. */
   loading?: boolean;
   /**
@@ -63,12 +72,32 @@ const props = withDefaults(defineProps<BdButtonProps>(), {
   align: "center",
   as: undefined,
   href: undefined,
+  label: undefined,
   size: undefined,
   target: "_self",
   to: undefined,
   type: "button",
   variant: "default",
 });
+
+const attrsIn = useAttrs();
+const slots = useSlots();
+
+/*
+ * Icon-only buttons are the single most reliable way to ship an unnamed
+ * control — one project accumulated seventeen of them before anyone noticed.
+ * The check is dev-only and never throws: a warning during development, and
+ * nothing shipped to production.
+ */
+if (import.meta.env?.DEV) {
+  watchEffect(() => {
+    if (!props.iconOnly) return;
+    if (props.label || attrsIn["aria-label"] || attrsIn["aria-labelledby"] || attrsIn.title) return;
+    const hasText = slots.default?.().some((node) => typeof node.children === "string" && node.children.trim());
+    if (hasText) return;
+    console.warn("[BdButton] `icon-only` without a `label`: this button will announce as \"button\".");
+  });
+}
 
 const inheritedSize = inject(bdSize, undefined);
 const size = computed<BdSize>(() => props.size ?? inheritedSize?.value ?? "default");
@@ -109,7 +138,9 @@ const classes = computed(() => [
 <template>
   <component
     :is="tag"
+    :aria-label="label"
     :aria-pressed="active ? true : undefined"
+    :title="label"
     class="bd-button bd-font-bold bd-squircle"
     :class="classes"
     v-bind="attrs"

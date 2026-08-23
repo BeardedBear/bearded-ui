@@ -2,6 +2,8 @@ import { ref, type Ref } from "vue";
 
 /** A queued toast, as rendered by BdToaster. */
 export interface BdToast {
+  /** Optional single action, rendered as a button next to the message. */
+  action?: BdToastAction;
   /** Unique id, returned by `toast()` and accepted by `dismissToast()`. */
   id: number;
   /** Message shown to the user. */
@@ -9,7 +11,30 @@ export interface BdToast {
   variant: BdToastVariant;
 }
 
+/**
+ * A single action offered by a toast — an Undo, a Retry, a "View".
+ *
+ * Deliberately one action, not a list: a toast is a transient strip with room
+ * for one decision, and a second button turns it into a dialog that dismisses
+ * itself.
+ */
+export interface BdToastAction {
+  /** Button text. Keep it a verb — "Undo", "Retry". */
+  label: string;
+  /**
+   * Runs on click. The toast dismisses itself first, so a slow handler never
+   * leaves a dead button on screen, and a second click cannot fire it twice.
+   * Rejections are the caller's to handle.
+   */
+  onAction: () => Promise<void> | void;
+}
+
 export interface BdToastOptions {
+  /**
+   * Adds a single action button. An action usually wants a longer `duration`
+   * than a plain notice — the reader has to notice it and decide.
+   */
+  action?: BdToastAction;
   /** Milliseconds before auto-dismiss. `0` keeps the toast until dismissed. @default 4000 */
   duration?: number;
   /** @default "default" */
@@ -39,12 +64,17 @@ export function dismissToast(id: number): void {
  * toast("Saved", { variant: "success" });
  * const id = toast("Uploading…", { duration: 0 });
  * dismissToast(id);
+ * @example
+ * toast("Album removed", {
+ *   action: { label: "Undo", onAction: () => restore() },
+ *   duration: 8000,
+ * });
  */
 export function toast(msg: string, options: BdToastOptions = {}): number {
-  const { duration = 4000, variant = "default" } = options;
+  const { action, duration = 4000, variant = "default" } = options;
   const id = nextId++;
 
-  toasts.value = [...toasts.value, { id, msg, variant }];
+  toasts.value = [...toasts.value, { action, id, msg, variant }];
   if (duration > 0) setTimeout(() => dismissToast(id), duration);
 
   return id;

@@ -411,6 +411,52 @@ dismissToast(id);
 
 Variants : `default`, `success`, `warning`, `danger`, `info`. Auto-dismiss à 4 s, clic pour fermer.
 
+Un toast peut porter **une** action — un Undo, un Retry. Le toast se ferme avant de lancer le
+handler, pour qu'un traitement lent ne laisse pas un bouton mort à l'écran et qu'un second clic
+ne le déclenche pas deux fois.
+
+```ts
+toast("Album retiré", {
+  action: { label: "Annuler", onAction: () => restore() },
+  duration: 8000, // une action demande plus de temps de lecture qu'un simple avis
+});
+```
+
+Avec une action, le toast n'est plus un bouton cliquable dans son ensemble : il expose un bouton
+d'action et une croix. Sans action, le comportement historique est inchangé.
+
+### État vide
+
+`BdEmptyState` est le bloc qu'une vue affiche quand il n'y a rien à montrer, ou quand le
+chargement a échoué. Une seule forme pour les deux : ils se ressemblent, et ne diffèrent que par
+la formulation et la présence de quelque chose à réessayer.
+
+```vue
+<BdEmptyState
+  action-label="Réessayer"
+  message="Le flux ne répond pas pour le moment."
+  title="Chargement impossible"
+  @action="retry"
+>
+  <template #icon><PhWarning /></template>
+</BdEmptyState>
+```
+
+L'icône est un slot : la lib n'embarque pas de jeu d'icônes, et chaque app consommatrice a déjà
+le sien.
+
+### Boutons icône
+
+`icon-only` sans nom accessible est le moyen le plus fiable de livrer un contrôle muet. Le prop
+`label` pose `aria-label` **et** le `title` de survol ; en dev, un `icon-only` sans nom émet un
+warning en console.
+
+```vue
+<BdButton icon-only label="Options de la playlist" variant="nude" @click="open">
+  <PhDotsThree />
+</BdButton>
+```
+
 ## Dev
 
 ```bash

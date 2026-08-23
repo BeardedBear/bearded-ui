@@ -22,6 +22,7 @@ import {
   BdDialog,
   BdDropdown,
   BdDropdownItem,
+  BdEmptyState,
   BdInput,
   BdLoader,
   BdThemePicker,
@@ -543,8 +544,44 @@ function tokenVar(prefix: string, suffix: string): string {
             Persistant
           </BdButton>
         </div>
-        <p class="muted">Clic sur un toast pour le fermer. Auto-dismiss après 4 s par défaut.</p>
+        <div class="row">
+          <BdButton
+            variant="border"
+            @click="
+              toast('Album retiré', {
+                action: { label: 'Annuler', onAction: () => { toast('Restauré', { variant: 'success' }); } },
+                duration: 8000,
+              })
+            "
+          >
+            Avec action
+          </BdButton>
+        </div>
+        <p class="muted">
+          Clic sur un toast pour le fermer. Auto-dismiss après 4 s par défaut. Un toast porteur
+          d'une <code>action</code> ne se ferme plus au clic n'importe où : il expose un bouton
+          d'action et une croix, et se ferme avant de lancer le handler.
+        </p>
       </BdCard>
+    </section>
+
+    <section>
+      <h2 class="bd-heading">État vide</h2>
+      <BdCard padding="none">
+        <BdEmptyState
+          action-label="Réessayer"
+          message="Le flux ne répond pas pour le moment."
+          title="Chargement impossible"
+          @action="toast('Nouvelle tentative')"
+        >
+          <template #icon><PhArchive /></template>
+        </BdEmptyState>
+      </BdCard>
+      <p class="muted">
+        Sépare « rien à afficher » de « ça a raté » — les deux finissaient sinon en spinner
+        infini quand la vue conditionnait son loader sur <code>!list.length</code>. L'icône est
+        un slot : la lib n'embarque pas de jeu d'icônes.
+      </p>
     </section>
 
     <BdDialog v-model="dialogOpen" title="Dialog native">

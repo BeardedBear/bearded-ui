@@ -16,6 +16,7 @@ export {
   type BdDropdownProps,
 } from "./components/BdDropdown.vue";
 export { default as BdDropdownItem, type BdDropdownItemProps } from "./components/BdDropdownItem.vue";
+export { default as BdEmptyState, type BdEmptyStateProps } from "./components/BdEmptyState.vue";
 export { default as BdInput, type BdInputProps } from "./components/BdInput.vue";
 export { default as BdLoader, type BdLoaderProps } from "./components/BdLoader.vue";
 export { default as BdSelect, type BdSelectProps } from "./components/BdSelect.vue";
@@ -27,6 +28,7 @@ export type { BdAlign, BdSide } from "./composables/useAnchor";
 export { bdDefaultPalette, type BdPalette, type BdTheme, useTheme } from "./composables/useTheme";
 export {
   type BdToast,
+  type BdToastAction,
   type BdToastOptions,
   type BdToastVariant,
   dismissToast,
