@@ -93,7 +93,7 @@ function update(key: "accent" | "base", event: Event): void {
           <span class="bd-theme-picker-swatch bd-squircle" :style="{ background: preset.base }">
             <span :style="{ background: preset.accent }" />
           </span>
-          {{ preset.name }}
+          <span class="bd-theme-picker-name">{{ preset.name }}</span>
         </button>
       </div>
     </div>
@@ -104,7 +104,7 @@ function update(key: "accent" | "base", event: Event): void {
 .bd-theme-picker {
   display: flex;
   flex-direction: column;
-  gap: var(--bd-space-5);
+  gap: var(--bd-space-4);
 }
 
 .bd-theme-picker-inputs {
@@ -140,45 +140,67 @@ function update(key: "accent" | "base", event: Event): void {
   color: var(--bd-font-color-darker);
   font-size: var(--bd-font-size-sm);
   letter-spacing: 0.08em;
-  margin-bottom: var(--bd-space-3);
+  margin-bottom: var(--bd-space-2);
   text-transform: uppercase;
 }
 
 .bd-theme-picker-grid {
   display: grid;
-  gap: var(--bd-space-3);
-  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--bd-space-2);
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
 }
 
+/*
+ * Pastille et nom sur une ligne, pas empilés : trente presets en trois groupes,
+ * une carte en colonne coûtait plus de 5rem de haut chacune et le sélecteur
+ * occupait tout l'écran. En ligne elle tient en une hauteur de contrôle, et la
+ * grille passe de deux à trois colonnes à largeur égale.
+ */
 .bd-theme-picker-card {
+  align-items: center;
   background: var(--bd-bg-light);
-  border: 2px solid var(--bd-border-color);
-  border-radius: var(--bd-radius-md);
+  border: 1px solid var(--bd-border-color);
+  border-radius: var(--bd-radius-sm);
   color: var(--bd-font-color);
   cursor: pointer;
   display: flex;
-  flex-direction: column;
   font-size: var(--bd-font-size-sm);
   gap: var(--bd-space-2);
-  padding: var(--bd-space-3);
-  transition: border-color var(--bd-transition), transform var(--bd-transition);
+  min-inline-size: 0;
+  padding: var(--bd-space-2);
+  text-align: left;
+  transition: border-color var(--bd-transition);
 
   &:hover {
     border-color: var(--bd-primary);
-    transform: translateY(-2px);
   }
 
   /* L'état actif est déjà porté par aria-pressed : pas de classe en double. */
   &[aria-pressed="true"] {
     border-color: var(--bd-primary);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--bd-primary) 35%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--bd-primary) 35%, transparent);
   }
 }
 
+/*
+ * Le nom ne passe jamais à la ligne : un seul preset au libellé long suffirait
+ * à faire grandir toute sa rangée, et la grille perdrait son alignement.
+ * `min-inline-size: 0` est ce qui autorise un enfant flex à rétrécir sous sa
+ * largeur de contenu — sans lui, l'ellipse ne se déclenche jamais.
+ */
+.bd-theme-picker-name {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .bd-theme-picker-swatch {
-  block-size: 2.5rem;
+  block-size: 1.4rem;
   border-radius: var(--bd-radius-sm);
   display: flex;
+  flex: none;
+  inline-size: 2.1rem;
   justify-content: flex-end;
   overflow: hidden;
 
@@ -186,4 +208,5 @@ function update(key: "accent" | "base", event: Event): void {
     inline-size: 33%;
   }
 }
+
 </style>
