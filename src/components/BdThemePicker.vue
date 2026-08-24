@@ -61,39 +61,38 @@ function update(key: "accent" | "base", event: Event): void {
 
 <template>
   <div class="bd-theme-picker">
-    <div class="bd-theme-picker-inputs">
-      <label class="bd-field">
-        <span class="bd-field-label bd-font-bold">{{ baseLabel }}</span>
-        <span class="bd-theme-picker-control">
-          <input :value="palette.base" type="color" @input="update('base', $event)" />
-          <code>{{ palette.base }}</code>
-        </span>
-      </label>
+    <label class="bd-theme-picker-row">
+      <span class="bd-font-bold">{{ baseLabel }}</span>
+      <input :value="palette.base" type="color" @input="update('base', $event)" />
+    </label>
+    <label class="bd-theme-picker-row">
+      <span class="bd-font-bold">{{ accentLabel }}</span>
+      <input :value="palette.accent" type="color" @input="update('accent', $event)" />
+    </label>
 
-      <label class="bd-field">
-        <span class="bd-field-label bd-font-bold">{{ accentLabel }}</span>
-        <span class="bd-theme-picker-control">
-          <input :value="palette.accent" type="color" @input="update('accent', $event)" />
-          <code>{{ palette.accent }}</code>
-        </span>
-      </label>
-    </div>
+    <hr class="bd-theme-picker-divider" />
 
     <div v-for="entry in groups" :key="entry.group" class="bd-theme-picker-group">
       <h3>{{ entry.group }}</h3>
       <div class="bd-theme-picker-grid">
+        <!--
+          Swatch only: thirty presets with their names spelled out turned the
+          picker into a page of its own. The name is the accessible name and the
+          hover title, so nothing is lost to a screen reader or to a pointer —
+          only to the vertical space it was costing.
+        -->
         <button
           v-for="preset in entry.presets"
           :key="preset.name"
+          :aria-label="preset.name"
           :aria-pressed="isActive(preset)"
-          class="bd-theme-picker-card bd-squircle"
+          class="bd-theme-picker-swatch"
+          :title="preset.name"
           type="button"
           @click="apply(preset)"
         >
-          <span class="bd-theme-picker-swatch bd-squircle" :style="{ background: preset.base }">
-            <span :style="{ background: preset.accent }" />
-          </span>
-          <span class="bd-theme-picker-name">{{ preset.name }}</span>
+          <span class="bd-theme-picker-swatch-base" :style="{ background: preset.base }" />
+          <span class="bd-theme-picker-swatch-accent" :style="{ background: preset.accent }" />
         </button>
       </div>
     </div>
@@ -104,109 +103,94 @@ function update(key: "accent" | "base", event: Event): void {
 .bd-theme-picker {
   display: flex;
   flex-direction: column;
-  gap: var(--bd-space-4);
+  gap: var(--bd-space-3);
 }
 
-.bd-theme-picker-inputs {
-  align-items: flex-end;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--bd-space-4);
-}
-
-.bd-theme-picker-control {
+.bd-theme-picker-row {
   align-items: center;
+  color: var(--bd-font-color-dark);
+  cursor: pointer;
   display: flex;
-  gap: var(--bd-space-2);
+  font-size: var(--bd-font-size-sm);
+  gap: var(--bd-space-4);
+  justify-content: space-between;
+  white-space: nowrap;
 
   /* Le champ natif porte sa propre bordure sur chaque OS : on la remplace. */
   & input {
-    background: none;
-    block-size: var(--bd-control-height-small);
+    background: transparent;
+    block-size: 1.75rem;
     border: 1px solid var(--bd-border-color);
     border-radius: var(--bd-radius-sm);
     cursor: pointer;
-    inline-size: 3rem;
+    inline-size: 1.75rem;
     padding: 2px;
   }
+}
 
-  & code {
-    color: var(--bd-font-color-dark);
-    font-size: var(--bd-font-size-sm);
-  }
+.bd-theme-picker-divider {
+  background: var(--bd-border-color);
+  block-size: 1px;
+  border: 0;
+  margin: 0;
 }
 
 .bd-theme-picker-group h3 {
   color: var(--bd-font-color-darker);
-  font-size: var(--bd-font-size-sm);
+  font-size: var(--bd-font-size-xs);
   letter-spacing: 0.08em;
   margin-bottom: var(--bd-space-2);
   text-transform: uppercase;
 }
 
+/*
+ * Pistes de largeur fixe plutôt que des fractions : la pastille garde la même
+ * taille dans un popup de barre de titre comme dans un panneau de réglages
+ * large, et c'est le nombre de colonnes qui s'adapte.
+ */
 .bd-theme-picker-grid {
   display: grid;
-  gap: var(--bd-space-2);
-  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: var(--bd-space-1);
+  grid-template-columns: repeat(auto-fill, 2rem);
 }
 
-/*
- * Pastille et nom sur une ligne, pas empilés : trente presets en trois groupes,
- * une carte en colonne coûtait plus de 5rem de haut chacune et le sélecteur
- * occupait tout l'écran. En ligne elle tient en une hauteur de contrôle, et la
- * grille passe de deux à trois colonnes à largeur égale.
- */
-.bd-theme-picker-card {
-  align-items: center;
-  background: var(--bd-bg-light);
+.bd-theme-picker-swatch {
+  background: transparent;
+  block-size: 1.25rem;
   border: 1px solid var(--bd-border-color);
   border-radius: var(--bd-radius-sm);
-  color: var(--bd-font-color);
   cursor: pointer;
   display: flex;
-  font-size: var(--bd-font-size-sm);
-  gap: var(--bd-space-2);
-  min-inline-size: 0;
-  padding: var(--bd-space-2);
-  text-align: left;
-  transition: border-color var(--bd-transition);
+  inline-size: 2rem;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  transition:
+    border-color var(--bd-transition),
+    transform var(--bd-transition);
 
   &:hover {
+    /* z-index pour que l'agrandissement passe au-dessus de ses voisines. */
     border-color: var(--bd-primary);
+    transform: scale(1.15);
+    z-index: 1;
   }
 
   /* L'état actif est déjà porté par aria-pressed : pas de classe en double. */
   &[aria-pressed="true"] {
     border-color: var(--bd-primary);
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--bd-primary) 35%, transparent);
+    z-index: 1;
   }
 }
 
-/*
- * Le nom ne passe jamais à la ligne : un seul preset au libellé long suffirait
- * à faire grandir toute sa rangée, et la grille perdrait son alignement.
- * `min-inline-size: 0` est ce qui autorise un enfant flex à rétrécir sous sa
- * largeur de contenu — sans lui, l'ellipse ne se déclenche jamais.
- */
-.bd-theme-picker-name {
-  min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.bd-theme-picker-swatch-base {
+  display: block;
+  flex: 2;
 }
 
-.bd-theme-picker-swatch {
-  block-size: 1.4rem;
-  border-radius: var(--bd-radius-sm);
-  display: flex;
-  flex: none;
-  inline-size: 2.1rem;
-  justify-content: flex-end;
-  overflow: hidden;
-
-  & span {
-    inline-size: 33%;
-  }
+.bd-theme-picker-swatch-accent {
+  display: block;
+  flex: 1;
 }
-
 </style>
