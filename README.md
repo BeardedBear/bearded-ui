@@ -256,7 +256,7 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdCard`   | `padding` (default/small/none), slot `header`                                                                                                      |
 | `BdBadge`  | `variant` (default/primary/success/warning/danger/info)                                                                                            |
 | `BdLoader` | `size` (default/small/x-small/xx-small)                                                                                                            |
-| `BdDialog` | `v-model` (ouverture), `title`, `subtitle`, `size` (small/default/big/full/fit), `padding` (default/small/none), `persistent`, `hideClose`, slots `header`/`actions`/`footer` |
+| `BdDialog` | `v-model` (ouverture), `title`, `subtitle`, `size` (small/default/big/full/fit), `padding` (default/small/none), `height`/`width`/`maxHeight`/`maxWidth` (longueurs CSS), `persistent`, `hideClose`, slots `header`/`actions`/`footer` |
 | `BdConfirmDialog` | `v-model` (ouverture), `title`, `message` (ou slot), `confirmLabel`, `cancelLabel`, `danger` — émet `confirm`/`cancel`                       |
 | `BdDropdown` | `size`, `placement`, `matchWidth`, `offset`, `sheetOnMobile`, `label`, slot `trigger`, `v-model` (ouverture)                                     |
 | `BdDropdownItem` | `icon`, `active`, `danger`, `disabled`, `keepOpen`                                                                                          |
@@ -466,6 +466,23 @@ warning en console.
 <BdButton icon-only label="Options de la playlist" variant="nude" @click="open">
   <PhDotsThree />
 </BdButton>
+```
+
+### Dimensions d'une dialog
+
+`size` suffit dans la plupart des cas. Les quatre props de dimension sont là pour ce qu'il ne
+couvre pas, et passent en style inline — elles gagnent donc aussi contre la largeur d'un palier.
+
+`height` répond à un cas précis : par défaut la hauteur suit le contenu, donc une dialog dont le
+contenu arrive après l'ouverture (résultats de recherche, liste chargée) s'affiche en bandeau puis
+saute dès la première réponse, sous les yeux de quelqu'un qui tape encore. `maxHeight` n'y peut
+rien — un plafond n'est pas un plancher. Poser `height` fige le panneau et laisse son corps
+défiler.
+
+```vue
+<BdDialog v-model="open" size="big" height="34rem" max-height="80vh">
+  <SearchResults />
+</BdDialog>
 ```
 
 ## Dev

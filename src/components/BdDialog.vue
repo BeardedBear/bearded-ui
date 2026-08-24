@@ -31,15 +31,21 @@ import { onMounted, ref, watch } from "vue";
  * </BdDialog>
  */
 export interface BdDialogProps {
+  /**
+   * Fixes the dialog's height. Any CSS length.
+   *
+   * By default the height follows the content, which means a dialog whose
+   * content arrives late — search results, a fetched list — is a thin strip on
+   * open and jumps once the first response lands. `maxHeight` cannot help
+   * there: a cap is a ceiling, not a floor. Setting this holds the panel still
+   * and lets its body scroll instead. Still bounded by `maxHeight`, so a short
+   * window wins.
+   */
+  height?: string;
   /** Hides the close button. Escape still closes — this only removes the cross. */
   hideClose?: boolean;
   /**
    * Caps the dialog's height. Any CSS length — `"36rem"`, `"70vh"`, `"min(40rem, 80vh)"`.
-   *
-   * The height is content-driven up to this cap, so a dialog whose content
-   * arrives late (search results, a fetched list) grows as it fills. Pinning
-   * the cap lower than the default is how you stop it resizing under the
-   * reader mid-task.
    * @default "90vh"
    */
   maxHeight?: string;
@@ -73,9 +79,15 @@ export interface BdDialogProps {
   subtitle?: string;
   /** Heading text. Use the `header` slot to replace the whole heading. */
   title?: string;
+  /**
+   * Fixes the dialog's width, overriding whatever `size` asks for. Any CSS
+   * length — for the one dialog that should not follow a preset.
+   */
+  width?: string;
 }
 
 const props = withDefaults(defineProps<BdDialogProps>(), {
+  height: undefined,
   hideClose: false,
   maxHeight: undefined,
   maxWidth: undefined,
@@ -84,6 +96,7 @@ const props = withDefaults(defineProps<BdDialogProps>(), {
   size: "default",
   subtitle: undefined,
   title: undefined,
+  width: undefined,
 });
 
 // ponytail: native <dialog> — focus trap, Esc, inert backdrop for free.
@@ -145,7 +158,12 @@ function onPointerDown(event: MouseEvent): void {
       props.size === 'default' ? '' : `bd-dialog-${props.size}`,
       props.padding === 'default' ? '' : `bd-dialog-padding-${props.padding}`,
     ]"
-    :style="{ '--bd-dialog-max-height': props.maxHeight, '--bd-dialog-max-width': props.maxWidth }"
+    :style="{
+      height: props.height,
+      maxHeight: props.maxHeight,
+      maxWidth: props.maxWidth,
+      width: props.width,
+    }"
     @click="onClick"
     @close="open = false"
     @mousedown="onPointerDown"
@@ -201,13 +219,13 @@ function onPointerDown(event: MouseEvent): void {
   flex-direction: column;
   inset: 0;
   margin: auto;
-  /* Les plafonds passent par des custom properties : le prop `max-height` /
-     `max-width` n'a qu'à les poser en inline, la règle reste seule à décider. */
-  max-height: var(--bd-dialog-max-height, 90vh);
+  /* Défauts seulement : les props height/width/max* les écrasent en inline, ce
+     qui leur permet aussi de passer devant les largeurs des paliers `size`. */
+  max-height: 90vh;
 
   /* Garde-fou seulement : c'est `width` qui porte la taille, pour qu'une appli
      puisse imposer la sienne sans buter contre un plafond. */
-  max-width: var(--bd-dialog-max-width, 90vw);
+  max-width: 90vw;
   overflow: hidden;
   padding: var(--bd-space-5);
   position: fixed;
