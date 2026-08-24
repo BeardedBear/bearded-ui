@@ -169,8 +169,15 @@ provide(bdSize, toRef(props, "size"));
 </template>
 
 <style scoped>
+/*
+ * `inline-flex`, not `inline-block`: the trigger inside is an inline-level box,
+ * so a block container laid it out on a line and left descender space beneath
+ * it. The wrapper then measured taller than its own trigger, and an avatar or
+ * button placed in a centred flex row sat visibly off-centre. As a flex parent
+ * there is no line box, so the wrapper is exactly as tall as what it holds.
+ */
 .bd-dropdown {
-  display: inline-block;
+  display: inline-flex;
   position: relative;
 }
 
