@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { VNode } from "vue";
+
 import { computed, inject, useAttrs, useSlots, watchEffect } from "vue";
 
 import type { BdSize } from "@/types";
@@ -93,7 +95,7 @@ if (import.meta.env?.DEV) {
   watchEffect(() => {
     if (!props.iconOnly) return;
     if (props.label || attrsIn["aria-label"] || attrsIn["aria-labelledby"] || attrsIn.title) return;
-    const hasText = slots.default?.().some((node) => typeof node.children === "string" && node.children.trim());
+    const hasText = slots.default?.({}).some((node: VNode) => typeof node.children === "string" && node.children.trim());
     if (hasText) return;
     console.warn("[BdButton] `icon-only` without a `label`: this button will announce as \"button\".");
   });
