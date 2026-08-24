@@ -34,6 +34,24 @@ export interface BdDialogProps {
   /** Hides the close button. Escape still closes — this only removes the cross. */
   hideClose?: boolean;
   /**
+   * Caps the dialog's height. Any CSS length — `"36rem"`, `"70vh"`, `"min(40rem, 80vh)"`.
+   *
+   * The height is content-driven up to this cap, so a dialog whose content
+   * arrives late (search results, a fetched list) grows as it fills. Pinning
+   * the cap lower than the default is how you stop it resizing under the
+   * reader mid-task.
+   * @default "90vh"
+   */
+  maxHeight?: string;
+  /**
+   * Caps the dialog's width. Any CSS length.
+   *
+   * Narrower than the width its `size` preset asks for, this wins — useful for
+   * one dialog that should not follow the preset without inventing a new one.
+   * @default "90vw"
+   */
+  maxWidth?: string;
+  /**
    * Body spacing; the header and footer always keep their own. `none` is for a
    * body that runs edge to edge: a form, a picture, an iframe.
    * @default "default"
@@ -59,6 +77,8 @@ export interface BdDialogProps {
 
 const props = withDefaults(defineProps<BdDialogProps>(), {
   hideClose: false,
+  maxHeight: undefined,
+  maxWidth: undefined,
   padding: "default",
   persistent: false,
   size: "default",
@@ -125,6 +145,7 @@ function onPointerDown(event: MouseEvent): void {
       props.size === 'default' ? '' : `bd-dialog-${props.size}`,
       props.padding === 'default' ? '' : `bd-dialog-padding-${props.padding}`,
     ]"
+    :style="{ '--bd-dialog-max-height': props.maxHeight, '--bd-dialog-max-width': props.maxWidth }"
     @click="onClick"
     @close="open = false"
     @mousedown="onPointerDown"
@@ -180,10 +201,13 @@ function onPointerDown(event: MouseEvent): void {
   flex-direction: column;
   inset: 0;
   margin: auto;
-  max-height: 90vh;
+  /* Les plafonds passent par des custom properties : le prop `max-height` /
+     `max-width` n'a qu'à les poser en inline, la règle reste seule à décider. */
+  max-height: var(--bd-dialog-max-height, 90vh);
+
   /* Garde-fou seulement : c'est `width` qui porte la taille, pour qu'une appli
      puisse imposer la sienne sans buter contre un plafond. */
-  max-width: 90vw;
+  max-width: var(--bd-dialog-max-width, 90vw);
   overflow: hidden;
   padding: var(--bd-space-5);
   position: fixed;
