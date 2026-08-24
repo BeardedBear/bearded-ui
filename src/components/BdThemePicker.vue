@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { type BdPalette, useTheme } from "../composables/useTheme";
+import { useTheme } from "../composables/useTheme";
 import { type BdPreset, type BdPresetGroup, bdPresets } from "../themePresets";
 
 /**
@@ -36,19 +36,26 @@ const groups = computed<{ group: BdPresetGroup; presets: BdPreset[] }[]>(() =>
   [...new Set(props.presets.map((preset) => preset.group))]
     .map((group) => ({ group, presets: props.presets.filter((p) => p.group === group) })));
 
+// Carries the name so the choice survives a future correction of the preset.
 function apply(preset: BdPreset): void {
-  palette.value = { accent: preset.accent, base: preset.base };
+  palette.value = { accent: preset.accent, base: preset.base, name: preset.name };
 }
 
 function isActive(preset: BdPreset): boolean {
+  if (palette.value.name) return palette.value.name === preset.name;
   return (
     palette.value.base.toLowerCase() === preset.base.toLowerCase()
     && palette.value.accent.toLowerCase() === preset.accent.toLowerCase()
   );
 }
 
-function update(key: keyof BdPalette, event: Event): void {
-  palette.value = { ...palette.value, [key]: (event.target as HTMLInputElement).value };
+/*
+ * Nudging a channel by hand drops the preset name: the palette is now the
+ * user's own, and keeping the name would make the next reload snap it back to
+ * the preset's colors.
+ */
+function update(key: "accent" | "base", event: Event): void {
+  palette.value = { ...palette.value, [key]: (event.target as HTMLInputElement).value, name: undefined };
 }
 </script>
 

@@ -1,30 +1,54 @@
 import { computed, type ComputedRef, ref, type Ref, watchEffect } from "vue";
 
+import type { BdPreset } from "../themePresets";
+
+import { bdDefaultPalette, type BdPalette } from "../palette";
+import { bdPresets } from "../themePresets";
 import { isLightColor } from "../utils/color";
 
-/**
- * The two colors the whole interface is derived from — the only thing an app
- * ever picks. Backgrounds, text, borders and accent states all follow.
- */
-export interface BdPalette {
-  /** Accent, everything interactive. Any CSS color the browser can parse. */
-  accent: string;
-  /** Background the light/dark ladder is built on. Its luminance picks the theme. */
-  base: string;
-}
+export { bdDefaultPalette, type BdPalette } from "../palette";
 
 /** Whether the palette reads dark or light — deduced, never chosen. */
 export type BdTheme = "dark" | "light";
 
-/** Palette of the library itself. Same values as the CSS defaults in themes.css. */
-export const bdDefaultPalette: BdPalette = { accent: "#9064ff", base: "#16181d" };
-
 const STORAGE_KEY = "bearded-ui-theme";
+
+const sameColors = (a: { accent: string; base: string }, b: { accent: string; base: string }): boolean =>
+  a.accent.toLowerCase() === b.accent.toLowerCase() && a.base.toLowerCase() === b.base.toLowerCase();
+
+/**
+ * Finds the preset a stored palette belongs to.
+ *
+ * Name first: that is the durable path, and the only one that runs once an app
+ * has loaded since named persistence shipped.
+ *
+ * The value-matching branch below is the migration, and it is self-retiring.
+ * It only runs for a palette with no name — storage written before names
+ * existed — and `start()` immediately writes the resolved palette back *with*
+ * its name, so any given browser takes that branch exactly once. A later
+ * change to a preset's colors therefore needs nothing added to `legacy`.
+ *
+ * A hand-picked palette that happens to equal a preset is adopted by it. The
+ * colors are identical either way, and it starts following that preset's
+ * updates — which is the behaviour someone who matched a preset by hand almost
+ * certainly wanted.
+ */
+function matchPreset(saved: BdPalette): BdPreset | undefined {
+  if (saved.name) return bdPresets.find((preset) => preset.name === saved.name);
+  return bdPresets.find(
+    (preset) => sameColors(preset, saved) || preset.legacy?.some((old) => sameColors(old, saved)),
+  );
+}
 
 function stored(): BdPalette {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-    return saved?.accent && saved?.base ? saved : bdDefaultPalette;
+    if (!saved?.accent || !saved?.base) return bdDefaultPalette;
+
+    // A known preset always resolves to its current definition, never to the
+    // snapshot that happens to be in this browser's storage.
+    const preset = matchPreset(saved);
+    return preset ? { accent: preset.accent, base: preset.base, name: preset.name } : saved;
   } catch {
     return bdDefaultPalette;
   }

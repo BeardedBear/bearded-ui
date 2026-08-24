@@ -105,7 +105,18 @@ theme.value; // "dark" | "light" — déduit, en lecture seule
   `--bd-palette-accent`, `--bd-on-primary`) plus `data-theme`. Aucun observer, aucune boucle : le
   reste est un bloc `:root` dans `themes.css`, qui tient donc sans JS (SSR, ou app qui n'appelle
   jamais `useTheme()`).
-- Le choix est persisté dans `localStorage` (`bearded-ui-theme`).
+- Le choix est persisté dans `localStorage` (`bearded-ui-theme`), **par identité** : un preset est
+  stocké avec son `name`, et relu au chargement depuis sa définition courante. Corriger les
+  couleurs d'un preset atteint donc toutes les apps qui l'avaient déjà choisi — auparavant chacune
+  restait figée sur les hex enregistrés le jour du clic, et une harmonisation ne touchait que les
+  nouveaux venus. Une palette réglée à la main n'a pas de `name` et n'est jamais réécrite.
+- `legacy` porte les couples qu'un preset a portés **avant** que les noms soient persistés. C'est une
+  table de migration figée, pas un historique : elle n'est consultée que pour une palette sans nom,
+  et la palette résolue est aussitôt réécrite avec son nom. Un navigateur y passe donc une seule
+  fois. **Ne rien y ajouter lors d'un futur changement de couleurs** — la résolution par nom s'en
+  charge déjà, et chaque couple en trop est une occasion de collision avec les couleurs vivantes
+  d'un autre preset. Table supprimable dès que toutes les apps ont tourné une fois sur une version
+  ≥ celle-ci.
 - 30 palettes prêtes à l'emploi dans `bdPresets` (groupes `dark`, `darker`, `light`). La première,
   `Bearded` (`#16181d` + `#9064ff`), est la palette par défaut.
 
