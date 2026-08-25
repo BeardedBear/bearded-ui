@@ -18,6 +18,22 @@ const props = withDefaults(defineProps<BdToasterProps>(), { position: "bottom-ri
 const { dismissToast, toasts } = useToast();
 
 /*
+ * Freezes a leaving toast where it already is. `.bd-toast-leave-active` takes
+ * it out of flow so the survivors can slide up, but an absolutely positioned
+ * child of a flex container is placed at the container's content box, not at
+ * the spot it just occupied — so it jumped a row before starting to fade.
+ * Measured here, while the element is still in flow.
+ */
+function pinLeaving(el: Element): void {
+  const toastEl = el as HTMLElement;
+
+  toastEl.style.height = `${toastEl.offsetHeight}px`;
+  toastEl.style.left = `${toastEl.offsetLeft}px`;
+  toastEl.style.top = `${toastEl.offsetTop}px`;
+  toastEl.style.width = `${toastEl.offsetWidth}px`;
+}
+
+/*
  * The toast dismisses before the handler runs: a slow restore would otherwise
  * leave a live button sitting on screen, and a second click would fire it twice.
  */
@@ -29,7 +45,13 @@ function runAction(t: BdToast): void {
 
 <template>
   <Teleport to="body">
-    <TransitionGroup class="bd-toaster" :class="`bd-toaster-${props.position}`" name="bd-toast" tag="div">
+    <TransitionGroup
+      class="bd-toaster"
+      :class="`bd-toaster-${props.position}`"
+      name="bd-toast"
+      tag="div"
+      @before-leave="pinLeaving"
+    >
       <!--
         Two shapes on purpose. Without an action the whole toast stays one
         button that dismisses on click, which is the behaviour every existing
@@ -168,6 +190,11 @@ function runAction(t: BdToast): void {
 /* Keeps the remaining toasts from jumping when one leaves mid-stack. */
 .bd-toast-leave-active {
   position: absolute;
+}
+
+/* Slides the survivors into the freed slot instead of snapping them up. */
+.bd-toast-move {
+  transition: transform var(--bd-transition);
 }
 
 .bd-toaster-bottom-left .bd-toast-enter-from,
