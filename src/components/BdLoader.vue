@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<BdLoaderProps>(), { size: "default" });
   display: inline-block;
   height: var(--loader-size);
   width: var(--loader-size);
-  will-change: transform;
+  will-change: rotate;
 }
 
 /* Size variants only retune the two custom properties above. */
@@ -57,9 +57,15 @@ const props = withDefaults(defineProps<BdLoaderProps>(), { size: "default" });
   --loader-size: 0.9rem;
 }
 
+/*
+ * Spins with the individual `rotate` property, not `transform`. An animation
+ * wins the cascade over a plain declaration, so animating `transform` here
+ * silently killed any `transform` a caller used to place the spinner —
+ * `translate(-50%, -50%)` centring turned into a drift across the box.
+ */
 @keyframes bd-spin {
   to {
-    transform: rotate(360deg);
+    rotate: 360deg;
   }
 }
 </style>
