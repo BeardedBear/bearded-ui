@@ -154,7 +154,7 @@ des apps à 16 px.
 | Texte      | `--bd-font-color{,-darker,-dark,-light}`                                             |
 | États      | `--bd-{success,warning,danger,info}`, paires `-bg` / `-text` pour les trois premiers |
 | Typo       | `--bd-font-family`, `--bd-font-size-{xs,sm,base,lg,xl,2xl}`, `--bd-font-weight{,-bold}` |
-| Espacement | `--bd-space-1` → `--bd-space-6` (voir ci-dessous)                                    |
+| Espacement | `--bd-space-1` → `--bd-space-8` (voir ci-dessous)                                    |
 | Rayons     | `--bd-radius-{sm,md,lg,full}`                                                        |
 | Ombres     | `--bd-shadow-{sm,md,lg}`                                                             |
 | Motion     | `--bd-transition{,-fast}`                                                            |
@@ -172,8 +172,12 @@ dans les composants. (px calculés à la racine par défaut, `font-size: 14px`.)
 | `--bd-space-4`  | 1rem      | 14   | Padding horizontal du toast, marge sous le header de dialog         |
 | `--bd-space-5`  | 1.5rem    | 21   | Padding des cards et dialogs, marge des toasts à l'écran            |
 | `--bd-space-6`  | 2rem      | 28   | Séparation entre sections de page                                   |
+| `--bd-space-7`  | 3rem      | 42   | Inset de page, respiration au-dessus du premier bloc                |
+| `--bd-space-8`  | 4rem      | 56   | La plus large gouttière d'une page : padding de hero, gap de colonnes |
 
-Au-delà de `--bd-space-6`, l'espacement relève du layout de l'app : à définir côté projet.
+L'échelle s'arrêtait à `--bd-space-6`, au motif qu'au-delà on était dans le layout de l'app.
+En pratique chaque app y réinventait les deux mêmes crans sous ses propres noms — exactement la
+dérive que l'échelle sert à éviter.
 
 Utilitaires : `.bd-font-bold`, `.bd-font-italic`, `.bd-font-bold-italic`, `.bd-heading`,
 `.bd-squircle`, `.bd-truncate`, `.bd-sr-only`.

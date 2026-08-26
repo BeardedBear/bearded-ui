@@ -47,7 +47,11 @@
    * 4 — horizontal padding of toasts, margin under a dialog header
    * 5 — padding of cards and dialogs, screen margin of the toaster
    * 6 — separation between page sections
-   * Anything larger is app layout, not a library token.
+   * 7 — page inset and the breathing above a page's first block
+   * 8 — the widest gutter a page uses: hero padding, gap between two columns
+   * The scale used to stop at 6, on the grounds that anything larger was app
+   * layout. It was not: every app then reinvented the same two steps under its
+   * own names, which is the drift the scale exists to prevent.
    */
   --bd-space-1: 0.25rem; /*  4px */
   --bd-space-2: 0.5rem; /*   7px */
@@ -55,6 +59,8 @@
   --bd-space-4: 1rem; /*    14px */
   --bd-space-5: 1.5rem; /*  21px */
   --bd-space-6: 2rem; /*    28px */
+  --bd-space-7: 3rem; /*    42px */
+  --bd-space-8: 4rem; /*    56px */
 
   /*
    * Hauteur des contrôles (boutons, groupes, trigger de dropdown). Fixée plutôt
@@ -72,10 +78,17 @@
   --bd-radius-lg: 1rem;
   --bd-radius-full: 999rem;
 
-  /* Elevation */
-  --bd-shadow-sm: 0 1px 3px rgb(0 0 0 / 25%);
-  --bd-shadow-md: 0 4px 12px rgb(0 0 0 / 30%);
-  --bd-shadow-lg: 0 12px 32px rgb(0 0 0 / 40%);
+  /*
+   * Elevation. In rem like every other length here: these were the last px
+   * values in the scale, so a panel's shadow stayed put while its padding and
+   * radius grew with the root font size.
+   * sm — resting on the page: a thumbnail, a card that does not float
+   * md — floating: dropdown, tooltip, toast, popover
+   * lg — blocking: dialog
+   */
+  --bd-shadow-sm: 0 0.2rem 0.4rem rgb(0 0 0 / 25%);
+  --bd-shadow-md: 0 0.5rem 1.5rem rgb(0 0 0 / 40%);
+  --bd-shadow-lg: 0 1rem 2.5rem rgb(0 0 0 / 45%);
 
   /* Motion */
   --bd-transition-fast: 0.15s ease;
