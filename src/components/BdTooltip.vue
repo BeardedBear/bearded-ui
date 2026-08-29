@@ -234,7 +234,12 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.bd-tooltip-trigger {
+/*
+ * :where() — spécificité nulle : la classe que le consommateur pose sur le
+ * trigger l'emporte toujours, sans quoi son `display` et le nôtre sont à
+ * égalité et c'est l'ordre du bundle qui tranche.
+ */
+:where(.bd-tooltip-trigger) {
   display: inline-flex;
 }
 
