@@ -264,7 +264,7 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdConfirmDialog` | `v-model` (ouverture), `title`, `message` (ou slot), `confirmLabel`, `cancelLabel`, `danger` — émet `confirm`/`cancel`                       |
 | `BdDropdown` | `size`, `placement`, `matchWidth`, `offset`, `sheetOnMobile`, `label`, slot `trigger`, `v-model` (ouverture)                                     |
 | `BdDropdownItem` | `icon`, `active`, `danger`, `disabled`, `keepOpen`                                                                                          |
-| `BdTooltip` | `content` (ou slot `content`), `side`, `follow`, `delay`, `offset`, `disabled`                                                                    |
+| `BdTooltip` | `content` (ou slot `content`), `side`, `follow`, `bare`, `delay`, `offset`, `disabled`                                                                    |
 | `BdToaster`| `position` (bottom-right/bottom-left/top-right/top-left) — à monter une seule fois                                                                  |
 | `BdThemePicker` | `presets`, `baseLabel`, `accentLabel` — écrit dans `useTheme().palette`                                                                        |
 
@@ -398,6 +398,23 @@ Le tooltip peut suivre le curseur au lieu de rester ancré au trigger — désac
 
 L'axe non suivi reste calé sur le trigger : `follow="x"` avec `side="top"` garde le tooltip à
 hauteur constante au-dessus de l'élément et ne fait glisser que l'horizontale.
+
+Le trigger est une boîte `inline-flex` par défaut. `bare` la supprime
+(`display: contents`) : l'élément enveloppé garde sa place exacte dans le layout du parent.
+
+```vue
+<!-- item flex, bouton en position: absolute, élément masqué par une media query… -->
+<BdTooltip bare content="Options">
+  <button class="edit">…</button>
+</BdTooltip>
+```
+
+À utiliser dès que le parent style ou positionne l'élément enveloppé, sinon la boîte du trigger
+prend ce rôle à sa place : le `flex-shrink` ne l'atteint plus, un `position: absolute` s'applique
+au mauvais élément, un `display: none` laisse une boîte vide qui continue de compter dans un `gap`.
+Le trigger n'ayant plus de boîte, la mesure passe par un range sur le contenu du slot et
+`aria-describedby` se pose sur l'élément enveloppé — un `display: contents` sort de l'arbre
+d'accessibilité.
 
 `BdTooltip` et `BdDropdown` partagent leur moteur de placement (`src/composables/useAnchor.ts`) :
 `anchor()` positionne un panneau contre un trigger sur les 4 côtés avec flip et recalage,

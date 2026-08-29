@@ -15,12 +15,25 @@ export type BdTooltipFollow = "both" | "x" | "y";
  * runs out, and the arrow keeps pointing at the trigger even once the panel
  * has been nudged back inside the viewport.
  *
+ * The trigger is an `inline-flex` box by default. `bare` removes that box
+ * (`display: contents`), for a wrapped element whose own box the parent layout
+ * positions — a flex item, an absolutely placed button, one a media query
+ * hides.
+ *
  * @example
  * <BdTooltip content="Delete permanently">
  *   <BdButton icon-only><PhTrash size="1.2em" /></BdButton>
  * </BdTooltip>
  */
 export interface BdTooltipProps {
+  /**
+   * Drops the trigger's own box (`display: contents`), leaving the wrapped
+   * element in its exact place in the parent layout. Reach for it whenever the
+   * parent styles or positions that element — a flex item, `position: absolute`,
+   * a `display: none` under a media query — since an extra box would take that
+   * role over. Off by default: the trigger is an `inline-flex` box.
+   */
+  bare?: boolean;
   /** Tooltip text. Use the `content` slot for markup. An empty tooltip never opens. */
   content?: string;
   /** Delay before opening, in ms. Closing is always immediate. @default 150 */
@@ -39,6 +52,7 @@ export interface BdTooltipProps {
 }
 
 const props = withDefaults(defineProps<BdTooltipProps>(), {
+  bare: false,
   content: "",
   delay: 150,
   follow: undefined,
@@ -56,6 +70,22 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 const ARROW_INSET = 12;
 
 const pointer = { x: 0, y: 0 };
+
+/**
+ * The element carrying `aria-describedby` while the tooltip is open. A
+ * `display: contents` trigger is dropped from the accessibility tree, so the
+ * description has to land on the wrapped element itself.
+ */
+function describedEl(): Element | null {
+  if (!props.bare) return null;
+  const child = triggerEl.value?.firstElementChild;
+  return child && child !== panelEl.value ? child : null;
+}
+
+/** Whether a mouseover/mouseout counterpart is still inside the trigger. */
+function isInside(node: EventTarget | null): boolean {
+  return node instanceof Node && !!triggerEl.value?.contains(node);
+}
 
 function place(): void {
   const panel = panelEl.value;
@@ -90,7 +120,7 @@ function place(): void {
  * exactly on the pointer.
  */
 function targetRect(trigger: HTMLElement): DOMRect {
-  const t = trigger.getBoundingClientRect();
+  const t = triggerRect(trigger);
   if (!props.follow) return t;
 
   const followX = props.follow !== "y";
@@ -104,15 +134,50 @@ function targetRect(trigger: HTMLElement): DOMRect {
   );
 }
 
+/**
+ * `display: contents` leaves the trigger without a box of its own, so its own
+ * rect comes back empty: a range over the slot content stands in. It stops
+ * before the panel — last child, and in the top layer, so it would blow the
+ * measurement up.
+ */
+function triggerRect(trigger: HTMLElement): DOMRect {
+  const panel = panelEl.value;
+  const first = trigger.firstChild;
+  if (!props.bare || !panel || !first || first === panel) return trigger.getBoundingClientRect();
+
+  const range = document.createRange();
+  range.setStartBefore(first);
+  range.setEndBefore(panel);
+
+  return range.getBoundingClientRect();
+}
+
 const tracker = useViewportTracker(place);
 const replace = rafThrottle(place);
 
 function hide(): void {
   clearTimeout(timer);
   const panel = panelEl.value;
+  describedEl()?.removeAttribute("aria-describedby");
   visible.value = false;
   if (panel?.matches(":popover-open")) panel.hidePopover();
   tracker.stop();
+}
+
+/*
+ * mouseover/mouseout et pas mouseenter/mouseleave : ces derniers ne remontent
+ * pas, et un trigger en `display: contents` n'a pas de boîte pour les recevoir.
+ * Le test sur relatedTarget rejoue leur sémantique — un passage d'un enfant du
+ * trigger à un autre n'est ni une entrée ni une sortie.
+ */
+function onMouseOut(event: MouseEvent): void {
+  if (isInside(event.relatedTarget)) return;
+  hide();
+}
+
+function onMouseOver(event: MouseEvent): void {
+  if (isInside(event.relatedTarget)) return;
+  scheduleShow(event);
 }
 
 function onPointerMove(event: MouseEvent): void {
@@ -134,6 +199,7 @@ async function show(): Promise<void> {
   if (!panel || props.disabled || (!props.content && !panel.textContent?.trim())) return;
 
   visible.value = true;
+  describedEl()?.setAttribute("aria-describedby", tooltipId);
   // popover="manual" : top layer sans light-dismiss, un tooltip ne vole pas le focus.
   if (!panel.matches(":popover-open")) panel.showPopover();
   await nextTick();
@@ -150,14 +216,14 @@ onBeforeUnmount(() => {
 <template>
   <span
     ref="triggerEl"
-    :aria-describedby="visible ? tooltipId : undefined"
-    class="bd-tooltip-trigger"
+    :aria-describedby="!bare && visible ? tooltipId : undefined"
+    :class="['bd-tooltip-trigger', { 'is-bare': bare }]"
     @focusin="scheduleShow"
     @focusout="hide"
     @keydown.escape="hide"
-    @mouseenter="scheduleShow"
-    @mouseleave="hide"
     @mousemove="onPointerMove"
+    @mouseout="onMouseOut"
+    @mouseover="onMouseOver"
   >
     <slot />
 
@@ -168,9 +234,18 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* Pas display:contents : sans box, getBoundingClientRect renverrait un rect vide. */
 .bd-tooltip-trigger {
   display: inline-flex;
+}
+
+/*
+ * Sans boîte, l'élément enveloppé garde sa place exacte dans le layout du
+ * parent. La mesure passe alors par un range sur le contenu (voir triggerRect),
+ * puisque le rect du trigger est vide. Deux classes pour passer devant celle
+ * que le consommateur pose sur le trigger.
+ */
+.bd-tooltip-trigger.is-bare {
+  display: contents;
 }
 
 .bd-tooltip {

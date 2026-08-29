@@ -464,6 +464,25 @@ function tokenVar(prefix: string, suffix: string): string {
             <div class="follow-zone">follow="both"</div>
           </BdTooltip>
         </div>
+        <h3>Trigger sans boîte</h3>
+        <p class="muted">
+          <code>bare</code> — le trigger passe en <code>display: contents</code> et l'élément enveloppé
+          garde sa place dans le layout du parent. Ici les deux rangées sont le même flex à
+          <code>gap</code>, avec un item en <code>flex: 1</code> : sans <code>bare</code>, la boîte du
+          trigger devient l'item flex et le bouton cesse de s'étirer.
+        </p>
+        <div class="row-flex">
+          <BdTooltip content="Sans bare : la boîte du trigger prend la place de l'item flex">
+            <BdButton full variant="border">flex: 1</BdButton>
+          </BdTooltip>
+          <BdButton size="small" variant="nude">voisin</BdButton>
+        </div>
+        <div class="row-flex">
+          <BdTooltip bare content="Avec bare : le bouton est lui-même l'item flex">
+            <BdButton full variant="border">flex: 1</BdButton>
+          </BdTooltip>
+          <BdButton size="small" variant="nude">voisin</BdButton>
+        </div>
         <p class="muted">
           Collé aux bords pour vérifier le recalage :
         </p>
@@ -800,6 +819,18 @@ figcaption {
 
   & + & {
     margin-top: var(--bd-space-4);
+  }
+}
+
+/* Un item étirable et un voisin fixe : de quoi voir qui est vraiment l'item flex. */
+.row-flex {
+  align-items: center;
+  display: flex;
+  gap: var(--bd-space-3);
+  margin-bottom: var(--bd-space-3);
+
+  > :first-child {
+    flex: 1;
   }
 }
 
