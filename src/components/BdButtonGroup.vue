@@ -74,24 +74,28 @@ provide(bdSize, toRef(props, "size"));
 
 /*
  * Wins over the child's own radius: one more class in the scoped selector.
- * Le second sélecteur vise le bouton d'une option à tooltip, où le trigger du
- * tooltip s'intercale entre le groupe et lui. Il nomme le trigger plutôt que
- * `> * > *`, qui attrapait aussi le contenu d'un bouton passé en slot — une
- * icône se retrouvait étirée à toute la largeur du bouton.
+ * Le second sélecteur vise le bouton d'un trigger de tooltip, qui s'intercale
+ * entre le groupe et lui. Il nomme le trigger plutôt que `> * > *`, qui
+ * attrapait aussi le contenu d'un bouton passé en slot — une icône se
+ * retrouvait étirée à toute la largeur du bouton.
+ *
+ * :deep() — sans lui l'attribut de scope tomberait sur `.bd-button`, et un
+ * bouton venu du slot porte le scope id de l'appelant, pas le nôtre : la règle
+ * ne matchait que les boutons générés ici.
  */
 .bd-button-group > *,
-.bd-button-group > .bd-tooltip-trigger > .bd-button {
+.bd-button-group :deep(> .bd-tooltip-trigger > .bd-button) {
   border-radius: 0;
 }
 
 .bd-button-group > *:first-child,
-.bd-button-group > *:first-child > .bd-button {
+.bd-button-group :deep(> *:first-child > .bd-button) {
   border-end-start-radius: var(--bd-radius-lg);
   border-start-start-radius: var(--bd-radius-lg);
 }
 
 .bd-button-group > *:last-child,
-.bd-button-group > *:last-child > .bd-button {
+.bd-button-group :deep(> *:last-child > .bd-button) {
   border-end-end-radius: var(--bd-radius-lg);
   border-start-end-radius: var(--bd-radius-lg);
 }
@@ -103,10 +107,15 @@ provide(bdSize, toRef(props, "size"));
   & > * {
     flex: 1;
   }
+}
 
-  /* Un trigger de tooltip est inline-flex : sans ça son bouton ne remplirait pas la part. */
-  & > .bd-tooltip-trigger > .bd-button {
-    width: 100%;
-  }
+/*
+ * Le bouton d'un trigger de tooltip : item du groupe quand le trigger est
+ * `bare` (sans boîte), item du trigger sinon. `flex: 1` couvre les deux, là où
+ * un `width: 100%` se résoudrait contre le groupe entier en mode bare — chaque
+ * bouton prenait alors toute la largeur, et plus sa part.
+ */
+.bd-button-group-full :deep(> .bd-tooltip-trigger > .bd-button) {
+  flex: 1;
 }
 </style>
