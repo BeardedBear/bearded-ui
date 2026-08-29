@@ -240,6 +240,12 @@ onBeforeUnmount(() => {
  * égalité et c'est l'ordre du bundle qui tranche.
  */
 :where(.bd-tooltip-trigger) {
+  /*
+   * `stretch` par défaut collerait en haut de la ligne tout enfant à hauteur
+   * fixe posé à côté d'un enfant à hauteur auto — un drapeau en `height: 0.8em`
+   * suivi de son libellé, par exemple.
+   */
+  align-items: center;
   display: inline-flex;
 }
 
