@@ -2,6 +2,8 @@
 import { PhX } from "@phosphor-icons/vue";
 import { onMounted, ref, watch } from "vue";
 
+import BdTooltip from "./BdTooltip.vue";
+
 /**
  * Modal built on the native `<dialog>`: focus trap, Escape and inert backdrop
  * come free. Opening and closing are animated by the `.bd-anim-dialog` preset.
@@ -173,10 +175,14 @@ function onPointerDown(event: MouseEvent): void {
         <div class="bd-dialog-heading">
           <h2 v-if="title" class="bd-dialog-title">{{ title }}</h2>
           <!--
-            `title` natif plutôt qu'une infobulle maison : la dialog vit dans le
-            top layer, où un popper téléporté sur `body` passerait derrière.
+            Sous-titre tronqué : le tooltip le rend lisible en entier. Le panneau
+            est un `popover`, promu au top layer après la dialog, donc au-dessus
+            d'elle — un popper téléporté sur `body` serait passé derrière.
+            `bare` : le <p> garde sa place, c'est lui qui est ellipsé.
           -->
-          <p v-if="subtitle" class="bd-dialog-subtitle" :title="subtitle">{{ subtitle }}</p>
+          <BdTooltip v-if="subtitle" bare :content="subtitle">
+            <p class="bd-dialog-subtitle">{{ subtitle }}</p>
+          </BdTooltip>
         </div>
       </slot>
 

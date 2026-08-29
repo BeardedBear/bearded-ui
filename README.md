@@ -480,13 +480,23 @@ le sien.
 ### Boutons icône
 
 `icon-only` sans nom accessible est le moyen le plus fiable de livrer un contrôle muet. Le prop
-`label` pose `aria-label` **et** le `title` de survol ; en dev, un `icon-only` sans nom émet un
-warning en console.
+`label` pose `aria-label` ; en dev, un `icon-only` sans nom émet un warning en console.
 
 ```vue
 <BdButton icon-only label="Options de la playlist" variant="nude" @click="open">
   <PhDotsThree />
 </BdButton>
+```
+
+`label` est le nom accessible, rien de plus : il ne dessine aucune infobulle. Pour du texte au
+survol, enveloppe dans un `BdTooltip` — `bare` si le parent style ou positionne le bouton.
+
+```vue
+<BdTooltip bare content="Options de la playlist">
+  <BdButton class="mobile-options" icon-only label="Options de la playlist" variant="nude" @click="open">
+    <PhDotsThree />
+  </BdButton>
+</BdTooltip>
 ```
 
 ### Dimensions d'une dialog

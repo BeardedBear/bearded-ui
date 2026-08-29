@@ -47,6 +47,9 @@ export interface BdButtonProps {
    * icon has no text for a screen reader to read, so without this it announces
    * as "button" and nothing else. In dev, leaving it out on an `iconOnly`
    * button logs a warning.
+   *
+   * The accessible name only — it draws no tooltip. Wrap the button in a
+   * `BdTooltip` for hover text.
    */
   label?: string;
   /** Shows a spinner and blocks interaction, without dimming the button. */
@@ -142,7 +145,6 @@ const classes = computed(() => [
     :is="tag"
     :aria-label="label"
     :aria-pressed="active ? true : undefined"
-    :title="label"
     class="bd-button bd-font-bold bd-squircle"
     :class="classes"
     v-bind="attrs"

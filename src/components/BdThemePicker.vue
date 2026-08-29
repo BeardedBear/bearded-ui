@@ -3,6 +3,7 @@ import { computed } from "vue";
 
 import { useTheme } from "../composables/useTheme";
 import { type BdPreset, type BdPresetGroup, bdPresets } from "../themePresets";
+import BdTooltip from "./BdTooltip.vue";
 
 /**
  * Picks the two colors the whole theme is derived from: a base background and
@@ -78,22 +79,22 @@ function update(key: "accent" | "base", event: Event): void {
         <!--
           Swatch only: thirty presets with their names spelled out turned the
           picker into a page of its own. The name is the accessible name and the
-          hover title, so nothing is lost to a screen reader or to a pointer —
-          only to the vertical space it was costing.
+          tooltip, so nothing is lost to a screen reader or to a pointer — only
+          to the vertical space it was costing. `bare`: the button stays the
+          grid item.
         -->
-        <button
-          v-for="preset in entry.presets"
-          :key="preset.name"
-          :aria-label="preset.name"
-          :aria-pressed="isActive(preset)"
-          class="bd-theme-picker-swatch"
-          :title="preset.name"
-          type="button"
-          @click="apply(preset)"
-        >
-          <span class="bd-theme-picker-swatch-base" :style="{ background: preset.base }" />
-          <span class="bd-theme-picker-swatch-accent" :style="{ background: preset.accent }" />
-        </button>
+        <BdTooltip v-for="preset in entry.presets" :key="preset.name" bare :content="preset.name">
+          <button
+            :aria-label="preset.name"
+            :aria-pressed="isActive(preset)"
+            class="bd-theme-picker-swatch"
+            type="button"
+            @click="apply(preset)"
+          >
+            <span class="bd-theme-picker-swatch-base" :style="{ background: preset.base }" />
+            <span class="bd-theme-picker-swatch-accent" :style="{ background: preset.accent }" />
+          </button>
+        </BdTooltip>
       </div>
     </div>
   </div>
