@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
             output: { assetFileNames: "bearded-ui.[ext]" },
           },
         },
-    plugins: [vue(), ...(isStyleguide ? [] : [dts({ rollupTypes: true })])],
+    plugins: [vue(), ...(isStyleguide ? [] : [dts({ bundleTypes: true })])],
     resolve: {
       alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
     },
