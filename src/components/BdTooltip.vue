@@ -89,6 +89,15 @@ function isInside(node: EventTarget | null): boolean {
   return node instanceof Node && !!triggerEl.value?.contains(node);
 }
 
+/**
+ * Whether the focus landed via the keyboard. `:focus-visible` porte déjà cette
+ * heuristique côté navigateur, y compris pour un focus programmatique, qui ne
+ * l'hérite que d'un précédent focus clavier.
+ */
+function isKeyboardFocus(node: EventTarget | null): boolean {
+  return node instanceof Element && node.matches(":focus-visible");
+}
+
 function place(): void {
   const panel = panelEl.value;
   const trigger = triggerEl.value;
@@ -190,6 +199,12 @@ function onPointerMove(event: MouseEvent): void {
 
 // `Event` et pas `MouseEvent` : appelé aussi par focusin, qui n'a pas de coordonnées.
 function scheduleShow(event?: Event): void {
+  /*
+   * Seul le focus clavier ouvre le tooltip. Un <dialog> qui se ferme rend le
+   * focus au bouton qui l'a ouvert : sans ce test, le tooltip s'affiche alors
+   * que la souris est ailleurs, et ne part qu'au prochain clic (le focusout).
+   */
+  if (event instanceof FocusEvent && !isKeyboardFocus(event.target)) return;
   // Sans ça, un tooltip suiveur ouvert sans mousemove préalable viserait 0,0.
   if (event instanceof MouseEvent) onPointerMove(event);
   clearTimeout(timer);
