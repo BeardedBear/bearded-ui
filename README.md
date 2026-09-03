@@ -383,7 +383,8 @@ Flèches ↑↓ pour naviguer entre les items.
 </BdTooltip>
 ```
 
-S'ouvre au survol **et** au focus clavier, se ferme à Échap. `popover="manual"` : top layer sans
+S'ouvre au survol **et** au focus clavier, se ferme à Échap et au clic sur le trigger — un clic ouvre souvent un dialogue ou
+repeint la zone, et le navigateur n’envoie alors aucun `mouseout` tant que la souris ne bouge pas. `popover="manual"` : top layer sans
 voler le focus ni intercepter les clics. La largeur suit le contenu jusqu'à 20rem puis passe à la
 ligne, le côté bascule s'il manque la place, et la flèche reste pointée sur le trigger même quand
 le panneau a été recalé dans le viewport.

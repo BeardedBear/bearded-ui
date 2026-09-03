@@ -8,7 +8,9 @@ export type BdTooltipFollow = "both" | "x" | "y";
 
 /**
  * Tooltip on the default slot. Opens on hover and on keyboard focus, closes on
- * Escape. Built on the Popover API with `popover="manual"`: top layer, without
+ * Escape and on click — un clic ouvre souvent un dialogue ou repeint la zone,
+ * et le navigateur n’envoie alors aucun mouseout tant que la souris ne bouge pas.
+ * Built on the Popover API with `popover="manual"`: top layer, without
  * stealing focus or swallowing clicks.
  *
  * Width follows the content up to 20rem then wraps, the side flips when space
@@ -203,6 +205,8 @@ async function show(): Promise<void> {
   // popover="manual" : top layer sans light-dismiss, un tooltip ne vole pas le focus.
   if (!panel.matches(":popover-open")) panel.showPopover();
   await nextTick();
+  // hide() a pu passer pendant l'''attente : sans ça le tracker resterait branché sur un panneau fermé.
+  if (!visible.value) return;
   place();
   tracker.start();
 }
@@ -218,6 +222,7 @@ onBeforeUnmount(() => {
     ref="triggerEl"
     :aria-describedby="!bare && visible ? tooltipId : undefined"
     :class="['bd-tooltip-trigger', { 'is-bare': bare }]"
+    @click="hide"
     @focusin="scheduleShow"
     @focusout="hide"
     @keydown.escape="hide"
