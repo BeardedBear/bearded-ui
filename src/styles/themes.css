@@ -45,10 +45,17 @@
 }
 
 /*
- * Toute la palette. Chaque échelle part de la base et s'en éloigne :
- * -dark/-darker vers mix-1, -light/-lighter vers mix-2. Les noms gardent le
- * sens qu'ils ont en thème sombre — en clair, `bg-darker` est donc la valeur
- * la plus proche du blanc, comme avant.
+ * Toute la palette. -light/-lighter s'éloignent de la base vers mix-2, donc
+ * vers le texte : ils s'inversent avec le thème, et c'est ce qui fait tenir la
+ * même formule des deux côtés. -dark/-darker, eux, sont toujours plus sombres
+ * que le fond, d'un pas fixe.
+ *
+ * Ils suivaient mix-1 avant, symétriquement — mais un pas proportionnel meurt
+ * contre son pôle. En thème clair la base est déjà à l 0.984 : la pousser vers
+ * le blanc la déplaçait de 0.001, et tout le calque en creux — sidebar,
+ * titlebar, en-têtes, surfaces de dialogue, popovers — valait exactement le
+ * fond. Un creux vers le blanc n'a d'ailleurs pas de sens sur une page
+ * blanche : une surface en retrait y est grise.
  *
  * Les étages de fond ne sont pas des mélanges vers le blanc ou le noir : ils
  * déplacent la clarté et rien d'autre. Un `color-mix` vers le blanc emporte
@@ -101,18 +108,29 @@
    */
   --bd-blue-lobe: pow(max(0, cos((h - 265) * 1deg)), 2);
 
+  /*
+   * Les deux pas du creux, en clarté absolue. Absolue, parce qu'un pas
+   * proportionnel s'annule contre le pôle : une base de thème clair est à
+   * l 0.984, et la pousser vers le blanc la déplaçait de 0.001 — chrome,
+   * en-têtes et surfaces de dialogue valaient alors le fond au millième près.
+   * Ils restent volontairement discrets : c'est une nuance de fond, pas une
+   * séparation. Pour détacher un élément au survol, --bd-hover-overlay.
+   */
+  --bd-bg-recess-1: 0.025;
+  --bd-bg-recess-2: 0.045;
+
   --bd-bg: var(--bd-palette-base);
   --bd-bg-dark: oklch(
     from var(--bd-palette-base)
-    calc(l * 0.93 + 0.07 * var(--bd-pole-1))
-    calc(c * (l * 0.93 + 0.07 * var(--bd-pole-1)) / max(l, 0.001))
-    calc(h + var(--bd-hue-bend) * 0.07 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
+    calc(l - var(--bd-bg-recess-1))
+    calc(c * max(0, l - var(--bd-bg-recess-1)) / max(l, 0.001))
+    calc(h - var(--bd-hue-bend) * var(--bd-bg-recess-1) * var(--bd-blue-lobe))
   );
   --bd-bg-darker: oklch(
     from var(--bd-palette-base)
-    calc(l * 0.84 + 0.16 * var(--bd-pole-1))
-    calc(c * (l * 0.84 + 0.16 * var(--bd-pole-1)) / max(l, 0.001))
-    calc(h + var(--bd-hue-bend) * 0.16 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
+    calc(l - var(--bd-bg-recess-2))
+    calc(c * max(0, l - var(--bd-bg-recess-2)) / max(l, 0.001))
+    calc(h - var(--bd-hue-bend) * var(--bd-bg-recess-2) * var(--bd-blue-lobe))
   );
   --bd-bg-light: oklch(
     from var(--bd-palette-base)
@@ -126,7 +144,12 @@
     calc(c * (l * 0.84 + 0.16 * var(--bd-pole-2)) / max(l, 0.001))
     calc(h + var(--bd-hue-bend) * 0.16 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
   );
-  --bd-border-color: var(--bd-bg-light);
+  /*
+   * La bordure va vers le texte, pas vers le creux : elle s'assombrit en thème
+   * clair et s'éclaircit en sombre. Pointée sur un étage de fond, elle passait
+   * du bon côté dans un thème et disparaissait dans l'autre.
+   */
+  --bd-border-color: color-mix(in oklab, var(--bd-mix-2) 8%, var(--bd-bg));
 
   --bd-font-color-darker: color-mix(in oklab, var(--bd-palette-base) 55%, var(--bd-mix-2));
   --bd-font-color-dark: color-mix(in oklab, var(--bd-palette-base) 40%, var(--bd-mix-2));
