@@ -43,6 +43,20 @@
     font-variation-settings: var(--bd-font-variation-settings);
   }
 
+  /*
+   * Un panneau en top layer ne récupère pas la typo de son ancêtre : tooltip,
+   * dropdown et dialog repartaient sur la fonte par défaut du navigateur — un
+   * serif, à la chasse et à la graisse de l'UA. Même raison que le bloc
+   * ci-dessus pour les contrôles natifs, donc même remède, ici plutôt que
+   * répété dans chaque composant. En couche `bearded-base`, donc un composant
+   * ou une app qui veut une autre fonte dans un popover gagne toujours.
+   */
+  [popover] {
+    font-family: var(--bd-font-family);
+    font-stretch: var(--bd-font-stretch);
+    font-variation-settings: var(--bd-font-variation-settings);
+  }
+
   h1,
   h2,
   h3,

@@ -280,7 +280,19 @@ onBeforeUnmount(() => {
 }
 
 .bd-tooltip {
-  background-color: var(--bd-bg-lighter);
+  /*
+   * Un cran d'élévation plus haut que `--bd-bg-lighter`, et surtout toujours
+   * vers le blanc. Les étages de fond montent vers le texte, donc en thème
+   * clair ils descendent : le panneau sortait gris sur une page blanche. Une
+   * bulle flottante, elle, va vers le blanc dans les deux thèmes — en clair la
+   * clarté sature à 1, ce qui donne exactement le plus clair possible.
+   */
+  background-color: oklch(
+    from var(--bd-bg)
+    calc(l + 0.13)
+    calc(c * (l + 0.13) / max(l, 0.001))
+    h
+  );
   border: 0;
   border-radius: var(--bd-radius-sm);
   box-shadow: var(--bd-shadow-md);
