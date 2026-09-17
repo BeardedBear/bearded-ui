@@ -121,8 +121,18 @@ onMounted(() => {
  * Le backdrop n'est pas un élément : les clics dessus visent la `<dialog>`
  * elle-même. On les distingue par la géométrie plutôt que par `event.target`,
  * sinon un clic sur le padding de la coque fermerait la dialog.
+ *
+ * La géométrie seule ne suffit pas, en revanche : un popover ouvert à
+ * l'intérieur (BdDropdown, BdTooltip) est rendu dans le top layer, donc
+ * possiblement hors des bornes de la dialog, tout en restant un descendant.
+ * Cliquer la dernière entrée d'un menu qui dépasse fermait la dialog. Le
+ * contenu vise toujours un descendant ; seuls le backdrop et le padding de la
+ * coque visent la `<dialog>` elle-même, et ces deux-là, la géométrie les
+ * sépare correctement.
  */
 function hitsBackdrop(event: MouseEvent): boolean {
+  if (event.target !== el.value) return false;
+
   const rect = el.value?.getBoundingClientRect();
   if (!rect) return false;
   return (
