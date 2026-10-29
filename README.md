@@ -264,7 +264,7 @@ Le reset/base vit dans `@layer bearded-base` : le CSS de l'app gagne toujours, s
 | `BdConfirmDialog` | `v-model` (ouverture), `title`, `message` (ou slot), `confirmLabel`, `cancelLabel`, `danger` — émet `confirm`/`cancel`                       |
 | `BdDropdown` | `size`, `placement`, `matchWidth`, `offset`, `sheetOnMobile`, `searchable`, `label`, slot `trigger`, `v-model` (ouverture)                                     |
 | `BdDropdownItem` | `icon`, `active`, `danger`, `disabled`, `keepOpen`                                                                                          |
-| `BdTooltip` | `content` (ou slot `content`), `side`, `follow`, `bare`, `delay`, `offset`, `disabled`                                                                    |
+| `BdTooltip` | `content` (ou slot `content`), `side`, `follow`, `bare`, `interactive`, `delay`, `offset`, `disabled`                                                                    |
 | `BdToaster`| `position` (bottom-right/bottom-left/top-right/top-left) — à monter une seule fois                                                                  |
 | `BdThemePicker` | `presets`, `baseLabel`, `accentLabel` — écrit dans `useTheme().palette`                                                                        |
 

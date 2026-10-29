@@ -47,6 +47,12 @@ export interface BdTooltipProps {
    * out stays pinned to the trigger. Off by default.
    */
   follow?: BdTooltipFollow;
+  /**
+   * The panel takes the pointer and focus, for content meant to be clicked (a
+   * row of links). Moving from the trigger onto the panel keeps it open: it
+   * only closes after a short grace once the pointer has left both.
+   */
+  interactive?: boolean;
   /** Gap between trigger and tooltip, in px. @default 8 */
   offset?: number;
   /** Preferred side. Flips to the opposite one on its own when space runs out. @default "top" */
@@ -72,6 +78,9 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 const ARROW_INSET = 12;
 
 const pointer = { x: 0, y: 0 };
+
+/** How long an interactive panel survives the pointer leaving, in ms: enough to cross the gap. */
+const INTERACTIVE_GRACE = 150;
 
 /**
  * The element carrying `aria-describedby` while the tooltip is open. A
@@ -181,9 +190,18 @@ function hide(): void {
  * Le test sur relatedTarget rejoue leur sémantique — un passage d'un enfant du
  * trigger à un autre n'est ni une entrée ni une sortie.
  */
+function onFocusOut(event: FocusEvent): void {
+  // Tabbing from the trigger into an interactive panel stays inside: the panel is a DOM child
+  if (props.interactive && isInside(event.relatedTarget)) return;
+  hide();
+}
+
 function onMouseOut(event: MouseEvent): void {
   if (isInside(event.relatedTarget)) return;
-  hide();
+  if (!props.interactive) return hide();
+  // The panel is a DOM child of the trigger, so entering it bubbles a mouseover that cancels this
+  clearTimeout(timer);
+  timer = setTimeout(hide, INTERACTIVE_GRACE);
 }
 
 function onMouseOver(event: MouseEvent): void {
@@ -239,7 +257,7 @@ onBeforeUnmount(() => {
     :class="['bd-tooltip-trigger', { 'is-bare': bare }]"
     @click="hide"
     @focusin="scheduleShow"
-    @focusout="hide"
+    @focusout="onFocusOut"
     @keydown.escape="hide"
     @mousemove="onPointerMove"
     @mouseout="onMouseOut"
@@ -247,7 +265,11 @@ onBeforeUnmount(() => {
   >
     <slot />
 
-    <div :id="tooltipId" ref="panelEl" class="bd-tooltip bd-squircle bd-anim-popover" popover="manual" role="tooltip">
+    <div
+:id="tooltipId" ref="panelEl" class="bd-tooltip bd-squircle bd-anim-popover"
+      :class="{ 'is-interactive': interactive }"
+      popover="manual" role="tooltip"
+>
       <slot name="content">{{ content }}</slot>
     </div>
   </span>
@@ -317,6 +339,10 @@ onBeforeUnmount(() => {
 
   &:not(:popover-open) {
     display: none;
+  }
+
+  &.is-interactive {
+    pointer-events: auto;
   }
 }
 
