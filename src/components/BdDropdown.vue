@@ -5,6 +5,7 @@ import { nextTick, onBeforeUnmount, provide, ref, toRef, useId, watch } from "vu
 import type { BdSize } from "@/types";
 
 import BdButton from "@/components/BdButton.vue";
+import BdInput from "@/components/BdInput.vue";
 import { anchor, type BdAlign, type BdSide, useViewportTracker } from "@/composables/useAnchor";
 import { bdDropdownClose, bdSize } from "@/injection";
 
@@ -37,6 +38,11 @@ export interface BdDropdownProps {
   offset?: number;
   /** Preferred placement. Flips to the opposite side on its own when space runs out. @default "bottom-start" */
   placement?: BdDropdownPlacement;
+  /**
+   * Adds a field on top of the panel that hides the items whose text doesn't
+   * match, ignoring case and accents — for long lists. Enter picks the first match.
+   */
+  searchable?: boolean;
   /** Below 768px, turns the panel into a sheet pinned to the bottom of the screen. @default true */
   sheetOnMobile?: boolean;
   /**
@@ -60,6 +66,9 @@ const open = defineModel<boolean>({ default: false });
 const triggerEl = ref<HTMLElement>();
 const panelEl = ref<HTMLElement>();
 const panelId = useId();
+const searchEl = ref<InstanceType<typeof BdInput>>();
+const query = ref("");
+const matches = ref(0);
 
 const MOBILE_WIDTH = 767;
 
@@ -95,11 +104,31 @@ function close(): void {
   open.value = false;
 }
 
+const fold = (text: string): string =>
+  text
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase();
+
+// ponytail: filters the rendered DOM by textContent, since items are free slot
+// content. Fine for a few hundred entries; virtualise if a list ever gets huge.
+function filter(): void {
+  const needle = fold(query.value.trim());
+  const items = panelEl.value?.querySelectorAll<HTMLElement>(".bd-dropdown-item") ?? [];
+  let count = 0;
+  for (const item of items) {
+    const match = fold(item.textContent ?? "").includes(needle);
+    item.style.display = match ? "" : "none";
+    if (match) count++;
+  }
+  matches.value = count;
+}
+
 /** Arrow keys move between items, without trapping focus inside free-form content. */
 function onKeydown(event: KeyboardEvent): void {
   if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
 
-  const items = [...(panelEl.value?.querySelectorAll<HTMLElement>(".bd-dropdown-item:not(:disabled)") ?? [])];
+  const items = visibleItems();
   if (items.length === 0) return;
 
   event.preventDefault();
@@ -108,8 +137,18 @@ function onKeydown(event: KeyboardEvent): void {
   items[(next + items.length) % items.length]?.focus();
 }
 
+function onSearchEnter(): void {
+  visibleItems()[0]?.click();
+}
+
 function toggle(): void {
   if (!props.disabled) open.value = !open.value;
+}
+
+/** Items still shown by the search, in DOM order. */
+function visibleItems(): HTMLElement[] {
+  const items = panelEl.value?.querySelectorAll<HTMLElement>(".bd-dropdown-item:not(:disabled)") ?? [];
+  return [...items].filter((item) => item.style.display !== "none");
 }
 
 watch(open, async (value) => {
@@ -121,11 +160,18 @@ watch(open, async (value) => {
     await nextTick();
     place();
     tracker.start();
+    if (props.searchable) {
+      query.value = "";
+      filter();
+      searchEl.value?.focus();
+    }
   } else {
     if (panel.matches(":popover-open")) panel.hidePopover();
     tracker.stop();
   }
 });
+
+watch(query, filter);
 
 onBeforeUnmount(tracker.stop);
 
@@ -163,7 +209,20 @@ provide(bdSize, toRef(props, "size"));
       @keydown="onKeydown"
       @toggle="open = ($event as ToggleEvent).newState === 'open'"
     >
+      <div v-if="searchable" class="bd-dropdown-search">
+        <BdInput
+          ref="searchEl"
+          v-model="query"
+          aria-label="Search"
+          autocomplete="off"
+          placeholder="Search…"
+          size="small"
+          type="search"
+          @keydown.enter.prevent="onSearchEnter"
+        />
+      </div>
       <slot :close="close" />
+      <p v-if="searchable && query && !matches" class="bd-dropdown-empty">No results</p>
     </div>
   </div>
 </template>
@@ -210,6 +269,23 @@ provide(bdSize, toRef(props, "size"));
   &:not(:popover-open) {
     display: none;
   }
+}
+
+/* Reste visible pendant le défilement ; la marge négative recouvre le padding du panel. */
+.bd-dropdown-search {
+  background-color: inherit;
+  margin: calc(var(--bd-space-2) * -1) calc(var(--bd-space-2) * -1) 0;
+  padding: var(--bd-space-2);
+  position: sticky;
+  top: calc(var(--bd-space-2) * -1);
+  z-index: 1;
+}
+
+.bd-dropdown-empty {
+  color: var(--bd-font-color-light);
+  font-size: var(--bd-font-size-sm);
+  margin: 0;
+  padding: var(--bd-space-2) var(--bd-space-3);
 }
 
 /* Bottom sheet : les coordonnées JS sont effacées, le CSS reprend la main. */
