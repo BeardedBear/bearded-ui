@@ -19,6 +19,8 @@ export { default as BdDropdownItem, type BdDropdownItemProps } from "./component
 export { default as BdEmptyState, type BdEmptyStateProps } from "./components/BdEmptyState.vue";
 export { default as BdInput, type BdInputProps } from "./components/BdInput.vue";
 export { default as BdLoader, type BdLoaderProps } from "./components/BdLoader.vue";
+export { default as BdPage, type BdPageProps } from "./components/BdPage.vue";
+export { default as BdPanel, type BdPanelProps } from "./components/BdPanel.vue";
 export { default as BdSelect, type BdSelectProps } from "./components/BdSelect.vue";
 export { default as BdSlider, type BdSliderProps } from "./components/BdSlider.vue";
 export { default as BdThemePicker, type BdThemePickerProps } from "./components/BdThemePicker.vue";

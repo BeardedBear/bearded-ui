@@ -25,6 +25,8 @@ import {
   BdEmptyState,
   BdInput,
   BdLoader,
+  BdPage,
+  BdPanel,
   BdThemePicker,
   BdToaster,
   BdTooltip,
@@ -600,6 +602,24 @@ function tokenVar(prefix: string, suffix: string): string {
         Sépare « rien à afficher » de « ça a raté » — les deux finissaient sinon en spinner
         infini quand la vue conditionnait son loader sur <code>!list.length</code>. L'icône est
         un slot : la lib n'embarque pas de jeu d'icônes.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="bd-heading">Cadre de page</h2>
+      <BdPage subtitle="Le conteneur d'une vue entière" title="Titre de page" width="100%">
+        <template #back><BdButton size="small" variant="nude">← Retour</BdButton></template>
+        <template #actions><BdButton variant="primary">Enregistrer</BdButton></template>
+        <BdPanel description="Texte d'aide sous l'en-tête." title="Section">
+          <template #badge><BdBadge variant="success">actif</BdBadge></template>
+          <template #actions><BdButton size="small" variant="border">Action</BdButton></template>
+          <p class="muted">Contenu du panneau.</p>
+        </BdPanel>
+      </BdPage>
+      <p class="muted">
+        <code>BdPage</code> pose la colonne centrée et son en-tête (titre, sous-titre, retour,
+        actions) ; <code>BdPanel</code> est l'unité dont une page est faite : titre à gauche,
+        actions à droite, contenu dessous.
       </p>
     </section>
 
