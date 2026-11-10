@@ -106,7 +106,7 @@
    * mais il a besoin du `h` de la couleur en cours, donc il s'utilise seulement
    * à l'intérieur d'un `oklch(from …)`.
    */
-  --bd-blue-lobe: pow(max(0, cos((h - 265) * 1deg)), 2);
+  --bd-blue-lobe: pow(max(0, cos(atan2(b, a) - 265deg)), 2);
 
   /*
    * Les deux pas du creux, en clarté absolue. Absolue, parce qu'un pas
@@ -119,30 +119,46 @@
   --bd-bg-recess-1: 0.025;
   --bd-bg-recess-2: 0.045;
 
+  /*
+   * Écrit en oklab, pas en oklch : Chrome 157 rend la teinte `none` (donc 0°,
+   * un rose) à toute couleur peu chromatique lue par `oklch(from …)` — un gris
+   * bleuté y virait au brun. a/b portent la teinte sans seuil. Même calcul
+   * qu'avant : `k` est le rapport de chroma (a et b mis à l'échelle ensemble),
+   * `turn` la correction de teinte, appliquée comme une rotation du plan a/b.
+   */
+  --bd-bg-dark-k: calc(max(0, l - var(--bd-bg-recess-1)) / max(l, 0.001));
+  --bd-bg-dark-turn: calc(-1deg * var(--bd-hue-bend) * var(--bd-bg-recess-1) * var(--bd-blue-lobe));
+  --bd-bg-darker-k: calc(max(0, l - var(--bd-bg-recess-2)) / max(l, 0.001));
+  --bd-bg-darker-turn: calc(-1deg * var(--bd-hue-bend) * var(--bd-bg-recess-2) * var(--bd-blue-lobe));
+  --bd-bg-light-k: calc((l * 0.93 + 0.07 * var(--bd-pole-2)) / max(l, 0.001));
+  --bd-bg-light-turn: calc(1deg * var(--bd-hue-bend) * 0.07 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe));
+  --bd-bg-lighter-k: calc((l * 0.84 + 0.16 * var(--bd-pole-2)) / max(l, 0.001));
+  --bd-bg-lighter-turn: calc(1deg * var(--bd-hue-bend) * 0.16 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe));
+
   --bd-bg: var(--bd-palette-base);
-  --bd-bg-dark: oklch(
+  --bd-bg-dark: oklab(
     from var(--bd-palette-base)
     calc(l - var(--bd-bg-recess-1))
-    calc(c * max(0, l - var(--bd-bg-recess-1)) / max(l, 0.001))
-    calc(h - var(--bd-hue-bend) * var(--bd-bg-recess-1) * var(--bd-blue-lobe))
+    calc(var(--bd-bg-dark-k) * (a * cos(var(--bd-bg-dark-turn)) - b * sin(var(--bd-bg-dark-turn))))
+    calc(var(--bd-bg-dark-k) * (a * sin(var(--bd-bg-dark-turn)) + b * cos(var(--bd-bg-dark-turn))))
   );
-  --bd-bg-darker: oklch(
+  --bd-bg-darker: oklab(
     from var(--bd-palette-base)
     calc(l - var(--bd-bg-recess-2))
-    calc(c * max(0, l - var(--bd-bg-recess-2)) / max(l, 0.001))
-    calc(h - var(--bd-hue-bend) * var(--bd-bg-recess-2) * var(--bd-blue-lobe))
+    calc(var(--bd-bg-darker-k) * (a * cos(var(--bd-bg-darker-turn)) - b * sin(var(--bd-bg-darker-turn))))
+    calc(var(--bd-bg-darker-k) * (a * sin(var(--bd-bg-darker-turn)) + b * cos(var(--bd-bg-darker-turn))))
   );
-  --bd-bg-light: oklch(
+  --bd-bg-light: oklab(
     from var(--bd-palette-base)
     calc(l * 0.93 + 0.07 * var(--bd-pole-2))
-    calc(c * (l * 0.93 + 0.07 * var(--bd-pole-2)) / max(l, 0.001))
-    calc(h + var(--bd-hue-bend) * 0.07 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
+    calc(var(--bd-bg-light-k) * (a * cos(var(--bd-bg-light-turn)) - b * sin(var(--bd-bg-light-turn))))
+    calc(var(--bd-bg-light-k) * (a * sin(var(--bd-bg-light-turn)) + b * cos(var(--bd-bg-light-turn))))
   );
-  --bd-bg-lighter: oklch(
+  --bd-bg-lighter: oklab(
     from var(--bd-palette-base)
     calc(l * 0.84 + 0.16 * var(--bd-pole-2))
-    calc(c * (l * 0.84 + 0.16 * var(--bd-pole-2)) / max(l, 0.001))
-    calc(h + var(--bd-hue-bend) * 0.16 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
+    calc(var(--bd-bg-lighter-k) * (a * cos(var(--bd-bg-lighter-turn)) - b * sin(var(--bd-bg-lighter-turn))))
+    calc(var(--bd-bg-lighter-k) * (a * sin(var(--bd-bg-lighter-turn)) + b * cos(var(--bd-bg-lighter-turn))))
   );
   /*
    * La bordure va vers le texte, pas vers le creux : elle s'assombrit en thème
@@ -159,29 +175,35 @@
   /* Mêmes règles que les fonds : un accent plus clair reste le même accent — il
      ne pâlit pas vers le gris et ne vire pas au violet en s'assombrissant. */
   --bd-primary: var(--bd-palette-accent);
-  --bd-primary-dark: oklch(
+  /* Même contournement oklab que les fonds : un accent grisé virait au rose. */
+  --bd-primary-dark-turn: calc(1deg * var(--bd-hue-bend) * 0.15 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe));
+  --bd-primary-darker-turn: calc(1deg * var(--bd-hue-bend) * 0.3 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe));
+  --bd-primary-light-turn: calc(1deg * var(--bd-hue-bend) * 0.15 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe));
+  --bd-primary-lighter-turn: calc(1deg * var(--bd-hue-bend) * 0.3 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe));
+
+  --bd-primary-dark: oklab(
     from var(--bd-palette-accent)
     calc(l * 0.85 + 0.15 * var(--bd-pole-1))
-    c
-    calc(h + var(--bd-hue-bend) * 0.15 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
+    calc(a * cos(var(--bd-primary-dark-turn)) - b * sin(var(--bd-primary-dark-turn)))
+    calc(a * sin(var(--bd-primary-dark-turn)) + b * cos(var(--bd-primary-dark-turn)))
   );
-  --bd-primary-darker: oklch(
+  --bd-primary-darker: oklab(
     from var(--bd-palette-accent)
     calc(l * 0.7 + 0.3 * var(--bd-pole-1))
-    c
-    calc(h + var(--bd-hue-bend) * 0.3 * (var(--bd-pole-1) - l) * var(--bd-blue-lobe))
+    calc(a * cos(var(--bd-primary-darker-turn)) - b * sin(var(--bd-primary-darker-turn)))
+    calc(a * sin(var(--bd-primary-darker-turn)) + b * cos(var(--bd-primary-darker-turn)))
   );
-  --bd-primary-light: oklch(
+  --bd-primary-light: oklab(
     from var(--bd-palette-accent)
     calc(l * 0.85 + 0.15 * var(--bd-pole-2))
-    c
-    calc(h + var(--bd-hue-bend) * 0.15 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
+    calc(a * cos(var(--bd-primary-light-turn)) - b * sin(var(--bd-primary-light-turn)))
+    calc(a * sin(var(--bd-primary-light-turn)) + b * cos(var(--bd-primary-light-turn)))
   );
-  --bd-primary-lighter: oklch(
+  --bd-primary-lighter: oklab(
     from var(--bd-palette-accent)
     calc(l * 0.7 + 0.3 * var(--bd-pole-2))
-    c
-    calc(h + var(--bd-hue-bend) * 0.3 * (var(--bd-pole-2) - l) * var(--bd-blue-lobe))
+    calc(a * cos(var(--bd-primary-lighter-turn)) - b * sin(var(--bd-primary-lighter-turn)))
+    calc(a * sin(var(--bd-primary-lighter-turn)) + b * cos(var(--bd-primary-lighter-turn)))
   );
 
   /* Surfaces teintées d'accent : sélection dans une liste, ligne active. */

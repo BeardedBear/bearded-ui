@@ -309,11 +309,11 @@ onBeforeUnmount(() => {
    * bulle flottante, elle, va vers le blanc dans les deux thèmes — en clair la
    * clarté sature à 1, ce qui donne exactement le plus clair possible.
    */
-  background-color: oklch(
+  background-color: oklab(
     from var(--bd-bg)
     calc(l + 0.13)
-    calc(c * (l + 0.13) / max(l, 0.001))
-    h
+    calc(a * (l + 0.13) / max(l, 0.001))
+    calc(b * (l + 0.13) / max(l, 0.001))
   );
   border: 0;
   border-radius: var(--bd-radius-sm);
