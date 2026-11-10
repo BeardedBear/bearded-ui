@@ -62,40 +62,45 @@ function update(key: "accent" | "base", event: Event): void {
 
 <template>
   <div class="bd-theme-picker">
-    <label class="bd-theme-picker-row">
-      <span class="bd-font-bold">{{ baseLabel }}</span>
-      <input :value="palette.base" type="color" @input="update('base', $event)" />
-    </label>
-    <label class="bd-theme-picker-row">
-      <span class="bd-font-bold">{{ accentLabel }}</span>
-      <input :value="palette.accent" type="color" @input="update('accent', $event)" />
-    </label>
-
-    <hr class="bd-theme-picker-divider" />
-
     <div v-for="entry in groups" :key="entry.group" class="bd-theme-picker-group">
       <h3>{{ entry.group }}</h3>
       <div class="bd-theme-picker-grid">
         <!--
-          Swatch only: thirty presets with their names spelled out turned the
-          picker into a page of its own. The name is the accessible name and the
-          tooltip, so nothing is lost to a screen reader or to a pointer — only
-          to the vertical space it was costing. `bare`: the button stays the
-          grid item.
+          Mini aperçu plutôt que le nom : trente presets nommés faisaient du
+          picker une page à part. Le nom reste le nom accessible et l'infobulle.
+          `bare` : le bouton reste l'élément de grille.
         -->
         <BdTooltip v-for="preset in entry.presets" :key="preset.name" bare :content="preset.name">
           <button
             :aria-label="preset.name"
             :aria-pressed="isActive(preset)"
             class="bd-theme-picker-swatch"
+            :style="{ '--bd-swatch-accent': preset.accent, '--bd-swatch-base': preset.base }"
             type="button"
             @click="apply(preset)"
           >
-            <span class="bd-theme-picker-swatch-base" :style="{ background: preset.base }" />
-            <span class="bd-theme-picker-swatch-accent" :style="{ background: preset.accent }" />
+            <span class="bd-theme-picker-swatch-dot" />
+            <span class="bd-theme-picker-swatch-bar" />
           </button>
         </BdTooltip>
       </div>
+    </div>
+
+    <div class="bd-theme-picker-custom">
+      <label class="bd-theme-picker-chip">
+        <input :value="palette.base" type="color" @input="update('base', $event)" />
+        <span class="bd-theme-picker-chip-text">
+          <span class="bd-font-bold">{{ baseLabel }}</span>
+          <span class="bd-theme-picker-chip-hex">{{ palette.base }}</span>
+        </span>
+      </label>
+      <label class="bd-theme-picker-chip">
+        <input :value="palette.accent" type="color" @input="update('accent', $event)" />
+        <span class="bd-theme-picker-chip-text">
+          <span class="bd-font-bold">{{ accentLabel }}</span>
+          <span class="bd-theme-picker-chip-hex">{{ palette.accent }}</span>
+        </span>
+      </label>
     </div>
   </div>
 </template>
@@ -104,36 +109,7 @@ function update(key: "accent" | "base", event: Event): void {
 .bd-theme-picker {
   display: flex;
   flex-direction: column;
-  gap: var(--bd-space-3);
-}
-
-.bd-theme-picker-row {
-  align-items: center;
-  color: var(--bd-font-color-dark);
-  cursor: pointer;
-  display: flex;
-  font-size: var(--bd-font-size-sm);
   gap: var(--bd-space-4);
-  justify-content: space-between;
-  white-space: nowrap;
-
-  /* Le champ natif porte sa propre bordure sur chaque OS : on la remplace. */
-  & input {
-    background: transparent;
-    block-size: 1.75rem;
-    border: 1px solid var(--bd-border-color);
-    border-radius: var(--bd-radius-sm);
-    cursor: pointer;
-    inline-size: 1.75rem;
-    padding: 2px;
-  }
-}
-
-.bd-theme-picker-divider {
-  background: var(--bd-border-color);
-  block-size: 1px;
-  border: 0;
-  margin: 0;
 }
 
 .bd-theme-picker-group h3 {
@@ -145,53 +121,127 @@ function update(key: "accent" | "base", event: Event): void {
 }
 
 /*
- * Pistes de largeur fixe plutôt que des fractions : la pastille garde la même
- * taille dans un popup de barre de titre comme dans un panneau de réglages
- * large, et c'est le nombre de colonnes qui s'adapte.
+ * Cinq colonnes fixes : les groupes livrés comptent dix presets, donc deux
+ * lignes pleines sans pastille orpheline. La largeur max évite des vignettes
+ * démesurées dans un panneau large.
  */
 .bd-theme-picker-grid {
   display: grid;
-  gap: var(--bd-space-1);
-  grid-template-columns: repeat(auto-fill, 2rem);
+  gap: var(--bd-space-2);
+  grid-template-columns: repeat(5, 1fr);
+  max-inline-size: 24rem;
 }
 
 .bd-theme-picker-swatch {
-  background: transparent;
-  block-size: 1.25rem;
-  border: 1px solid var(--bd-border-color);
-  border-radius: var(--bd-radius-sm);
+  align-items: flex-end;
+  aspect-ratio: 3 / 2;
+  background: var(--bd-swatch-base);
+  border: 1px solid color-mix(in oklab, var(--bd-swatch-accent) 25%, var(--bd-border-color));
+  border-radius: var(--bd-radius-md);
   cursor: pointer;
   display: flex;
-  inline-size: 2rem;
-  overflow: hidden;
-  padding: 0;
-  position: relative;
+  gap: 4px;
+  inline-size: 100%;
+  padding: 6px;
   transition:
-    border-color var(--bd-transition),
-    transform var(--bd-transition);
+    outline-color var(--bd-transition),
+    translate var(--bd-transition);
+
+  /* Contour transparent toujours présent : seule sa couleur s'anime. */
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 
   &:hover {
-    /* z-index pour que l'agrandissement passe au-dessus de ses voisines. */
-    border-color: var(--bd-primary);
-    transform: scale(1.15);
-    z-index: 1;
+    translate: 0 -2px;
+  }
+
+  &:focus-visible {
+    outline-color: var(--bd-font-color-dark);
   }
 
   /* L'état actif est déjà porté par aria-pressed : pas de classe en double. */
   &[aria-pressed="true"] {
-    border-color: var(--bd-primary);
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--bd-primary) 35%, transparent);
-    z-index: 1;
+    outline-color: var(--bd-primary);
   }
 }
 
-.bd-theme-picker-swatch-base {
-  display: block;
-  flex: 2;
+.bd-theme-picker-swatch-dot {
+  aspect-ratio: 1;
+  background: var(--bd-swatch-accent);
+  border-radius: 50%;
+  inline-size: 0.7rem;
 }
 
-.bd-theme-picker-swatch-accent {
-  display: block;
+.bd-theme-picker-swatch-bar {
+  background: color-mix(in oklab, var(--bd-swatch-accent) 45%, transparent);
+  block-size: 3px;
+  border-radius: 999px;
   flex: 1;
+  margin-block-end: 0.25rem;
+}
+
+.bd-theme-picker-custom {
+  border-block-start: 1px solid var(--bd-border-color);
+  display: grid;
+  gap: var(--bd-space-2);
+  grid-template-columns: 1fr 1fr;
+  padding-block-start: var(--bd-space-4);
+}
+
+.bd-theme-picker-chip {
+  align-items: center;
+  background: var(--bd-bg-darker);
+  border: 1px solid var(--bd-border-color);
+  border-radius: var(--bd-radius-md);
+  cursor: pointer;
+  display: flex;
+  gap: var(--bd-space-2);
+  padding: var(--bd-space-2);
+  transition: border-color var(--bd-transition);
+
+  &:hover,
+  &:focus-within {
+    border-color: var(--bd-font-color-darker);
+  }
+
+  /* Le champ natif porte son propre cadre sur chaque OS : réduit à un disque. */
+  & input {
+    background: transparent;
+    block-size: 1.75rem;
+    border: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    inline-size: 1.75rem;
+    padding: 0;
+
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+      border: 1px solid var(--bd-border-color);
+      border-radius: 50%;
+    }
+
+    &::-moz-color-swatch {
+      border: 1px solid var(--bd-border-color);
+      border-radius: 50%;
+    }
+  }
+}
+
+.bd-theme-picker-chip-text {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--bd-font-size-sm);
+  line-height: 1.2;
+  min-inline-size: 0;
+}
+
+.bd-theme-picker-chip-hex {
+  color: var(--bd-font-color-dark);
+  font-family: ui-monospace, monospace;
+  font-size: var(--bd-font-size-xs);
+  text-transform: uppercase;
 }
 </style>
