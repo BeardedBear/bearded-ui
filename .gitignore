@@ -1,5 +1,4 @@
 node_modules
-dist
 styleguide-dist
 *.log
 .DS_Store
